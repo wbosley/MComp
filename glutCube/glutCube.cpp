@@ -2,6 +2,8 @@
 
 #include "OpenXRGL.h"
 
+#include "glm.hpp"
+
 // OpenGL related Headers
 #include <GL/glew.h>
 #include <GL/glut.h>
@@ -47,6 +49,9 @@ void display(void)
 	gXRGL.processEvent();
 	gXRGL.draw([](const COpenXRGL::TMatrix& matProj, const COpenXRGL::TMatrix& matModelView) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		//glm::mat4 viewingMatrix = matProj.data();
+
 
 		/* Setup the view of the cube. */
 		glMatrixMode(GL_PROJECTION);
