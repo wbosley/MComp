@@ -1,2 +1,2 @@
-﻿  hellovr_opengl_main.cpp
-  hellovr_opengl.vcxproj -> C:\Users\Will\OneDrive - University of East Anglia\MComp Project\Resources\Projects\openvr-master\openvr-master\samples\bin\win32\hellovr_opengl.exe
+﻿hellovr_opengl_main.obj : error LNK2019: unresolved external symbol "public: __thiscall COBJLoader::COBJLoader(void)" (??0COBJLoader@@QAE@XZ) referenced in function "public: __thiscall CMainApplication::CMainApplication(int,char * * const)" (??0CMainApplication@@QAE@HQAPAD@Z)
+..\bin\win32\hellovr_opengl.exe : fatal error LNK1120: 1 unresolved externals

@@ -22,6 +22,9 @@
 #include "shared/Matrices.h"
 #include "shared/pathtools.h"
 
+#include "threeDModel.h"
+#include "OBJLoader.h"
+
 #if defined(POSIX)
 #include "unistd.h"
 #endif
@@ -112,6 +115,12 @@ public:
 	bool CreateAllShaders();
 
 	CGLRenderModel *FindOrLoadRenderModel( const char *pchRenderModelName );
+
+	COBJLoader objLoader;
+
+	//CThreeDModel test;
+
+	GLuint unProgramID;
 
 private: 
 	bool m_bDebugOpenGL;
@@ -510,7 +519,7 @@ bool CMainApplication::BInit()
  	m_iSceneVolumeHeight = m_iSceneVolumeInit;
  	m_iSceneVolumeDepth = m_iSceneVolumeInit;
  		
- 	m_fScale = 0.1f;
+ 	m_fScale = 0.3f;
  	m_fScaleSpacing = 4.0f;
  
  	m_fNearClip = 0.1f;
@@ -590,6 +599,23 @@ bool CMainApplication::BInitGL()
 	SetupStereoRenderTargets();
 	SetupCompanionWindow();
 
+	/*if (objLoader.LoadModel("airplane.obj"))//returns true if the model is loaded
+	{
+		std::cout << " model loaded " << std::endl;
+
+		//copy data from the OBJLoader object to the threedmodel class
+		test.ConstructModelFromOBJLoader(objLoader);
+
+		test.CalcCentrePoint();
+		test.CentreOnZero();
+
+		test.InitVBO(unProgramID);
+	}
+	else
+	{
+		std::cout << " model failed to load " << std::endl;
+	}
+	*/
 	return true;
 }
 
@@ -907,7 +933,7 @@ void CMainApplication::RenderFrame()
 //-----------------------------------------------------------------------------
 GLuint CMainApplication::CompileGLShader( const char *pchShaderName, const char *pchVertexShader, const char *pchFragmentShader )
 {
-	GLuint unProgramID = glCreateProgram();
+	unProgramID = glCreateProgram();
 
 	GLuint nSceneVertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource( nSceneVertexShader, 1, &pchVertexShader, NULL);
@@ -1484,11 +1510,11 @@ void CMainApplication::SetupCompanionWindow()
 
 
 //-----------------------------------------------------------------------------
-// Purpose: this is where the usual rednering of the landscape etc/ happens
+// Purpose:
 //-----------------------------------------------------------------------------
 void CMainApplication::RenderStereoTargets()
 {
-	glClearColor( 0.5f, 0.5f, 0.5f, 0.5f );
+	glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
 	glEnable( GL_MULTISAMPLE );
 
 	// Left Eye
