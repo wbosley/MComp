@@ -50,7 +50,8 @@ void display(void)
 	gXRGL.draw([](const COpenXRGL::TMatrix& matProj, const COpenXRGL::TMatrix& matModelView) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//glm::mat4 viewingMatrix = matProj.data();
+		//glm::mat4 viewingMatrix = glm::mat4(matProj.data());
+		std::cout << matProj.data() << std::endl;
 
 
 		/* Setup the view of the cube. */
