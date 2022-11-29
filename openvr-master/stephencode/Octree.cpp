@@ -1,11 +1,11 @@
-#include "./../GL/glew.h"
+#include "glew.h"
 #include <iostream>
 #include <vector>
 using namespace std;
 
 #include "Octree.h"
-#include "./../Box/Box.h"
-#include "../3DStruct/threeDModel.h"
+#include "Box.h"
+#include "threeDModel.h"
 
 const int FACE_LIMIT = 1;
 

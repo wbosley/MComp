@@ -87,6 +87,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\stephencode\Box.cpp" />
+    <ClCompile Include="..\..\stephencode\ImageLoading.cpp" />
+    <ClCompile Include="..\..\stephencode\IntersectionTests.cpp" />
+    <ClCompile Include="..\..\stephencode\OBJLoader.cpp" />
+    <ClCompile Include="..\..\stephencode\Octree.cpp" />
+    <ClCompile Include="..\..\stephencode\Shader.cpp" />
+    <ClCompile Include="..\..\stephencode\TextureHandler.cpp" />
+    <ClCompile Include="..\..\stephencode\threeDModel.cpp" />
+    <ClCompile Include="..\..\stephencode\Vector3d.cpp" />
     <ClCompile Include="..\shared\lodepng.cpp" />
     <ClCompile Include="..\shared\Matrices.cpp" />
     <ClCompile Include="..\shared\pathtools.cpp" />
@@ -94,6 +103,16 @@
     <ClCompile Include="hellovr_opengl_main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\stephencode\Box.h" />
+    <ClInclude Include="..\..\stephencode\FreeImage.h" />
+    <ClInclude Include="..\..\stephencode\ImageLoading.h" />
+    <ClInclude Include="..\..\stephencode\IntersectionTests.h" />
+    <ClInclude Include="..\..\stephencode\OBJLoader.h" />
+    <ClInclude Include="..\..\stephencode\Octree.h" />
+    <ClInclude Include="..\..\stephencode\Shader.h" />
+    <ClInclude Include="..\..\stephencode\TextureHandler.h" />
+    <ClInclude Include="..\..\stephencode\threeDModel.h" />
+    <ClInclude Include="..\..\stephencode\Vector3d.h" />
     <ClInclude Include="..\shared\lodepng.h" />
     <ClInclude Include="..\shared\Matrices.h" />
     <ClInclude Include="..\shared\pathtools.h" />

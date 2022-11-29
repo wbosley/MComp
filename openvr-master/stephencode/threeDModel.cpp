@@ -799,13 +799,13 @@ void CThreeDModel::DrawElementsUsingVBO(GLuint jerryRig)
  *
  *	Returns	: void
  */
-void CThreeDModel::DrawBoundingBox(CShader* shader)
+/*void CThreeDModel::DrawBoundingBox(CShader* shader)
 {
 	if (m_pobOctree != nullptr)
 	{
 		m_pobOctree->DrawBoundingBox(shader);
 	}
-}
+}*/
 
 /*
  *	Method	: DrawAllBoxesForOctreeNodes
@@ -816,13 +816,13 @@ void CThreeDModel::DrawBoundingBox(CShader* shader)
  *
  *	Returns	: void
  */
-void CThreeDModel::DrawAllBoxesForOctreeNodes(CShader* shader)
+/*void CThreeDModel::DrawAllBoxesForOctreeNodes(CShader* shader)
 {
 	if (m_pobOctree != nullptr)
 	{
 		m_pobOctree->DrawAllBoxes(shader);
 	}
-}
+}*/
 
 /*
  *	Method	: DrawOctreeLeaves
@@ -833,13 +833,13 @@ void CThreeDModel::DrawAllBoxesForOctreeNodes(CShader* shader)
  *
  *	Returns	: void
  */
-void CThreeDModel::DrawOctreeLeaves(CShader* shader)
+/*void CThreeDModel::DrawOctreeLeaves(CShader* shader)
 {
 	if (m_pobOctree != nullptr)
 	{
 		m_pobOctree->DrawOctreeLeaves(shader);
 	}
-}
+}*/
 /*
  *	Method	: DeleteVertexFaceData
  *
