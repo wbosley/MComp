@@ -26,6 +26,9 @@
 #include "unistd.h"
 #endif
 
+#include "../glm/glm/glm.hpp"
+#include "OBJLoader.h"
+
 #ifndef _WIN32
 #define APIENTRY
 #endif
@@ -246,6 +249,7 @@ private: // OpenGL bookkeeping
 	vr::VRActionSetHandle_t m_actionsetDemo = vr::k_ulInvalidActionSetHandle;
 
 	unsigned int georgeModels;
+	OBJLoader OBJLoader;
 };
 
 
@@ -1558,6 +1562,12 @@ void CMainApplication::InitModels() {
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+
+
+	OBJLoader.loadOBJ("../../models/test.obj");
+	//if (OBJLoader.loadOBJ("test.obj") == true) {
+		
+	//}
 }
 
 

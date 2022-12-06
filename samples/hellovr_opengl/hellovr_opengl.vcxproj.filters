@@ -36,6 +36,9 @@
     <ClCompile Include="..\shared\strtools.cpp">
       <Filter>Shared</Filter>
     </ClCompile>
+    <ClCompile Include="OBJLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\shared\lodepng.h">
@@ -52,6 +55,9 @@
     </ClInclude>
     <ClInclude Include="..\shared\strtools.h">
       <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="OBJLoader.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
