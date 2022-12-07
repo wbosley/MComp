@@ -1,5 +1,2 @@
-﻿  OBJLoader.cpp
-C:\Users\Eleva\Documents\GitHub\MComp\samples\hellovr_opengl\OBJLoader.cpp(57,15): warning C4101: 'uI': unreferenced local variable
-C:\Users\Eleva\Documents\GitHub\MComp\samples\hellovr_opengl\OBJLoader.cpp(57,22): warning C4101: 'nI': unreferenced local variable
-C:\Users\Eleva\Documents\GitHub\MComp\samples\hellovr_opengl\OBJLoader.cpp(57,8): warning C4101: 'vI': unreferenced local variable
+﻿  hellovr_opengl_main.cpp
   hellovr_opengl.vcxproj -> C:\Users\Eleva\Documents\GitHub\MComp\samples\bin\win32\hellovr_opengl.exe

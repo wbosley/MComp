@@ -1547,10 +1547,13 @@ void CMainApplication::InitModels() {
 	 1.0f, -1.0f, 0.0f,
 	 0.0f,  1.0f, 0.0f
 	};
+	OBJLoader.loadOBJ("../../models/test.obj");
+
 	unsigned int VBO;
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(verticesTest), verticesTest, GL_STATIC_DRAW);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(verticesTest), verticesTest, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * OBJLoader.vertices2.size(), &OBJLoader.vertices2[0], GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	
@@ -1564,7 +1567,7 @@ void CMainApplication::InitModels() {
 	glBindVertexArray(0);
 
 
-	OBJLoader.loadOBJ("../../models/test.obj");
+	//OBJLoader.loadOBJ("../../models/test.obj");
 	//if (OBJLoader.loadOBJ("test.obj") == true) {
 		
 	//}
@@ -1585,7 +1588,7 @@ void CMainApplication::RenderScene( vr::Hmd_Eye nEye )
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 	glBindVertexArray(0);
 	
-
+	m_bShowCubes = false;
 	if( m_bShowCubes )
 	{
 		glUseProgram( m_unSceneProgramID );

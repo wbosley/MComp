@@ -75,5 +75,11 @@ bool OBJLoader::loadOBJ(const char* path) {
 		}
 	}
 	file.close();
+
+	for (int i = 0; i < vertices_indices.size(); i++) {
+		int vertexIndex = vertices_indices[i];
+		glm::vec3 vertex = vertices[vertexIndex - 1];
+		vertices2.push_back(vertex);
+	}
 	return true;
 }
