@@ -215,11 +215,13 @@ private: // OpenGL bookkeeping
 	};
 
 	GLuint m_unSceneProgramID;
+	GLuint m_gShader;
 	GLuint m_unCompanionWindowProgramID;
 	GLuint m_unControllerTransformProgramID;
 	GLuint m_unRenderModelProgramID;
 
 	GLint m_nSceneMatrixLocation;
+	GLint m_gShaderMatrixLocation;
 	GLint m_nControllerMatrixLocation;
 	GLint m_nRenderModelMatrixLocation;
 
@@ -250,6 +252,10 @@ private: // OpenGL bookkeeping
 
 	unsigned int georgeModels;
 	OBJLoader OBJLoader;
+	unsigned int VBO;
+	unsigned int VBO2;
+	unsigned int VBO3;
+	glm::vec3 color_switch;
 };
 
 
@@ -349,6 +355,7 @@ CMainApplication::CMainApplication( int argc, char *argv[] )
 	, m_nCompanionWindowWidth( 1280 )
 	, m_nCompanionWindowHeight( 800 )
 	, m_unSceneProgramID( 0 )
+	, m_gShader(0)
 	, m_unCompanionWindowProgramID( 0 )
 	, m_unControllerTransformProgramID( 0 )
 	, m_unRenderModelProgramID( 0 )
@@ -362,6 +369,7 @@ CMainApplication::CMainApplication( int argc, char *argv[] )
 	, m_unControllerVAO( 0 )
 	, m_unSceneVAO( 0 )
 	, m_nSceneMatrixLocation( -1 )
+	, m_gShaderMatrixLocation(-1)
 	, m_nControllerMatrixLocation( -1 )
 	, m_nRenderModelMatrixLocation( -1 )
 	, m_iTrackedControllerCount( 0 )
@@ -722,7 +730,9 @@ bool CMainApplication::HandleInput()
 			}
 			if( sdlEvent.key.keysym.sym == SDLK_c )
 			{
-				m_bShowCubes = !m_bShowCubes;
+				//m_bShowCubes = !m_bShowCubes;
+				//Code here from controller button
+				color_switch = glm::vec3(1.0f, 0.0f, 0.0f);
 			}
 		}
 	}
@@ -1004,6 +1014,39 @@ bool CMainApplication::CreateAllShaders()
 	if( m_nSceneMatrixLocation == -1 )
 	{
 		dprintf( "Unable to find matrix uniform in scene shader\n" );
+		return false;
+	}
+
+	m_gShader = CompileGLShader(
+		"Models",
+
+		// Vertex Shader
+		"#version 410\n"
+		"uniform mat4 matrix;\n"
+		"layout(location = 0) in vec4 position;\n"
+		"layout(location = 1) in vec3 v3NormalIn;\n"
+		"layout(location = 2) in vec3 in_Color;\n"
+		"out vec3 ex_Color;\n"
+		"void main()\n"
+		"{\n"
+		"	gl_Position = matrix * position;\n"
+		"	ex_Color = in_Color;\n"
+		"}\n",
+
+		// Fragment Shader
+		"#version 410 core\n"
+		"in vec3 ex_Color;\n"
+		"out vec4 outputColor;\n"
+		"void main()\n"
+		"{\n"
+		"   outputColor = vec4(ex_Color,1.0);\n"
+		"}\n"
+	);
+	//texture(mytexture, v2UVcoords);
+	m_gShaderMatrixLocation = glGetUniformLocation(m_gShader, "matrix");
+	if (m_gShaderMatrixLocation == -1)
+	{
+		dprintf("Unable to find matrix uniform in scene shader\n");
 		return false;
 	}
 
@@ -1518,6 +1561,7 @@ void CMainApplication::RenderStereoTargets()
  	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0 );	
 
+
 	glEnable( GL_MULTISAMPLE );
 
 	// Right Eye
@@ -1542,26 +1586,42 @@ void CMainApplication::RenderStereoTargets()
 
 
 void CMainApplication::InitModels() {
-	float verticesTest[] = {
-	-1.0f, -1.0f, 0.0f,
-	 1.0f, -1.0f, 0.0f,
-	 0.0f,  1.0f, 0.0f
-	};
 	OBJLoader.loadOBJ("../../models/test.obj");
 
-	unsigned int VBO;
+
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(verticesTest), verticesTest, GL_STATIC_DRAW);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * OBJLoader.vertices2.size(), &OBJLoader.vertices2[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * OBJLoader.vertices.size(), &OBJLoader.vertices[0], GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+
+	glGenBuffers(1, &VBO2);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO2);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * OBJLoader.vertices_indices.size(), &OBJLoader.vertices_indices[0], GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	color_switch = glm::vec3(1.0f, 0.0f, 0.0f);
+	std::vector<glm::vec3> colors;
+	for (int i = 0; i < OBJLoader.vertices.size(); i++) {
+		colors.push_back(color_switch);
+	}
+	glGenBuffers(1, &VBO3);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO3);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * colors.size(), &colors[0], GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	
 	glGenVertexArrays(1, &georgeModels);
 	glBindVertexArray(georgeModels);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
 	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO2);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO3);
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	
+	
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -1582,10 +1642,31 @@ void CMainApplication::RenderScene( vr::Hmd_Eye nEye )
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 
+	glUseProgram(m_gShader);
+
+	std::vector<glm::vec3> colors;
+	for (int i = 0; i < OBJLoader.vertices.size(); i++) {
+		colors.push_back(color_switch);
+	}
+	glBindBuffer(GL_ARRAY_BUFFER, VBO3);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * colors.size(), &colors[0], GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(georgeModels);
-	glUseProgram(m_unSceneProgramID);
-	glUniformMatrix4fv(m_nSceneMatrixLocation, 1, GL_FALSE, GetCurrentViewProjectionMatrix(nEye).get());
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO3);
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glBindVertexArray(0);
+
+	Matrix4 matScale;
+	Matrix4 toRender = GetCurrentViewProjectionMatrix(nEye).get();
+	matScale.scale(0.05f, 0.05f, 0.05f);
+	matScale.translate(0.0,1.0,2.0);
+	toRender = toRender * matScale;
+	glUniformMatrix4fv(m_gShaderMatrixLocation, 1, GL_FALSE, toRender.get());
+
+	//render
+	glBindVertexArray(georgeModels);
+	glDrawElements(GL_TRIANGLES, OBJLoader.vertices_indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 	
 	m_bShowCubes = false;

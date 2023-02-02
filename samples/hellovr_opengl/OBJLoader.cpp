@@ -62,11 +62,12 @@ bool OBJLoader::loadOBJ(const char* path) {
 				indicies.push_back(offload);
 			}
 			for (auto val : indicies) {
-				std::cout << val << std::endl;
+				//std::cout << val << std::endl;
 				std::stringstream ss2(val);
 				std::string dump;
 				getline(ss2, dump, '/');
-				vertices_indices.push_back(std::stoi(dump));
+				vertices_indices.push_back(std::stoi(dump) - 1);
+				//std::cout << dump << std::endl;
 				getline(ss2, dump, '/');
 				uvs_indices.push_back(std::stoi(dump));
 				getline(ss2, dump, '/');
@@ -76,10 +77,10 @@ bool OBJLoader::loadOBJ(const char* path) {
 	}
 	file.close();
 
-	for (int i = 0; i < vertices_indices.size(); i++) {
+	/*for (int i = 0; i < vertices_indices.size(); i++) {
 		int vertexIndex = vertices_indices[i];
 		glm::vec3 vertex = vertices[vertexIndex - 1];
 		vertices2.push_back(vertex);
-	}
+	}*/
 	return true;
 }
