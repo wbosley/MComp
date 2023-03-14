@@ -81,15 +81,3 @@ int Model3D::render(Shader myShader)
 	glDrawElements(GL_TRIANGLES, vertices_indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
-
-Matrix4 matScale;
-Matrix4 toRender = GetCurrentViewProjectionMatrix(nEye).get();
-matScale.scale(0.05f, 0.05f, 0.05f);
-matScale.translate(0.0, 1.0, 2.0);
-toRender = toRender * matScale;
-glUniformMatrix4fv(m_gShaderMatrixLocation, 1, GL_FALSE, toRender.get());
-
-//render
-glBindVertexArray(georgeModels);
-glDrawElements(GL_TRIANGLES, OBJLoader.vertices_indices.size(), GL_UNSIGNED_INT, 0);
-glBindVertexArray(0);
