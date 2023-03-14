@@ -33,8 +33,9 @@ int Model3D::loadModelFromObj(OBJLoader obj)
 	//make VBOs for vertices and indices
 	glGenBuffers(2, VBOs);
 
-	//making the VAO and putting the VBOs in it
+	//making the VAO and binding it
 	glGenBuffers(1, &VAO);
+	glBindVertexArray(VAO);
 
 	//put vertices in vbo
 	glBindBuffer(GL_ARRAY_BUFFER, VBOs[0]);
@@ -57,7 +58,10 @@ int Model3D::loadModelFromObj(OBJLoader obj)
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-	
+	//succesfully did everything, return 0
+	return 0;
+
+}
 
 }
 
