@@ -30,6 +30,15 @@ int Model3D::loadModelFromObj(OBJLoader obj)
 	uvs_indices = obj.uvs_indices;
 	normals_indices = obj.normals_indices;
 
+	int vaoAndVboinitialised = putModelDataInVbosAndVaos(vertices, vertices_indices);
+
+	//adding together all the returned values to make sure ntohing broke. if more than 0 then something went wrong.
+	return 0 + vaoAndVboinitialised;
+
+}
+
+int Model3D::putModelDataInVbosAndVaos(std::vector<glm::vec3> vertices, std::vector<unsigned int> vertices_indices)
+{
 	//make VBOs for vertices and indices
 	glGenBuffers(2, VBOs);
 
@@ -40,7 +49,7 @@ int Model3D::loadModelFromObj(OBJLoader obj)
 	//put vertices in vbo
 	glBindBuffer(GL_ARRAY_BUFFER, VBOs[0]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
-	
+
 	//put this VBO in the VAO, saying that we want it in the 0th location in the shader.
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0); //tells opengl how to retrieve VAO from memory. Inputs: What location in the shader this bound VBO is for,
 	glEnableVertexAttribArray(0);
@@ -49,7 +58,7 @@ int Model3D::loadModelFromObj(OBJLoader obj)
 	//put indices in vbo
 	glBindBuffer(GL_ARRAY_BUFFER, VBOs[1]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * vertices_indices.size(), &vertices_indices[0], GL_STATIC_DRAW);
-	
+
 	//put this VBO in the VAO, saying that we want it in the 0th location in the shader.
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0); //tells opengl how to retrieve VAO from memory. Inputs: What location in the shader this bound VBO is for,
 	glEnableVertexAttribArray(1);
@@ -58,9 +67,7 @@ int Model3D::loadModelFromObj(OBJLoader obj)
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-	//succesfully did everything, return 0
 	return 0;
-
 }
 
 int Model3D::render(Shader myShader) 
@@ -75,3 +82,14 @@ int Model3D::render(Shader myShader)
 	glBindVertexArray(0);
 }
 
+Matrix4 matScale;
+Matrix4 toRender = GetCurrentViewProjectionMatrix(nEye).get();
+matScale.scale(0.05f, 0.05f, 0.05f);
+matScale.translate(0.0, 1.0, 2.0);
+toRender = toRender * matScale;
+glUniformMatrix4fv(m_gShaderMatrixLocation, 1, GL_FALSE, toRender.get());
+
+//render
+glBindVertexArray(georgeModels);
+glDrawElements(GL_TRIANGLES, OBJLoader.vertices_indices.size(), GL_UNSIGNED_INT, 0);
+glBindVertexArray(0);

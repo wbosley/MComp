@@ -24,5 +24,7 @@ class Model3D
 		std::vector<unsigned int> uvs_indices;
 		std::vector<unsigned int> normals_indices;
 
+		int putModelDataInVbosAndVaos(std::vector<glm::vec3> vertices, std::vector<unsigned int> vertices_indices);
+
 };
 
