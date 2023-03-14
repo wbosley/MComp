@@ -20,10 +20,6 @@ class Model3D
 		std::vector<unsigned int> vertices_indices;
 		std::vector<unsigned int> uvs_indices;
 		std::vector<unsigned int> normals_indices;
-		//make it so that
-
-		//ObjInfo objectDetails
-
 
 };
 
