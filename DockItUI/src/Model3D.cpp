@@ -39,6 +39,9 @@ int Model3D::loadModelFromObj(OBJLoader obj)
 
 int Model3D::putModelDataInVbosAndVaos(std::vector<glm::vec3> vertices, std::vector<unsigned int> vertices_indices)
 {
+	VBOs = new GLuint[2];
+
+
 	//make VBOs for vertices and indices
 	glGenBuffers(2, VBOs);
 
@@ -54,10 +57,9 @@ int Model3D::putModelDataInVbosAndVaos(std::vector<glm::vec3> vertices, std::vec
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0); //tells opengl how to retrieve VAO from memory. Inputs: What location in the shader this bound VBO is for,
 	glEnableVertexAttribArray(0);
 
-
 	//put indices in vbo
-	glBindBuffer(GL_ARRAY_BUFFER, VBOs[1]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * vertices_indices.size(), &vertices_indices[0], GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBOs[1]);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(glm::vec3) * vertices_indices.size(), &vertices_indices[0], GL_STATIC_DRAW);
 
 	//put this VBO in the VAO, saying that we want it in the 0th location in the shader.
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0); //tells opengl how to retrieve VAO from memory. Inputs: What location in the shader this bound VBO is for,
@@ -72,13 +74,16 @@ int Model3D::putModelDataInVbosAndVaos(std::vector<glm::vec3> vertices, std::vec
 
 int Model3D::render(Shader myShader) 
 {
+	
 	//bind the VAO
 	glBindVertexArray(VAO);
-
+	
 	//DONT HAVE A SHADER YET, uncomment when we have a shader :-)
-	//glUseProgram(myShader);
+	glUseProgram(myShader.getShaderProgram());
 
 	glDrawElements(GL_TRIANGLES, vertices_indices.size(), GL_UNSIGNED_INT, 0);
+	//glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+	
 	glBindVertexArray(0);
 
 	return 0;

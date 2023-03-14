@@ -17,7 +17,7 @@ int screenWidth = 800;
 int screenHeight = 600;
 glm::mat4 ProjectionMatrix;
 glm::mat4 ModelViewMatrix;
-Shader shader;
+Shader myShader;
 vr::IVRSystem* pHMD;
 OBJLoader objLoader;
 Model3D firstModel;
@@ -36,8 +36,9 @@ void renderCompanionWindow() {
 
 void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	firstModel.render(shader);
+	glUseProgram(myShader.getShaderProgram());
+	firstModel.render(myShader);
+	glFlush();
 
 	renderControllers();
 	renderAll();
@@ -115,6 +116,9 @@ int init() {
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 
+
+	myShader.createShaderFromFile("src/shaders/basic.shader");
+
 	objLoader.loadOBJ("src/models/test.obj");
 	firstModel.loadModelFromObj(objLoader);
 	
@@ -133,8 +137,6 @@ int main()
 	//Initialisation function.
 	init();
 
-	Shader myShader;
-	myShader.createShaderFromFile("src/shaders/basic.shader");
 
 	// Loop until the user closes the window
 	while (!glfwWindowShouldClose(window))
