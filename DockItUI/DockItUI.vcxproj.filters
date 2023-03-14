@@ -19,6 +19,9 @@
     <Filter Include="Header Files\Shader">
       <UniqueIdentifier>{ac94801a-d499-4955-8ecb-03c0a84559c4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Model3D">
+      <UniqueIdentifier>{f8590259-ca67-4b29-918b-9361d31852af}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\DockItUI.cpp">
@@ -30,6 +33,9 @@
     <ClCompile Include="src\Shader.cpp">
       <Filter>Header Files\Shader</Filter>
     </ClCompile>
+    <ClCompile Include="src\Model3D.cpp">
+      <Filter>Header Files\Model3D</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\OBJLoader.h">
@@ -37,6 +43,9 @@
     </ClInclude>
     <ClInclude Include="src\Shader.h">
       <Filter>Header Files\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Model3D.h">
+      <Filter>Header Files\Model3D</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
