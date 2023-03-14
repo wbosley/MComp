@@ -7,8 +7,8 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <OBJLoader.h>
-#include <Shader.h>
+#include "OBJLoader.h"
+#include "Shader.h"
 
 GLFWwindow* window;
 GLenum err;
@@ -17,9 +17,26 @@ int screenHeight = 600;
 glm::mat4 ProjectionMatrix;
 glm::mat4 ModelViewMatrix;
 Shader shader;
+vr::IVRSystem* pHMD;
+
+void renderControllers() {
+
+}
+
+void renderAll() {
+
+}
+
+void renderCompanionWindow() {
+
+}
 
 void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	renderControllers();
+	renderAll();
+	renderCompanionWindow();
 
 }
 
@@ -30,18 +47,40 @@ void reshape(GLFWwindow* window, int width, int height) {
 	ProjectionMatrix = glm::perspective(glm::radians(45.0f), (GLfloat)screenWidth / (GLfloat)screenHeight, 1.0f, 200.0f);
 }
 
-void init() {
-
-	glClearColor(0.0, 0.0, 0.0, 0.0);
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-
-
+int initModels() {
+	//add code for loading models.
 }
 
+int initVR() {
 
-int main()
-{
+	if (vr::VR_IsHmdPresent()) {
+		std::cout << "HMD is present." << std::endl;
+		if (vr::VR_IsRuntimeInstalled()) {
+			std::cout << "Runtime is installed." << std::endl;
+		}
+		else {
+			std::cout << "Runtime is not installed." << std::endl;
+			return -1;
+		}
+	}
+	else {
+		std::cout << "HMD is not present." << std::endl;
+		return -1;
+	}
+
+	//Load SteamVR Runtime
+
+	vr::EVRInitError evrError = vr::VRInitError_None;
+	pHMD = vr::VR_Init(&evrError, vr::VRApplication_Scene);
+
+	if (evrError != vr::VRInitError_None) {
+		std::cout << "Could not load runtime." << std::endl;
+		return -1;
+	}
+}
+
+int init() {
+
 	if (!glfwInit())
 	{
 		return -1;
@@ -66,7 +105,17 @@ int main()
 
 	reshape(window, screenWidth, screenHeight);
 	glfwSetFramebufferSizeCallback(window, reshape);
+	glClearColor(0.0, 0.0, 0.0, 0.0);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
 
+	initVR();
+	initModels();
+}
+
+
+int main()
+{
 	//Initialisation function.
 	init();
 
