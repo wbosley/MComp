@@ -9,6 +9,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "OBJLoader.h"
 #include "Shader.h"
+#include "Model3D.h"
 
 GLFWwindow* window;
 GLenum err;
@@ -18,6 +19,8 @@ glm::mat4 ProjectionMatrix;
 glm::mat4 ModelViewMatrix;
 Shader shader;
 vr::IVRSystem* pHMD;
+OBJLoader objLoader;
+Model3D firstModel;
 
 void renderControllers() {
 
@@ -34,6 +37,8 @@ void renderCompanionWindow() {
 void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	firstModel.render(shader);
+
 	renderControllers();
 	renderAll();
 	renderCompanionWindow();
@@ -49,6 +54,7 @@ void reshape(GLFWwindow* window, int width, int height) {
 
 int initModels() {
 	//add code for loading models.
+	return 0;
 }
 
 int initVR() {
@@ -109,15 +115,26 @@ int init() {
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 
-	initVR();
-	initModels();
+	objLoader.loadOBJ("src/models/test.obj");
+	firstModel.loadModelFromObj(objLoader);
+	
+
+
+	//initVR();
+	//initModels();
 }
 
 
 int main()
 {
+
+	
+
 	//Initialisation function.
 	init();
+
+	Shader myShader;
+	myShader.createShaderFromFile("src/shaders/basic.shader");
 
 	// Loop until the user closes the window
 	while (!glfwWindowShouldClose(window))
