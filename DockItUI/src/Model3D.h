@@ -1,5 +1,6 @@
 #pragma once
 #include "OBJLoader.h"
+#include "Shader.h"
 class Model3D
 {
 
@@ -10,6 +11,8 @@ class Model3D
 
 		//will return 1 or zero depending on failure or success
 		int loadModelFromObj(OBJLoader obj);
+		int render(Shader myShader);
+		
 
 	private:
 		//these are in instance variables for a threedeeobjects

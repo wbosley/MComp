@@ -63,5 +63,15 @@ int Model3D::loadModelFromObj(OBJLoader obj)
 
 }
 
+int Model3D::render(Shader myShader) 
+{
+	//bind the VAO
+	glBindVertexArray(VAO);
+
+	//DONT HAVE A SHADER YET, uncomment when we have a shader :-)
+	//glUseProgram(myShader);
+
+	glDrawElements(GL_TRIANGLES, vertices_indices.size(), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
 }
 
