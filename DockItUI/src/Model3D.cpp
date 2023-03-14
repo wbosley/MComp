@@ -43,7 +43,7 @@ int Model3D::putModelDataInVbosAndVaos(std::vector<glm::vec3> vertices, std::vec
 	glGenBuffers(2, VBOs);
 
 	//making the VAO and binding it
-	glGenBuffers(1, &VAO);
+	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
 
 	//put vertices in vbo
@@ -80,4 +80,6 @@ int Model3D::render(Shader myShader)
 
 	glDrawElements(GL_TRIANGLES, vertices_indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
+
+	return 0;
 }
