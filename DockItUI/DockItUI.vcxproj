@@ -143,6 +143,9 @@
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\OBJLoader.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="src\shaders\basic.shader" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
