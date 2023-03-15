@@ -2,7 +2,6 @@
 #version 410
 
 layout(location = 0) in vec4 position;
-layout(location = 1) in vec3 v3NormalIn;
 
 void main()
 {
@@ -12,9 +11,9 @@ void main()
 #shader fragment
 #version 410 core
 
-out vec4 outputColor;
+layout(location = 0) out vec4 color;
 
 void main()
 {
-	outputColor = vec4(1.0, 1.0, 1.0, 1.0);
+	color = vec4(0.5, 0.0, 0.5, 1.0);
 };

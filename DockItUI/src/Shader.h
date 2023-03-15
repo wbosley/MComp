@@ -13,6 +13,7 @@ class Shader
 public:
 	Shader();
 	~Shader();
+	GLuint compileShader(GLuint type, const char* shaderSrc);
 	int createShaderFromFile(const char* filePath);
 	GLuint getShaderProgram();
 

@@ -16,6 +16,25 @@ Shader::~Shader()
 {
 }
 
+GLuint Shader::compileShader(GLuint type, const char* shaderSrc) {
+	GLuint shaderId = glCreateShader(type);
+	glShaderSource(shaderId, 1, &shaderSrc, nullptr);
+	glCompileShader(shaderId);
+
+	int success;
+	glGetShaderiv(shaderId, GL_COMPILE_STATUS, &success);
+	if (success == GL_FALSE) {
+		int length;
+		glGetShaderiv(shaderId, GL_INFO_LOG_LENGTH, &length);
+		char* message = (char*)alloca(length * sizeof(char));
+		glGetShaderInfoLog(shaderId, length, &length, message);
+		std::cout << "Failed to compile " << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << " shader!" << std::endl;
+		std::cout << message << std::endl;
+	}
+
+	return shaderId;
+}
+
 int Shader::createShaderFromFile(const char* filePath) {
 	std::ifstream stream(filePath);
 
@@ -49,23 +68,19 @@ int Shader::createShaderFromFile(const char* filePath) {
 
 	program = glCreateProgram();
 
-	GLuint shaderId = glCreateShader(GL_VERTEX_SHADER);
-	const char* src = vertexShaderSrc.c_str();
-	glShaderSource(shaderId, 1, &src, nullptr);
-	glCompileShader(shaderId);
-	glAttachShader(program, shaderId);
-	glDeleteShader(shaderId);
+	GLuint vs = compileShader(GL_VERTEX_SHADER, vertexShaderSrc.c_str());
+	GLuint fs = compileShader(GL_FRAGMENT_SHADER, fragmentShaderSrc.c_str());
 
-
-	shaderId = glCreateShader(GL_FRAGMENT_SHADER);
-	src = fragmentShaderSrc.c_str();
-	glShaderSource(shaderId, 1, &src, nullptr);
-	glCompileShader(shaderId);
-	glAttachShader(program, shaderId);
-	glDeleteShader(shaderId);
-
+	glAttachShader(program, vs);
+	glAttachShader(program, fs);
 	glLinkProgram(program);
 	glValidateProgram(program);
+
+	glDeleteShader(vs);
+	glDeleteShader(fs);
+
+
+
 
 	return 0;
 }

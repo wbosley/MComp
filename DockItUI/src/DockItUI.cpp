@@ -27,7 +27,7 @@ void renderControllers() {
 }
 
 void renderAll() {
-
+	firstModel.render(myShader);
 }
 
 void renderCompanionWindow() {
@@ -37,12 +37,11 @@ void renderCompanionWindow() {
 void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(myShader.getShaderProgram());
-	firstModel.render(myShader);
-	glFlush();
 
-	renderControllers();
 	renderAll();
+	renderControllers();
 	renderCompanionWindow();
+	glFlush();
 
 }
 
@@ -54,7 +53,8 @@ void reshape(GLFWwindow* window, int width, int height) {
 }
 
 int initModels() {
-	//add code for loading models.
+	objLoader.loadOBJ("src/models/teapot.obj");
+	firstModel.loadModelFromObj(objLoader);
 	return 0;
 }
 
@@ -63,10 +63,10 @@ int initVR() {
 	if (vr::VR_IsHmdPresent()) {
 		std::cout << "HMD is present." << std::endl;
 		if (vr::VR_IsRuntimeInstalled()) {
-			std::cout << "Runtime is installed." << std::endl;
+			std::cout << "OpenVR Runtime is installed." << std::endl;
 		}
 		else {
-			std::cout << "Runtime is not installed." << std::endl;
+			std::cout << "OpenVR Runtime is not installed." << std::endl;
 			return -1;
 		}
 	}
@@ -84,25 +84,28 @@ int initVR() {
 		std::cout << "Could not load runtime." << std::endl;
 		return -1;
 	}
+	return 0;
 }
 
 int init() {
 
+	//Initialise GLFW.
 	if (!glfwInit())
 	{
-		return -1;
+		exit(EXIT_FAILURE);
 	}
 
+	//Create window and check for errors.
 	window = glfwCreateWindow(screenWidth, screenHeight, "DockItUI", NULL, NULL);
-
 	if (!window)
 	{
 		glfwTerminate();
-		return -1;
+		exit(EXIT_FAILURE);
 	}
-
 	glfwMakeContextCurrent(window);
 
+	//Initialise GLEW and check for errors.
+	glewExperimental = GL_TRUE;
 	err = glewInit();
 	if (GLEW_OK != err)
 	{
@@ -114,18 +117,19 @@ int init() {
 	glfwSetFramebufferSizeCallback(window, reshape);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-
 
 	myShader.createShaderFromFile("src/shaders/basic.shader");
 
-	objLoader.loadOBJ("src/models/test.obj");
-	firstModel.loadModelFromObj(objLoader);
-	
+	if (initVR() != 0) {
+		std::cout << "Failed to setup VR." << std::endl;
+		return -1;
+	}
 
 
-	//initVR();
-	//initModels();
+	if (initModels() != 0) {
+		std::cout << "Failed to load models." << std::endl;
+		return -1;
+	}
 }
 
 
