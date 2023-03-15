@@ -10,6 +10,7 @@
 #include "OBJLoader.h"
 #include "Shader.h"
 #include "Model3D.h"
+#include <math.h>
 
 GLFWwindow* window;
 GLenum err;
@@ -17,16 +18,29 @@ int screenWidth = 800;
 int screenHeight = 600;
 glm::mat4 ProjectionMatrix;
 glm::mat4 ModelViewMatrix;
+glm::mat4 ViewMatrix;
+glm::mat4 ModelMatrix;
 Shader myShader;
 vr::IVRSystem* pHMD;
 OBJLoader objLoader;
 Model3D firstModel;
+
+float tempX = 0.0;
 
 void renderControllers() {
 
 }
 
 void renderAll() {
+	//glgetUniformLocation(myShader->getShaderProgram())
+	ViewMatrix = glm::mat4(1.0f);
+	ModelMatrix = glm::mat4(1.0f);
+
+	tempX += 0.005;
+	
+	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(tempX, tempX, 0));
+	ModelViewMatrix = ViewMatrix * ModelMatrix;
+	glUniformMatrix4fv(glGetUniformLocation(myShader.getShaderProgram(), "ModelViewMatrix") , 1, GL_FALSE, &ModelViewMatrix[0][0]);
 	firstModel.render(myShader);
 }
 
@@ -38,6 +52,10 @@ void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(myShader.getShaderProgram());
 
+	//making projection matrix
+	GLuint projMatLocation = glGetUniformLocation(myShader.getShaderProgram(), "ProjectionMatrix");
+	glUniformMatrix4fv(projMatLocation, 1, GL_FALSE, &ProjectionMatrix[0][0]);
+	//rendering our model
 	renderAll();
 	renderControllers();
 	renderCompanionWindow();
@@ -49,7 +67,7 @@ void reshape(GLFWwindow* window, int width, int height) {
 	screenWidth = width;
 	screenHeight = height;
 	glViewport(0, 0, screenWidth, screenHeight);
-	ProjectionMatrix = glm::perspective(glm::radians(45.0f), (GLfloat)screenWidth / (GLfloat)screenHeight, 1.0f, 200.0f);
+	ProjectionMatrix = glm::perspective(glm::radians(60.0f), (GLfloat)screenWidth / (GLfloat)screenHeight, 1.0f, 200.0f);
 }
 
 int initModels() {
@@ -120,10 +138,10 @@ int init() {
 
 	myShader.createShaderFromFile("src/shaders/basic.shader");
 
-	if (initVR() != 0) {
+	/*if (initVR() != 0) {
 		std::cout << "Failed to setup VR." << std::endl;
 		return -1;
-	}
+	}*/
 
 
 	if (initModels() != 0) {
