@@ -1,11 +1,14 @@
 #shader vertex
 #version 410
 
+uniform mat4 ProjectionMatrix;
+uniform mat4 ModelViewMatrix;
+
 layout(location = 0) in vec4 position;
 
 void main()
 {
-	gl_Position = position;
+	gl_Position = position * ModelViewMatrix * ProjectionMatrix;
 };
 
 #shader fragment
