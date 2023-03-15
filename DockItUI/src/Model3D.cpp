@@ -78,11 +78,9 @@ int Model3D::render(Shader myShader)
 	//bind the VAO
 	glBindVertexArray(VAO);
 	
-	//DONT HAVE A SHADER YET, uncomment when we have a shader :-)
-	glUseProgram(myShader.getShaderProgram());
+	//glUseProgram(myShader.getShaderProgram());
 
 	glDrawElements(GL_TRIANGLES, vertices_indices.size(), GL_UNSIGNED_INT, 0);
-	//glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 	
 	glBindVertexArray(0);
 
