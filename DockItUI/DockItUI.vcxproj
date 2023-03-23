@@ -133,13 +133,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\Model3D.cpp" />
+    <ClCompile Include="src\ProteinLoader.cpp" />
     <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\DockItUI.cpp" />
     <ClCompile Include="src\OBJLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\Model3D.h" />
+    <ClInclude Include="src\ProteinLoader.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\OBJLoader.h" />
   </ItemGroup>

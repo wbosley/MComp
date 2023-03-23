@@ -9,7 +9,7 @@ layout(location = 1) in vec3 normal;
 
 void main()
 {
-	gl_Position = position * ModelViewMatrix * ProjectionMatrix;
+	gl_Position = ProjectionMatrix * ModelViewMatrix * position;
 };
 
 #shader fragment

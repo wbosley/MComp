@@ -10,7 +10,15 @@
 #include "OBJLoader.h"
 #include "Shader.h"
 #include "Model3D.h"
+#include "Camera.h"
 #include <math.h>
+
+#define FORWARD 0
+#define BACKWARD 1
+#define LEFT 2
+#define RIGHT 3
+#define UP 0
+#define DOWN 1
 
 GLFWwindow* window;
 GLenum err;
@@ -24,7 +32,7 @@ Shader myShader;
 vr::IVRSystem* pHMD;
 OBJLoader objLoader;
 Model3D firstModel;
-
+Camera camera;
 float tempX = 0.0;
 
 void renderControllers() {
@@ -32,13 +40,12 @@ void renderControllers() {
 }
 
 void renderAll() {
-	//glgetUniformLocation(myShader->getShaderProgram())
-	ViewMatrix = glm::mat4(1.0f);
+	ViewMatrix = camera.getMatrix();
 	ModelMatrix = glm::mat4(1.0f);
 
-	tempX += 0.005;
-	
-	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(tempX, tempX, 0));
+	//tempX -= 0.00005;
+
+	//ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0, 0, tempX));
 	ModelViewMatrix = ViewMatrix * ModelMatrix;
 	glUniformMatrix4fv(glGetUniformLocation(myShader.getShaderProgram(), "ModelViewMatrix") , 1, GL_FALSE, &ModelViewMatrix[0][0]);
 	firstModel.render(myShader);
@@ -68,6 +75,35 @@ void reshape(GLFWwindow* window, int width, int height) {
 	screenHeight = height;
 	glViewport(0, 0, screenWidth, screenHeight);
 	ProjectionMatrix = glm::perspective(glm::radians(60.0f), (GLfloat)screenWidth / (GLfloat)screenHeight, 1.0f, 200.0f);
+}
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, GL_TRUE);
+	if (key == GLFW_KEY_W && action == GLFW_REPEAT || action == GLFW_PRESS) {
+		camera.move(0.1, FORWARD);
+	}
+	if (key == GLFW_KEY_S && action == GLFW_REPEAT || action == GLFW_PRESS) {
+		camera.move(0.1, BACKWARD);
+	}
+	if (key == GLFW_KEY_A && action == GLFW_REPEAT || action == GLFW_PRESS) {
+		camera.move(0.1, LEFT);
+	}
+	if (key == GLFW_KEY_D && action == GLFW_REPEAT || action == GLFW_PRESS) {
+		camera.move(0.1, RIGHT);
+	}
+	if (key == GLFW_KEY_UP && action == GLFW_REPEAT || action == GLFW_PRESS) {
+		camera.rotate(0.1, UP);
+	}
+	if (key == GLFW_KEY_DOWN && action == GLFW_REPEAT || action == GLFW_PRESS) {
+		camera.rotate(0.1, DOWN);
+	}
+	if (key == GLFW_KEY_LEFT && action == GLFW_REPEAT || action == GLFW_PRESS) {
+		camera.rotate(0.1, LEFT);
+	}
+	if (key == GLFW_KEY_RIGHT && action == GLFW_REPEAT || action == GLFW_PRESS) {
+		camera.rotate(0.1, RIGHT);
+	}
 }
 
 int initModels() {
@@ -133,6 +169,7 @@ int init() {
 
 	reshape(window, screenWidth, screenHeight);
 	glfwSetFramebufferSizeCallback(window, reshape);
+	glfwSetKeyCallback(window, key_callback);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glEnable(GL_DEPTH_TEST);
 
@@ -148,6 +185,8 @@ int init() {
 		std::cout << "Failed to load models." << std::endl;
 		return -1;
 	}
+
+	camera = Camera();
 }
 
 
