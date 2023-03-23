@@ -21,6 +21,7 @@ GLuint Shader::compileShader(GLuint type, const char* shaderSrc) {
 	glShaderSource(shaderId, 1, &shaderSrc, nullptr);
 	glCompileShader(shaderId);
 
+	//checking the shader compiled successfully
 	int success;
 	glGetShaderiv(shaderId, GL_COMPILE_STATUS, &success);
 	if (success == GL_FALSE) {
@@ -63,6 +64,7 @@ int Shader::createShaderFromFile(const char* filePath) {
 		}
 	}
 
+	//separate shaders into two strings
 	vertexShaderSrc = ss[0].str();
 	fragmentShaderSrc = ss[1].str();
 
