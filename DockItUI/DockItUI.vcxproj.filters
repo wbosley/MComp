@@ -31,6 +31,9 @@
     <Filter Include="Header Files\ProteinLoader">
       <UniqueIdentifier>{439f4118-cd29-4b50-9cc5-8a625dbc6702}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\VRLoader">
+      <UniqueIdentifier>{11dec4df-b957-49b6-8c06-6c932628384a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\DockItUI.cpp">
@@ -51,6 +54,9 @@
     <ClCompile Include="src\ProteinLoader.cpp">
       <Filter>Header Files\ProteinLoader</Filter>
     </ClCompile>
+    <ClCompile Include="src\VRLoader.cpp">
+      <Filter>Header Files\VRLoader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\OBJLoader.h">
@@ -68,9 +74,15 @@
     <ClInclude Include="src\ProteinLoader.h">
       <Filter>Header Files\ProteinLoader</Filter>
     </ClInclude>
+    <ClInclude Include="src\VRLoader.h">
+      <Filter>Header Files\VRLoader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\basic.shader">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="src\shaders\basicvr.shader">
       <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>

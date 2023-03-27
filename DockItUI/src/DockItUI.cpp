@@ -13,6 +13,7 @@
 #include "Model3D.h"
 #include "Camera.h"
 #include <math.h>
+#include "VRLoader.h"
 
 #define FORWARD 0
 #define BACKWARD 1
@@ -52,114 +53,28 @@ glm::mat4 ProjectionMatrixLeftEye;
 glm::mat4 ProjectionMatrixRightEye;
 glm::mat4 ViewMatrixLeftEye;
 glm::mat4 ViewMatrixRightEye;
-
-
-glm::mat4 getEyeProjectionMatrix(vr::Hmd_Eye eye) {
-//-----------------------------------------------------------------------------
-// Purpose: Gets the projection matrix for the specified eye.
-// 
-// Returns: ProjectionMatrix with respect to the specified eye.
-//-----------------------------------------------------------------------------
-	vr::HmdMatrix44_t matrix = pHMD->GetProjectionMatrix(eye, nearClip, farClip);
-	return glm::mat4(
-		matrix.m[0][0], matrix.m[1][0], matrix.m[2][0], matrix.m[3][0],
-		matrix.m[0][1], matrix.m[1][1], matrix.m[2][1], matrix.m[3][1],
-		matrix.m[0][2], matrix.m[1][2], matrix.m[2][2], matrix.m[3][2],
-		matrix.m[0][3], matrix.m[1][3], matrix.m[2][3], matrix.m[3][3]
-	);
-}
-
-glm::mat4 getEyeViewMatrix(vr::Hmd_Eye eye) {
-//-----------------------------------------------------------------------------
-// Purpose: Gets the view matrix for the specified eye.
-//
-// Returns: ViewMatrix with respect to the specified eye.
-//-----------------------------------------------------------------------------
-	vr::HmdMatrix34_t matrix = pHMD->GetEyeToHeadTransform(eye);
-	glm::mat4 mat4EyePose = glm::mat4(
-		matrix.m[0][0], matrix.m[1][0], matrix.m[2][0], 0.0,
-		matrix.m[0][1], matrix.m[1][1], matrix.m[2][1], 0.0,
-		matrix.m[0][2], matrix.m[1][2], matrix.m[2][2], 0.0,
-		matrix.m[0][3], matrix.m[1][3], matrix.m[2][3], 1.0
-	);
-	return inverse(mat4EyePose);
-}
-
-glm::mat4 getEyeViewProjectionMatrix(vr::Hmd_Eye eye) {
-//-----------------------------------------------------------------------------
-// Purpose: Gets the combined view and projection matrix for the specified eye.
-//
-// Returns: View and Projection Matrix with respect to the specified eye.
-//-----------------------------------------------------------------------------
-
-
-
-	glm::mat4 matrix;
-	if (eye == vr::Eye_Left) {
-		matrix = ProjectionMatrixLeftEye * ViewMatrixLeftEye * mat4HMDPose;
-
-	}
-	else if (eye == vr::Eye_Right) {
-		matrix = ProjectionMatrixRightEye * ViewMatrixRightEye * mat4HMDPose;
-	}
-
-	return matrix;
-
-}
-
-glm::mat4 convertSteamVRMatrix(const vr::HmdMatrix34_t& pose) {
-//-----------------------------------------------------------------------------
-// Purpose: Converts a SteamVR matrix to a glm matrix.
-//			The SteamVR matrix is row-major, while the glm matrix is column-major.
-// 
-// Returns: glm matrix.
-//-----------------------------------------------------------------------------
-	glm::mat4 matrix(
-		pose.m[0][0], pose.m[1][0], pose.m[2][0], 0.0,
-		pose.m[0][1], pose.m[1][1], pose.m[2][1], 0.0,
-		pose.m[0][2], pose.m[1][2], pose.m[2][2], 0.0,
-		pose.m[0][3], pose.m[1][3], pose.m[2][3], 1.0f
-	);
-	return matrix;
-}
-
-void updateHMDMatrixPose() {
-//-----------------------------------------------------------------------------
-// Purpose: Updates the pose of the HMD.
-// 
-// Returns: N/A
-//-----------------------------------------------------------------------------
-
-// Calling WaitGetPoses gets the set of poses that are currently available, with an optional timeout of 0ms. In this case, that means we get the
-// latest poses. If no poses are available, we'll just get the ones we got the last time through the loop. Waiting for poses is the key to
-// getting good latency.
-// The purpose of poses is to describe the offset of each device since the last frame. This lets you know how far each device has moved.
-
-
-	vr::VRCompositor()->WaitGetPoses(trackedDevicePose, vr::k_unMaxTrackedDeviceCount, NULL, 0);
-
-	mat4DevicePose[vr::k_unTrackedDeviceIndex_Hmd] = convertSteamVRMatrix(trackedDevicePose[vr::k_unTrackedDeviceIndex_Hmd].mDeviceToAbsoluteTracking);
-	if (trackedDevicePose[vr::k_unTrackedDeviceIndex_Hmd].bPoseIsValid) {
-		mat4HMDPose = mat4DevicePose[vr::k_unTrackedDeviceIndex_Hmd];
-		mat4HMDPose = inverse(mat4HMDPose);
-	}
-}
+VRLoader vrLoader;
 
 void renderControllers() {
 
 }
 
 void renderAll(vr::Hmd_Eye eye) {
+//-----------------------------------------------------------------------------
+// Purpose: Renders the scene with OpenGL with matrices related to the specified eye.
+//
+// Returns: N/A
+//-----------------------------------------------------------------------------
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.3f, 0.2f, 0.5f, 1.0f);
-	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_DEPTH_TEST);
 	//ViewMatrix = camera.getMatrix();
 	ModelMatrix = glm::mat4(1.0f);
 
 	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0, 0, 7));
 	//ModelViewMatrix = ViewMatrix * ModelMatrix;
 	//glUniformMatrix4fv(glGetUniformLocation(myShader.getShaderProgram(), "ModelViewMatrix") , 1, GL_FALSE, &ModelViewMatrix[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(myShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(getEyeViewProjectionMatrix(eye) * ModelMatrix));
+	glUniformMatrix4fv(glGetUniformLocation(myShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(vrLoader.getEyeViewProjectionMatrix(eye) * ModelMatrix));
 	firstModel.render(myShader);
 	renderControllers();
 }
@@ -169,43 +84,45 @@ void renderCompanionWindow() {
 }
 
 void display() {
-	
+//-----------------------------------------------------------------------------
+// Purpose: The main rendering loop. This function is called every frame.
+//
+// Returns: N/A
+//-----------------------------------------------------------------------------
 	glUseProgram(myShader.getShaderProgram());
-	updateHMDMatrixPose();
+	vrLoader.refresh();
 
-	//making projection matrix
+	//Projection Matrix for screen.
 	//glUniformMatrix4fv(glGetUniformLocation(myShader.getShaderProgram(), "ProjectionMatrix"), 1, GL_FALSE, &ProjectionMatrix[0][0]);
-	//rendering our models.
-
 
 	glEnable(GL_MULTISAMPLE);
+
 	// Left eye
-	
 	glBindFramebuffer(GL_FRAMEBUFFER, LeftEyeFrameBuffer.m_nRenderFramebufferId);
-	glViewport(0, 0, renderWidth, renderHeight);
+	glViewport(0, 0, vrLoader.renderWidth, vrLoader.renderHeight);
 	renderAll(vr::Eye_Left);
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 
-
 	// Right eye
 	glBindFramebuffer(GL_FRAMEBUFFER, RightEyeFrameBuffer.m_nRenderFramebufferId);
-	glViewport(0, 0, renderWidth, renderHeight);
+	glViewport(0, 0, vrLoader.renderWidth, vrLoader.renderHeight);
 	renderAll(vr::Eye_Right);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	glDisable(GL_MULTISAMPLE);
 	
+	//Render to the companion window.
 	renderCompanionWindow();
 
 
-	// Submit the rendered texture to the headset.
+	// Turn framebuffer texture into an OpenVR texture.
 	vr::Texture_t leftEyeTexture = { (void*)(uintptr_t)LeftEyeFrameBuffer.m_nRenderTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
-	vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture);
 	vr::Texture_t rightEyeTexture = { (void*)(uintptr_t)RightEyeFrameBuffer.m_nRenderTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
-	vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture);
 
+	//Render the texture to the headset.
+	vrLoader.render(leftEyeTexture, rightEyeTexture);
 
-
+	//Clear all buffers.
 	glFlush();
 
 }
@@ -298,65 +215,6 @@ int initModels() {
 	return 0;
 }
 
-int initVR() {
-
-	if (vr::VR_IsHmdPresent()) {
-		std::cout << "HMD is present." << std::endl;
-		if (vr::VR_IsRuntimeInstalled()) {
-			std::cout << "OpenVR Runtime is installed." << std::endl;
-		}
-		else {
-			std::cout << "OpenVR Runtime is not installed." << std::endl;
-			return -1;
-		}
-	}
-	else {
-		std::cout << "HMD is not present." << std::endl;
-		return -1;
-	}
-
-	//Load SteamVR Runtime
-
-	vr::EVRInitError evrError = vr::VRInitError_None;
-	pHMD = vr::VR_Init(&evrError, vr::VRApplication_Scene);
-
-	if (evrError != vr::VRInitError_None) {
-		std::cout << "Could not load runtime." << std::endl;
-		return -1;
-	}
-	
-	vr::EVRInitError cError = vr::VRInitError_None;
-
-	if (!vr::VRCompositor()) {
-		std::cout << "Could not load Compositor." << std::endl;
-		return -1;
-	}
-	
-	vr::EVRInputError error = vr::VRInputError_None;
-
-	error = vr::VRInput()->SetActionManifestPath("src/hellovr_bindings_generic.json");
-
-
-	//I assume this is getting the render size of headset's eyes.
-	pHMD->GetRecommendedRenderTargetSize(&renderWidth, &renderHeight);
-
-	//Create frame buffer for left and right eye using the render size.
-	createFrameBuffer(renderWidth, renderHeight, LeftEyeFrameBuffer);
-	createFrameBuffer(renderWidth, renderHeight, RightEyeFrameBuffer);
-
-	//Setup eye matrices.
-
-	ProjectionMatrixLeftEye = getEyeProjectionMatrix(vr::Eye_Left);
-	ProjectionMatrixRightEye = getEyeProjectionMatrix(vr::Eye_Right);
-
-	ViewMatrixLeftEye = getEyeViewMatrix(vr::Eye_Left);
-	ViewMatrixRightEye = getEyeViewMatrix(vr::Eye_Right);
-
-	mat4HMDPose = glm::mat4(1.0f);
-
-	return 0;
-}
-
 int init() {
 
 	//Initialise GLFW.
@@ -389,12 +247,20 @@ int init() {
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glEnable(GL_DEPTH_TEST);
 
-	myShader.createShaderFromFile("src/shaders/basic.shader");
+	myShader.createShaderFromFile("src/shaders/basicvr.shader");
 
-	if (initVR() != 0) {
+	/*if (initVR() != 0) {
+		std::cout << "Failed to setup VR." << std::endl;
+		return -1;
+	}*/
+
+	if (vrLoader.initVR() != 0) {
 		std::cout << "Failed to setup VR." << std::endl;
 		return -1;
 	}
+
+	createFrameBuffer(vrLoader.renderWidth, vrLoader.renderHeight, LeftEyeFrameBuffer);
+	createFrameBuffer(vrLoader.renderWidth, vrLoader.renderHeight, RightEyeFrameBuffer);
 
 
 	if (initModels() != 0) {
@@ -407,12 +273,8 @@ int init() {
 
 }
 
-
 int main()
 {
-
-	
-
 	//Initialisation function.
 	init();
 
@@ -420,11 +282,8 @@ int main()
 	// Loop until the user closes the window
 	while (!glfwWindowShouldClose(window))
 	{
-
+		// Main render loop.
 		display();
-
-		
-
 		// Swap front and back buffers
 		glfwSwapBuffers(window);
 

@@ -139,6 +139,7 @@
     <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\DockItUI.cpp" />
     <ClCompile Include="src\OBJLoader.cpp" />
+    <ClCompile Include="src\VRLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Camera.h" />
@@ -146,9 +147,11 @@
     <ClInclude Include="src\ProteinLoader.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\OBJLoader.h" />
+    <ClInclude Include="src\VRLoader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\basic.shader" />
+    <None Include="src\shaders\basicvr.shader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
