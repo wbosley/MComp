@@ -46,14 +46,12 @@ struct FrameBuffer {
 };
 FrameBuffer LeftEyeFrameBuffer;
 FrameBuffer RightEyeFrameBuffer;
-vr::TrackedDevicePose_t trackedDevicePose[vr::k_unMaxTrackedDeviceCount];
-glm::mat4 mat4DevicePose[vr::k_unMaxTrackedDeviceCount];
-glm::mat4 mat4HMDPose;
 glm::mat4 ProjectionMatrixLeftEye;
 glm::mat4 ProjectionMatrixRightEye;
 glm::mat4 ViewMatrixLeftEye;
 glm::mat4 ViewMatrixRightEye;
 VRLoader vrLoader;
+GLuint VAOwad;
 
 void renderControllers() {
 
@@ -249,11 +247,6 @@ int init() {
 
 	myShader.createShaderFromFile("src/shaders/basicvr.shader");
 
-	/*if (initVR() != 0) {
-		std::cout << "Failed to setup VR." << std::endl;
-		return -1;
-	}*/
-
 	if (vrLoader.initVR() != 0) {
 		std::cout << "Failed to setup VR." << std::endl;
 		return -1;
@@ -269,7 +262,7 @@ int init() {
 	}
 
 	camera = Camera();
-
+	glGenVertexArrays(1, &VAOwad);
 
 }
 
