@@ -66,39 +66,15 @@ void renderAll(glm::mat4 ViewMatrix) {
 //-----------------------------------------------------------------------------
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.3f, 0.2f, 0.5f, 1.0f);
-	//glEnable(GL_DEPTH_TEST);
-	//ViewMatrix = camera.getMatrix();
-	ModelMatrix = glm::mat4(1.0f);
 
+	ModelMatrix = glm::mat4(1.0f);
 	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0, 0, 7));
-	//ModelViewMatrix = ViewMatrix * ModelMatrix;
-	//glUniformMatrix4fv(glGetUniformLocation(myShader.getShaderProgram(), "ModelViewMatrix") , 1, GL_FALSE, &ModelViewMatrix[0][0]);
+
 	glUniformMatrix4fv(glGetUniformLocation(myShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * ModelMatrix));
 	firstModel.render(myShader);
 	renderControllers();
-
 }
-/*
-void renderAll(vr::Hmd_Eye eye) {
-//-----------------------------------------------------------------------------
-// Purpose: Renders the scene with OpenGL with matrices related to the specified eye.
-//
-// Returns: N/A
-//-----------------------------------------------------------------------------
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(0.3f, 0.2f, 0.5f, 1.0f);
-	//glEnable(GL_DEPTH_TEST);
-	//ViewMatrix = camera.getMatrix();
-	ModelMatrix = glm::mat4(1.0f);
 
-	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0, 0, 7));
-	//ModelViewMatrix = ViewMatrix * ModelMatrix;
-	//glUniformMatrix4fv(glGetUniformLocation(myShader.getShaderProgram(), "ModelViewMatrix") , 1, GL_FALSE, &ModelViewMatrix[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(myShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(vrLoader.getEyeViewProjectionMatrix(eye) * ModelMatrix));
-	firstModel.render(myShader);
-	renderControllers();
-}
-*/
 void renderCompanionWindow() {
 
 }
@@ -133,6 +109,7 @@ void display() {
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, screenWidth, screenHeight);
+	//so we can use the same shader for the VR headset and the companion window, we multiply the projection matrix by the view matrix here rather than in the shader.
 	renderAll(ProjectionMatrix * camera.getMatrix());
 
 	
