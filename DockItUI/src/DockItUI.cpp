@@ -262,7 +262,8 @@ int init() {
 	}
 
 	camera = Camera();
-	glGenVertexArrays(1, &VAOwad);
+	camera.setPosition(glm::vec3(0.0, -2.5, -15.0));
+	
 
 }
 
