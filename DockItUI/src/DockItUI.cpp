@@ -57,6 +57,28 @@ void renderControllers() {
 
 }
 
+void renderAll(glm::mat4 ViewMatrix) {
+//-----------------------------------------------------------------------------
+// Purpose: Renders the scene with OpenGL with matrices related to a specific 
+//			camera/eye's view matrix.
+//
+// Returns: N/A
+//-----------------------------------------------------------------------------
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearColor(0.3f, 0.2f, 0.5f, 1.0f);
+	//glEnable(GL_DEPTH_TEST);
+	//ViewMatrix = camera.getMatrix();
+	ModelMatrix = glm::mat4(1.0f);
+
+	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0, 0, 7));
+	//ModelViewMatrix = ViewMatrix * ModelMatrix;
+	//glUniformMatrix4fv(glGetUniformLocation(myShader.getShaderProgram(), "ModelViewMatrix") , 1, GL_FALSE, &ModelViewMatrix[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(myShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * ModelMatrix));
+	firstModel.render(myShader);
+	renderControllers();
+
+}
+/*
 void renderAll(vr::Hmd_Eye eye) {
 //-----------------------------------------------------------------------------
 // Purpose: Renders the scene with OpenGL with matrices related to the specified eye.
@@ -76,7 +98,7 @@ void renderAll(vr::Hmd_Eye eye) {
 	firstModel.render(myShader);
 	renderControllers();
 }
-
+*/
 void renderCompanionWindow() {
 
 }
@@ -98,16 +120,21 @@ void display() {
 	// Left eye
 	glBindFramebuffer(GL_FRAMEBUFFER, LeftEyeFrameBuffer.m_nRenderFramebufferId);
 	glViewport(0, 0, vrLoader.renderWidth, vrLoader.renderHeight);
-	renderAll(vr::Eye_Left);
+	renderAll(vrLoader.getEyeViewProjectionMatrix(vr::Eye_Left));
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 
 	// Right eye
 	glBindFramebuffer(GL_FRAMEBUFFER, RightEyeFrameBuffer.m_nRenderFramebufferId);
 	glViewport(0, 0, vrLoader.renderWidth, vrLoader.renderHeight);
-	renderAll(vr::Eye_Right);
+	renderAll(vrLoader.getEyeViewProjectionMatrix(vr::Eye_Right));
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	glDisable(GL_MULTISAMPLE);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, screenWidth, screenHeight);
+	renderAll(ProjectionMatrix * camera.getMatrix());
+
 	
 	//Render to the companion window.
 	renderCompanionWindow();
