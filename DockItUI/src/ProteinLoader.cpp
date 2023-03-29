@@ -91,17 +91,7 @@ bool ProteinLoader::loadProtein(const char* path) {
 			coordinates.push_back(coordinate);
 
 			std::cout << coordinate.x << " " << coordinate.y << " " << coordinate.z << std::endl;
-		}
-		
-		
-		/*
-		if (do some  magic to worm out if the atom has ended) {
-
-		}
-		
-		*/
-
-		
+		}	
 	}
 
 
