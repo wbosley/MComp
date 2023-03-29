@@ -112,6 +112,8 @@ void display() {
 	//so we can use the same shader for the VR headset and the companion window, we multiply the projection matrix by the view matrix here rather than in the shader.
 	renderAll(ProjectionMatrix * camera.getMatrix());
 
+	//Code to make the companion window display view from headset location - George
+	//renderAll(ProjectionMatrix * vrLoader.getHeadsetMatrix());
 	
 	//Render to the companion window.
 	renderCompanionWindow();

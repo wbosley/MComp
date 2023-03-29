@@ -38,11 +38,10 @@ bool OBJLoader::loadOBJ(const char* path) {
 
 		if (identifier == "v") {
 			glm::vec3 vertex;
-			//shift the next three parts into vertex.x, vertex.y and vertx.z
+			//shift the next three parts into vertex.x, vertex.y and vertex.z
 			ss >> vertex.x;
 			ss >> vertex.y;
 			ss >> vertex.z;
-			//std::cout << "x:" << vertex.x << " y: " << vertex.y << " z: " << vertex.z << std::endl;
 			//putting the vertex into the array of vertices
 			vertices.push_back(vertex);
 		}
@@ -61,19 +60,16 @@ bool OBJLoader::loadOBJ(const char* path) {
 		}
 		else if (identifier == "f") {
 			int vI[3], uI[3], nI[3], i = 0, j = 0;
-			std::string faces;
 
 			for (int i = 0; i < 3; i++) {
 				ss >> offload;
 				indicies.push_back(offload);
 			}
 			for (auto val : indicies) {
-				//std::cout << val << std::endl;
 				std::stringstream ss2(val);
 				std::string dump;
 				getline(ss2, dump, '/');
 				vertices_indices.push_back(std::stoi(dump) - 1);
-				//std::cout << dump << std::endl;
 				getline(ss2, dump, '/');
 				uvs_indices.push_back(std::stoi(dump));
 				getline(ss2, dump, '/');
