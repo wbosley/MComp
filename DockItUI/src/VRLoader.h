@@ -18,6 +18,7 @@ class VRLoader
 		void render(vr::Texture_t Left, vr::Texture_t Right);
 		GLuint renderWidth;
 		GLuint renderHeight;
+		glm::mat4 getHeadsetMatrix();
 	private:
 		vr::TrackedDevicePose_t trackedDevicePose[vr::k_unMaxTrackedDeviceCount];
 		glm::mat4 mat4DevicePose[vr::k_unMaxTrackedDeviceCount];

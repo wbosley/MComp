@@ -172,7 +172,11 @@ void VRLoader::refresh() {
 
 }
 
-void::VRLoader::render(vr::Texture_t Left, vr::Texture_t Right) {
+void VRLoader::render(vr::Texture_t Left, vr::Texture_t Right) {
 	vr::VRCompositor()->Submit(vr::Eye_Left, &Left);
 	vr::VRCompositor()->Submit(vr::Eye_Right, &Right);
+}
+
+glm::mat4 VRLoader::getHeadsetMatrix() {
+	return mat4HMDPose;
 }
