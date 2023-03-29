@@ -13,18 +13,77 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\OBJLoader">
+      <UniqueIdentifier>{234d11c6-cd8f-4281-929e-cf25c9431e3f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader">
+      <UniqueIdentifier>{ac94801a-d499-4955-8ecb-03c0a84559c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Model3D">
+      <UniqueIdentifier>{f8590259-ca67-4b29-918b-9361d31852af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shaders">
+      <UniqueIdentifier>{7675a4c7-7d35-438d-9ac9-b5a6aaff0224}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Camera">
+      <UniqueIdentifier>{f6bbf730-357b-4124-8a77-ac55c780cedb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ProteinLoader">
+      <UniqueIdentifier>{439f4118-cd29-4b50-9cc5-8a625dbc6702}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\VRLoader">
+      <UniqueIdentifier>{11dec4df-b957-49b6-8c06-6c932628384a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DockItUI.cpp">
+    <ClCompile Include="src\DockItUI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OBJLoader.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\OBJLoader.cpp">
+      <Filter>Header Files\OBJLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Shader.cpp">
+      <Filter>Header Files\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Model3D.cpp">
+      <Filter>Header Files\Model3D</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Camera.cpp">
+      <Filter>Header Files\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ProteinLoader.cpp">
+      <Filter>Header Files\ProteinLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VRLoader.cpp">
+      <Filter>Header Files\VRLoader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="OBJLoader.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="src\OBJLoader.h">
+      <Filter>Header Files\OBJLoader</Filter>
     </ClInclude>
+    <ClInclude Include="src\Shader.h">
+      <Filter>Header Files\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Model3D.h">
+      <Filter>Header Files\Model3D</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Camera.h">
+      <Filter>Header Files\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ProteinLoader.h">
+      <Filter>Header Files\ProteinLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VRLoader.h">
+      <Filter>Header Files\VRLoader</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\shaders\basic.shader">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="src\shaders\basicvr.shader">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
