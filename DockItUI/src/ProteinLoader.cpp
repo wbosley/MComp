@@ -1,6 +1,5 @@
 #include "ProteinLoader.h"
-#include <fstream>
-#include <iostream>
+
 
 ProteinLoader::ProteinLoader() {
 }
@@ -59,7 +58,50 @@ bool ProteinLoader::loadProtein(const char* path) {
 		return false;
 	}
 	while (getline(file, line)) {
+		//make a substring of the line, and find the identifier that appears before the first whitespace.
+		std::string identifier = line.substr(0, line.find(" "));
+		//stream  -stream of input. we are taking the line, bitwising shifting into offload. we are deliminating by default delimter (space) - its etting rid of the ATOM, and getting the atom serial number. ATOM and the first space go into offload, line turns into just the other details
+		//std::stringstream ss(line);
+		//ss >> offload;
 
+		std::stringstream ss(line);
+
+		if (identifier == "ATOM") {
+			//although we use string streams in most cases where we read from a file in this program, pdb files arent deliminated using anything - the meaning of a character is determined by its index in the line. Therefore, it is more effective to use substrings and remove the whitespace.
+			std::string atomName = line.substr(12, 4); 
+			atomName.erase(std::remove_if(atomName.begin(), atomName.end(), isspace), atomName.end());
+			atomNames.push_back(atomName);
+			std::cout << atomName << std::endl;
+
+			glm::vec3 coordinate;
+
+			std::string coordString;
+			coordString = line.substr(30, 8); 
+			coordString.erase(std::remove_if(coordString.begin(), coordString.end(), isspace), coordString.end());
+			coordinate.x = std::stof(coordString);
+
+			coordString = line.substr(38, 8);
+			coordString.erase(std::remove_if(coordString.begin(), coordString.end(), isspace), coordString.end());
+			coordinate.y = std::stof(coordString);
+
+			coordString = line.substr(46, 8);
+			coordString.erase(std::remove_if(coordString.begin(), coordString.end(), isspace), coordString.end());
+			coordinate.z = std::stof(coordString);
+
+			coordinates.push_back(coordinate);
+
+			std::cout << coordinate.x << " " << coordinate.y << " " << coordinate.z << std::endl;
+		}
+		
+		
+		/*
+		if (do some  magic to worm out if the atom has ended) {
+
+		}
+		
+		*/
+
+		
 	}
 
 
