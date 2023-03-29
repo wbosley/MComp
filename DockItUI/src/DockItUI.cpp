@@ -14,6 +14,7 @@
 #include "Camera.h"
 #include <math.h>
 #include "VRLoader.h"
+#include "ProteinLoader.h"
 
 #define FORWARD 0
 #define BACKWARD 1
@@ -270,6 +271,9 @@ int init() {
 	camera = Camera();
 	camera.setPosition(glm::vec3(0.0, -2.5, -15.0));
 	
+	//Initiliase the protein loader
+	ProteinLoader proteinLoader = ProteinLoader();
+	proteinLoader.loadProtein("src/proteins/Test3.pdb");
 
 }
 
