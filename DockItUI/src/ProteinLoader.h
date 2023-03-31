@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include "DataTable.h"
 
 
 class ProteinLoader {
@@ -13,8 +14,16 @@ public:
 
     //these are in instance variables for a protein
     std::vector<std::string> atomNames;
-    std::vector<glm::vec3> coordinates;
-    
+    std::vector<glm::vec3> atomCoordinates;
+    std::vector<glm::vec3> atomColours;
+    std::vector<float> atomRadii;
 
-  
+private:
+    DataTables* data;
+    DataTables::colour_list listOfColours;
+    DataTables::VDW_Radii_list listOfRadii;
+    std::string getAtomNameFromLine(std::string line);
+    glm::vec3 getAtomCoordinatesFromLine(std::string line);
+    glm::vec3 getColorFromAtomName(std::string atomName);
+    float getRadiusFromAtomName(std::string atomName);
 };

@@ -57,6 +57,9 @@
     <ClCompile Include="src\VRLoader.cpp">
       <Filter>Header Files\VRLoader</Filter>
     </ClCompile>
+    <ClCompile Include="src\DataTable.cpp">
+      <Filter>Header Files\ProteinLoader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\OBJLoader.h">
@@ -76,6 +79,9 @@
     </ClInclude>
     <ClInclude Include="src\VRLoader.h">
       <Filter>Header Files\VRLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="src\DataTable.h">
+      <Filter>Header Files\ProteinLoader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

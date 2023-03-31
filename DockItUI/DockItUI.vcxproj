@@ -133,6 +133,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\DataTable.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\Model3D.cpp" />
     <ClCompile Include="src\ProteinLoader.cpp" />
@@ -142,6 +143,7 @@
     <ClCompile Include="src\VRLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\DataTable.h" />
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\Model3D.h" />
     <ClInclude Include="src\ProteinLoader.h" />
