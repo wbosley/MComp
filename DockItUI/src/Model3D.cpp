@@ -1,13 +1,7 @@
 #include "Model3D.h"
 
-#include <GL/glew.h>
-#include <glm/glm.hpp>
-#include <iostream>
-
-
 GLuint VAO;
 GLuint* VBOs;
-
 
 //constructor
 Model3D::Model3D()
@@ -30,14 +24,14 @@ int Model3D::loadModelFromObj(OBJLoader obj)
 	uvs_indices = obj.uvs_indices;
 	normals_indices = obj.normals_indices;
 
-	int vaoAndVboinitialised = putModelDataInVbosAndVaos(vertices, vertices_indices);
+	int vaoAndVboinitialised = putModelDataInVbosAndVaos();
 
 	//adding together all the returned values to make sure ntohing broke. if more than 0 then something went wrong.
 	return 0 + vaoAndVboinitialised;
 
 }
 
-int Model3D::putModelDataInVbosAndVaos(std::vector<glm::vec3> vertices, std::vector<unsigned int> vertices_indices)
+int Model3D::putModelDataInVbosAndVaos()
 {
 	VBOs = new GLuint[2];
 
@@ -85,4 +79,13 @@ int Model3D::render(Shader myShader)
 	glBindVertexArray(0);
 
 	return 0;
+}
+
+void Model3D::updateBufferData()
+{
+	glBindBuffer(GL_ARRAY_BUFFER, VBOs[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBOs[1]);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * vertices_indices.size(), &vertices_indices[0], GL_STATIC_DRAW);
 }
