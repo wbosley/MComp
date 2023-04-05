@@ -15,6 +15,8 @@
 #include <math.h>
 #include "VRLoader.h"
 #include "ProteinLoader.h"
+#include "Sphere.h"
+#include "Protein3D.h"
 
 #define FORWARD 0
 #define BACKWARD 1
@@ -38,7 +40,10 @@ glm::mat4 ModelMatrix;
 Shader myShader;
 vr::IVRSystem* pHMD;
 OBJLoader objLoader;
+ProteinLoader proteinLoader;
+Protein3D firstProtein;
 Model3D firstModel;
+Sphere firstSphere;
 Camera camera;
 struct FrameBuffer {
 	GLuint m_nDepthBufferId;
@@ -72,7 +77,8 @@ void renderAll(glm::mat4 ViewMatrix) {
 	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0, 0, 7));
 
 	glUniformMatrix4fv(glGetUniformLocation(myShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * ModelMatrix));
-	firstModel.render(myShader);
+	//firstModel.render(myShader);
+	firstProtein.render(myShader);
 	renderControllers();
 }
 
@@ -111,10 +117,10 @@ void display() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, screenWidth, screenHeight);
 	//so we can use the same shader for the VR headset and the companion window, we multiply the projection matrix by the view matrix here rather than in the shader.
-	renderAll(ProjectionMatrix * camera.getMatrix());
+	//renderAll(ProjectionMatrix * camera.getMatrix());
 
 	//Code to make the companion window display view from headset location - George
-	//renderAll(ProjectionMatrix * vrLoader.getHeadsetMatrix());
+	renderAll(ProjectionMatrix * vrLoader.getHeadsetMatrix());
 	
 	//Render to the companion window.
 	renderCompanionWindow();
@@ -217,6 +223,12 @@ void createFrameBuffer(int width, int height, FrameBuffer& framebuffer) {
 int initModels() {
 	objLoader.loadOBJ("src/models/teapot.obj");
 	firstModel.loadModelFromObj(objLoader);
+	firstSphere.constructGeometry(8);
+
+	proteinLoader.loadProtein("src/proteins/Test3.pdb");
+	firstProtein.loadProteinFromProteinLoader(proteinLoader);
+
+	std::cout << "getting to end of initmodels" << std::endl;
 	return 0;
 }
 
@@ -271,9 +283,8 @@ int init() {
 	camera = Camera();
 	camera.setPosition(glm::vec3(0.0, -2.5, -15.0));
 	
-	//Initiliase the protein loader
-	ProteinLoader proteinLoader = ProteinLoader();
-	proteinLoader.loadProtein("src/proteins/Test3.pdb");
+	
+	
 
 }
 
