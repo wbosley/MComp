@@ -34,6 +34,9 @@
     <Filter Include="Header Files\VRLoader">
       <UniqueIdentifier>{11dec4df-b957-49b6-8c06-6c932628384a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Protein3D">
+      <UniqueIdentifier>{0fd4f97f-c6d6-40ed-bac4-97413e084a06}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\DockItUI.cpp">
@@ -60,6 +63,12 @@
     <ClCompile Include="src\DataTable.cpp">
       <Filter>Header Files\ProteinLoader</Filter>
     </ClCompile>
+    <ClCompile Include="src\Sphere.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Protein3D.cpp">
+      <Filter>Header Files\Protein3D</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\OBJLoader.h">
@@ -82,6 +91,12 @@
     </ClInclude>
     <ClInclude Include="src\DataTable.h">
       <Filter>Header Files\ProteinLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Sphere.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Protein3D.h">
+      <Filter>Header Files\Protein3D</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
