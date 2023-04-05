@@ -43,6 +43,7 @@ OBJLoader objLoader;
 ProteinLoader proteinLoader;
 Protein3D firstProtein;
 Model3D firstModel;
+Model3D secondModel;
 Sphere firstSphere;
 Camera camera;
 struct FrameBuffer {
@@ -74,11 +75,17 @@ void renderAll(glm::mat4 ViewMatrix) {
 	glClearColor(0.3f, 0.2f, 0.5f, 1.0f);
 
 	ModelMatrix = glm::mat4(1.0f);
-	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0, 0, 7));
+	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-5, 0, 7));
 
 	glUniformMatrix4fv(glGetUniformLocation(myShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * ModelMatrix));
-	//firstModel.render(myShader);
+	firstModel.render(myShader);
+
+	ModelMatrix = glm::mat4(1.0f);
+	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(3, 0, 7));
+	glUniformMatrix4fv(glGetUniformLocation(myShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * ModelMatrix));
 	firstProtein.render(myShader);
+
+	//firstProtein.render(myShader);
 	renderControllers();
 }
 
@@ -223,9 +230,8 @@ void createFrameBuffer(int width, int height, FrameBuffer& framebuffer) {
 int initModels() {
 	objLoader.loadOBJ("src/models/teapot.obj");
 	firstModel.loadModelFromObj(objLoader);
-	firstSphere.constructGeometry(8);
 
-	proteinLoader.loadProtein("src/proteins/Test3.pdb");
+	proteinLoader.loadProtein("src/proteins/1ADG7046.pdb");
 	firstProtein.loadProteinFromProteinLoader(proteinLoader);
 
 	std::cout << "getting to end of initmodels" << std::endl;

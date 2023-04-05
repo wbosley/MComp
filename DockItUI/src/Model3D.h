@@ -28,6 +28,9 @@ class Model3D
 		std::vector<unsigned int> uvs_indices;
 		std::vector<unsigned int> normals_indices;
 
+		GLuint VAO;
+		GLuint* VBOs;
+
 		void updateBufferData();
 
 		int putModelDataInVbosAndVaos();

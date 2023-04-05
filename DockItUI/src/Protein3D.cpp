@@ -26,9 +26,10 @@ int Protein3D::constructSpheres() {
 		//std::cout << "radius: " << atomRadii[i] << std::endl;
 		//std::cout << "centre: " << atomCoordinates[i].x << " " << atomCoordinates[i].y << " " << atomCoordinates[i].z << std::endl;
 		Sphere sphere;
-		sphere.setRadius(atomRadii[i] / 10.0f);
+		sphere.setRadius(atomRadii[i] / 15.0f);
 		sphere.constructGeometry(20);
 		sphere.setCentre(atomCoordinates[i]);
+		sphere.initSphere();
 		spheres.push_back(sphere);
 	}
 

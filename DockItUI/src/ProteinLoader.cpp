@@ -77,17 +77,17 @@ bool ProteinLoader::loadProtein(const char* path) {
 
 			glm::vec3 coordinate = getAtomCoordinatesFromLine(line);
 			atomCoordinates.push_back(coordinate);
-			std::cout << "Coordinates: " << coordinate.x << " " << coordinate.y << " " << coordinate.z << std::endl;
+			//std::cout << "Coordinates: " << coordinate.x << " " << coordinate.y << " " << coordinate.z << std::endl;
 
 			//get the colour of the atom
 			glm::vec3 colourVector = getColorFromAtomName(atomName);
 			atomColours.push_back(colourVector);
-			std::cout << "Colour: " << colourVector.x << " " << colourVector.y << " " << colourVector.z << std::endl;
+			//std::cout << "Colour: " << colourVector.x << " " << colourVector.y << " " << colourVector.z << std::endl;
 
 			//et the radius of the atom
 			float radius = getRadiusFromAtomName(atomName);
 			atomRadii.push_back(radius);;
-			std::cout << "Radius: " << radius << std::endl;
+			//std::cout << "Radius: " << radius << std::endl;
 		}
 	}
 	return false;

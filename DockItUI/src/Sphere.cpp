@@ -15,9 +15,13 @@ void Sphere::setRadius(float rad)
 	r = rad;
 }
 
+void Sphere::initSphere() {
+	putModelDataInVbosAndVaos();
+}
+
 void Sphere::setCentre(glm::vec3 coord)
 {
-	std::cout<<"vertex1 before: " << vertices[0].x << " " << vertices[0].y << " " << vertices[0].z << std::endl;
+	//std::cout<<"vertex1 before: " << vertices[0].x << " " << vertices[0].y << " " << vertices[0].z << std::endl;
 	
 	//loop through vertices
 	for (int i = 0; i < vertices.size(); i++) {
@@ -26,8 +30,8 @@ void Sphere::setCentre(glm::vec3 coord)
 		vertices[i].z += coord.z;
 	}
 
-	std::cout << "vertex1 after: " << vertices[0].x << " " << vertices[0].y << " " << vertices[0].z << std::endl;
-	updateBufferData();
+	//std::cout << "vertex1 after: " << vertices[0].x << " " << vertices[0].y << " " << vertices[0].z << std::endl;
+	//updateBufferData();
 }
 
 int Sphere::constructGeometry(int level)
@@ -112,21 +116,21 @@ int Sphere::constructGeometry(int level)
 
 	for (i = 0; i < sizeOfVerts; i += 3)
 	{
-		vertices.push_back(glm::vec3(verts[i], verts[i + 1], verts[i + 2]));
+		Model3D::vertices.push_back(glm::vec3(verts[i], verts[i + 1], verts[i + 2]));
 	}
 
 	for (i = 0; i < sizeOfNorms; i += 3)
 	{
-		normals.push_back(glm::vec3(norms[i], norms[i + 1], norms[i + 2]));
+		Model3D::normals.push_back(glm::vec3(norms[i], norms[i + 1], norms[i + 2]));
 	}
 
 	for (i = 0; i < sizeOfTInds; i++)
 	{
-		vertices_indices.push_back(tInds[i]);
+		Model3D::vertices_indices.push_back(tInds[i]);
 	}
 
-	int vaoAndVboinitialised = putModelDataInVbosAndVaos();
+	//int vaoAndVboinitialised = putModelDataInVbosAndVaos();
 	//adding together all the returned values to make sure ntohing broke. if more than 0 then something went wrong.
-	return 0 + vaoAndVboinitialised;
+	//return 0 + vaoAndVboinitialised;
 	return 0;
 }

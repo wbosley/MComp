@@ -14,6 +14,14 @@ OBJLoader::OBJLoader() {
 //creat an objinfo class which has an object with the variables. the struct is created in objloader, and its returned.
 bool OBJLoader::loadOBJ(const char* path) {
 
+	vertices.clear();
+	uvs.clear();
+	normals.clear();
+
+	vertices_indices.clear();
+	uvs_indices.clear();
+	normals_indices.clear();
+
 	std::ifstream file;
 	std::string line;
 	std::string offload;
@@ -43,20 +51,20 @@ bool OBJLoader::loadOBJ(const char* path) {
 			ss >> vertex.y;
 			ss >> vertex.z;
 			//putting the vertex into the array of vertices
-			vertices.push_back(vertex);
+			this->vertices.push_back(vertex);
 		}
 		else if (identifier == "vt") {
 			glm::vec2 uv;
 			ss >> uv.x;
 			ss >> uv.y;
-			uvs.push_back(uv);
+			this->uvs.push_back(uv);
 		}
 		else if (identifier == "vn") {
 			glm::vec3 normal;
 			ss >> normal.x;
 			ss >> normal.y;
 			ss >> normal.z;
-			normals.push_back(normal);
+			this->normals.push_back(normal);
 		}
 		else if (identifier == "f") {
 			int vI[3], uI[3], nI[3], i = 0, j = 0;
@@ -69,11 +77,11 @@ bool OBJLoader::loadOBJ(const char* path) {
 				std::stringstream ss2(val);
 				std::string dump;
 				getline(ss2, dump, '/');
-				vertices_indices.push_back(std::stoi(dump) - 1);
+				this->vertices_indices.push_back(std::stoi(dump) - 1);
 				getline(ss2, dump, '/');
-				uvs_indices.push_back(std::stoi(dump));
+				this->uvs_indices.push_back(std::stoi(dump));
 				getline(ss2, dump, '/');
-				normals_indices.push_back(std::stoi(dump));
+				this->normals_indices.push_back(std::stoi(dump));
 			}
 		}
 	}
