@@ -17,6 +17,8 @@ class Model3D
 		int loadOpenVRModel(std::vector<glm::vec3> vertices, std::vector<unsigned int> vertices_indices);
 		int loadModelFromObj(OBJLoader obj);
 		int render(Shader myShader);
+
+		bool isModelValid;
 		
 
 	protected:

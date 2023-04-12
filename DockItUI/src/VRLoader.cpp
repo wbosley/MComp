@@ -104,9 +104,6 @@ Model3D VRLoader::FindOrLoadRenderModel(const char * renderModelName) {
 			break;
 		}
 	}
-	
-
-	std::cout << "Triangle count: " << pModel->unTriangleCount << std::endl;
 
 	//vr::RenderModel_Vertex_t* pVerts[pModel->unVertexCount]
 	
@@ -224,8 +221,8 @@ void VRLoader::handleInput() {
 				std::string sRenderModelName = GetTrackedDeviceString(originInfo.trackedDeviceIndex, vr::Prop_RenderModelName_String);
 				if (sRenderModelName != m_rHand[eHand].m_sRenderModelName)
 				{
-					std::cout << sRenderModelName.c_str() << std::endl;
 					m_rHand[eHand].m_pRenderModel = FindOrLoadRenderModel(sRenderModelName.c_str());
+					std::cout << "Loaded: " << sRenderModelName << std::endl;
 					m_rHand[eHand].m_sRenderModelName = sRenderModelName;
 				}
 			}
@@ -270,7 +267,7 @@ int VRLoader::initVR() {
 
 	error = vr::VRInput()->SetActionManifestPath("C:/Users/Eleva/Documents/GitHub/MComp/DockItUI/src/hellovr_actions.json");
 
-	std::cout << "error: " << error << std::endl;
+	//std::cout << "error: " << error << std::endl;
 
 	vr::VRInput()->GetActionHandle("/actions/demo/in/HideCubes", &m_actionHideCubes);
 	vr::VRInput()->GetActionHandle("/actions/demo/in/HideThisController", &m_actionHideThisController);
@@ -325,10 +322,29 @@ void VRLoader::render(vr::Texture_t Left, vr::Texture_t Right) {
 }
 
 glm::mat4 VRLoader::getHeadsetMatrix() {
-	//return this->mat4HMDPose;
-	return this->mat4DevicePose[1];
+	return this->mat4HMDPose;
+	//return this->mat4DevicePose[1];
 }
 
 Model3D* VRLoader::getControllerModel(EHand eHand) {
 	return &m_rHand[eHand].m_pRenderModel;
+}
+
+void VRLoader::renderControllers(Shader shader, glm::mat4 ViewMatrix) {
+	for (EHand eHand = Left; eHand <= Right; ((int&)eHand)++)
+	{
+		std::cout << "show controller: " << m_rHand[eHand].m_bShowController << std::endl;
+		std::cout << "model valid: " << m_rHand[eHand].m_pRenderModel.isModelValid << std::endl;
+		if (!m_rHand[eHand].m_bShowController || !m_rHand[eHand].m_pRenderModel.isModelValid)
+			continue;
+		std::cout << "here!" << std::endl;
+
+		glm::mat4 matDeviceToTracking = m_rHand[eHand].m_rmat4Pose;
+		glm::mat4 matMVP = ViewMatrix * matDeviceToTracking;
+
+		glUniformMatrix4fv(glGetUniformLocation(shader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(matMVP));
+
+
+		m_rHand[eHand].m_pRenderModel.render(shader);
+	}
 }

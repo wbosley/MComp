@@ -5,6 +5,7 @@
 //constructor
 Model3D::Model3D()
 {
+	isModelValid = false;
 }
 
 //destructor
@@ -71,6 +72,8 @@ int Model3D::putModelDataInVbosAndVaos()
 	//unbind the vbo and vao
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+
+	isModelValid = true;
 
 	return 0;
 }

@@ -44,8 +44,6 @@ ProteinLoader proteinLoader;
 Protein3D firstProtein;
 Model3D firstModel;
 Model3D secondModel;
-Model3D* controller1;
-Model3D* controller2;
 Sphere firstSphere;
 Camera camera;
 struct FrameBuffer {
@@ -62,9 +60,6 @@ glm::mat4 ViewMatrixRightEye;
 VRLoader vrLoader;
 GLuint VAOwad;
 
-void renderControllers() {
-
-}
 
 void renderAll(glm::mat4 ViewMatrix) {
 //-----------------------------------------------------------------------------
@@ -80,18 +75,15 @@ void renderAll(glm::mat4 ViewMatrix) {
 	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-5, 0, 7));
 
 	glUniformMatrix4fv(glGetUniformLocation(myShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * ModelMatrix));
-	//firstModel.render(myShader);
+	firstModel.render(myShader);
 
 	ModelMatrix = glm::mat4(1.0f);
 	ModelMatrix = vrLoader.getHeadsetMatrix();
 	//ModelMatrix = glm::translate(ModelMatrix, glm::vec3(3, 0, 7));
 	glUniformMatrix4fv(glGetUniformLocation(myShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * ModelMatrix));
 	//firstProtein.render(myShader);
-	controller1->render(myShader);
-	controller2->render(myShader);
-
-	//firstProtein.render(myShader);
-	renderControllers();
+	
+	vrLoader.renderControllers(myShader, ViewMatrix);
 }
 
 void renderCompanionWindow() {
@@ -129,10 +121,10 @@ void display() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, screenWidth, screenHeight);
 	//so we can use the same shader for the VR headset and the companion window, we multiply the projection matrix by the view matrix here rather than in the shader.
-	renderAll(ProjectionMatrix * camera.getMatrix());
+	//renderAll(ProjectionMatrix * camera.getMatrix());
 
 	//Code to make the companion window display view from headset location - George
-	//renderAll(ProjectionMatrix * vrLoader.getHeadsetMatrix());
+	renderAll(ProjectionMatrix * vrLoader.getHeadsetMatrix());
 	
 	//Render to the companion window.
 	renderCompanionWindow();
@@ -238,8 +230,6 @@ int initModels() {
 
 	proteinLoader.loadProtein("src/proteins/1ADG7046.pdb");
 	firstProtein.loadProteinFromProteinLoader(proteinLoader);
-	controller1 = vrLoader.getControllerModel(VRLoader::EHand::Left);
-	controller2 = vrLoader.getControllerModel(VRLoader::EHand::Right);
 
 	return 0;
 }

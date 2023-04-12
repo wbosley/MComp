@@ -24,11 +24,23 @@ class VRLoader
 		glm::mat4 getEyeViewProjectionMatrix(vr::Hmd_Eye eye);
 		void refresh();
 		void render(vr::Texture_t Left, vr::Texture_t Right);
+		void renderControllers(Shader shader, glm::mat4);
 		void handleInput();
 		GLuint renderWidth;
 		GLuint renderHeight;
 		glm::mat4 getHeadsetMatrix();
 		Model3D* getControllerModel(EHand eHand);
+		struct ControllerInfo_t
+		{
+			vr::VRInputValueHandle_t m_source = vr::k_ulInvalidInputValueHandle;
+			vr::VRActionHandle_t m_actionPose = vr::k_ulInvalidActionHandle;
+			vr::VRActionHandle_t m_actionHaptic = vr::k_ulInvalidActionHandle;
+			glm::mat4 m_rmat4Pose;
+			Model3D m_pRenderModel;
+			std::string m_sRenderModelName;
+			bool m_bShowController;
+		};
+		ControllerInfo_t m_rHand[2];
 	private:
 		vr::TrackedDevicePose_t trackedDevicePose[vr::k_unMaxTrackedDeviceCount];
 		glm::mat4 mat4DevicePose[vr::k_unMaxTrackedDeviceCount];
@@ -54,19 +66,10 @@ class VRLoader
 		vr::VRActionHandle_t m_actionHideThisController = vr::k_ulInvalidActionHandle;
 		vr::VRActionHandle_t m_actionTriggerHaptic = vr::k_ulInvalidActionHandle;
 		vr::VRActionHandle_t m_actionAnalongInput = vr::k_ulInvalidActionHandle;
-		struct ControllerInfo_t
-		{
-			vr::VRInputValueHandle_t m_source = vr::k_ulInvalidInputValueHandle;
-			vr::VRActionHandle_t m_actionPose = vr::k_ulInvalidActionHandle;
-			vr::VRActionHandle_t m_actionHaptic = vr::k_ulInvalidActionHandle;
-			glm::mat4 m_rmat4Pose;
-			Model3D m_pRenderModel;
-			std::string m_sRenderModelName;
-			bool m_bShowController;
-		};
 
 
-		ControllerInfo_t m_rHand[2];
+
+		
 		
 };
 
