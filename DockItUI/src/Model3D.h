@@ -14,6 +14,7 @@ class Model3D
 		~Model3D();
 
 		//will return 1 or zero depending on failure or success
+		int loadOpenVRModel(std::vector<glm::vec3> vertices, std::vector<unsigned int> vertices_indices);
 		int loadModelFromObj(OBJLoader obj);
 		int render(Shader myShader);
 		

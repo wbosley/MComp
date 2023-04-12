@@ -73,7 +73,7 @@ bool ProteinLoader::loadProtein(const char* path) {
 			
 			std::string atomName = getAtomNameFromLine(line);
 			atomNames.push_back(atomName);
-			std::cout << atomName << std::endl;
+			//std::cout << atomName << std::endl;
 
 			glm::vec3 coordinate = getAtomCoordinatesFromLine(line);
 			atomCoordinates.push_back(coordinate);

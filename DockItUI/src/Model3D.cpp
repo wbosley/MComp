@@ -12,6 +12,16 @@ Model3D::~Model3D()
 {
 }
 
+int Model3D::loadOpenVRModel(std::vector<glm::vec3> vertices, std::vector<unsigned int> vertices_indices) {
+	this->vertices = vertices;
+	this->vertices_indices = vertices_indices;
+
+	int vaoAndVboinitialised = putModelDataInVbosAndVaos();
+
+	//adding together all the returned values to make sure ntohing broke. if more than 0 then something went wrong.
+	return 0 + vaoAndVboinitialised;
+}
+
 //load model from obj
 int Model3D::loadModelFromObj(OBJLoader obj)
 {
