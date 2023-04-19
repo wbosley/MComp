@@ -6,7 +6,7 @@
 #include <sstream>
 #include <fstream>
 
-GLuint program;
+
 
 Shader::Shader()
 {
@@ -65,10 +65,10 @@ int Shader::createShaderFromFile(const char* filePath) {
 	}
 
 	//separate shaders into two strings
-	vertexShaderSrc = ss[0].str();
-	fragmentShaderSrc = ss[1].str();
+	this->vertexShaderSrc = ss[0].str();
+	this->fragmentShaderSrc = ss[1].str();
 
-	program = glCreateProgram();
+	this->program = glCreateProgram();
 
 	GLuint vs = compileShader(GL_VERTEX_SHADER, vertexShaderSrc.c_str());
 	GLuint fs = compileShader(GL_FRAGMENT_SHADER, fragmentShaderSrc.c_str());
@@ -81,13 +81,10 @@ int Shader::createShaderFromFile(const char* filePath) {
 	glDeleteShader(vs);
 	glDeleteShader(fs);
 
-
-
-
 	return 0;
 }
 
 GLuint Shader::getShaderProgram() {
-	return program;
+	return this->program;
 }
 

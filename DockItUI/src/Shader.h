@@ -20,5 +20,6 @@ public:
 private:
 	std::string vertexShaderSrc;
 	std::string fragmentShaderSrc;
+	GLuint program;
 };
 

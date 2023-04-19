@@ -792,6 +792,11 @@ bool CMainApplication::HandleInput()
 	for ( EHand eHand = Left; eHand <= Right; ((int&)eHand)++ )
 	{
 		vr::InputPoseActionData_t poseData;
+		std::cout << "hand: " << eHand << std::endl;
+		std::cout << "Action pose: " << m_rHand[eHand].m_actionPose << std::endl;
+		vr::EVRInputError error = vr::VRInput()->GetPoseActionDataForNextFrame(m_rHand[eHand].m_actionPose, vr::TrackingUniverseStanding, &poseData, sizeof(poseData), vr::k_ulInvalidInputValueHandle);
+		//print error number
+		std::cout << "Error Number: " << error << std::endl;
 		if ( vr::VRInput()->GetPoseActionDataForNextFrame( m_rHand[eHand].m_actionPose, vr::TrackingUniverseStanding, &poseData, sizeof( poseData ), vr::k_ulInvalidInputValueHandle ) != vr::VRInputError_None
 			|| !poseData.bActive || !poseData.pose.bPoseIsValid )
 		{
@@ -808,6 +813,7 @@ bool CMainApplication::HandleInput()
 				std::string sRenderModelName = GetTrackedDeviceString( originInfo.trackedDeviceIndex, vr::Prop_RenderModelName_String );
 				if ( sRenderModelName != m_rHand[eHand].m_sRenderModelName )
 				{
+					std::cout << sRenderModelName.c_str() << std::endl;
 					m_rHand[eHand].m_pRenderModel = FindOrLoadRenderModel( sRenderModelName.c_str() );
 					m_rHand[eHand].m_sRenderModelName = sRenderModelName;
 				}

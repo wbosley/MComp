@@ -2,20 +2,22 @@
 
 
 ProteinLoader::ProteinLoader() {
+	this->data = new DataTables();
+	//from S.Ls code
+	this->listOfColours = data->getColourList();
+	this->listOfRadii = data->getVDWRadii();
 }
 
-bool ProteinLoader::loadProtein(const char* path) {
-
-
-	/*PDB FILE NOTES / REFERENCE
+//PDB FILE: ATOM LINES EXPLAINED vvvvv
+/*PDB FILE NOTES / REFERENCE
 	* - lines beginning with ATOM are the atoms
 	* Example:
 	*	(IGNORE THE FIRST 2 LINES. I WROTE THESE SO WE CAN SEE WHICH CHARACTER IN THE STRING IS WHICH)
 	*  !         1         2         3         4         5         6         7         8
 	*  !12345678901234567890123456789012345678901234567890123456789012345678901234567890
-	*	ATOM      1  N   SER A   1      -4.264  27.700  -4.649  1.00 19.42           N  
-	* 
-	* 
+	*	ATOM      1  N   SER A   1      -4.264  27.700  -4.649  1.00 19.42           N
+	*
+	*
 	* EXPLANATION OF COLUMNS: (Useful columns have been marked with an "!". Ignore the rest)
 	*  !col 1, chars 1-4   - record name "ATOM  "
 	*	col 2, chars 7-11  - atom serial number "1"
@@ -28,22 +30,23 @@ bool ProteinLoader::loadProtein(const char* path) {
 	*  !col 9, chars 31-38 - x coordinate "-4.264"
 	*  !col 10, chars 39-46 - y coordinate "27.700"
 	*  !col 11, chars 47-54 - z coordinate "-4.649"
-	* 
+	*
 	*	We can use column 1, "ATOM", to find which lines in the pdb files are atoms.
 	*   The protein loader contains a list of atom names, e.g. "N" for nitrogen, and links them to colours e.g. "N" is blue.
 	*   The protein loader also contains a list of atom names, e.g. "N" for nitrogen, and links them to radii e.g. "N" is 1.0.
-	*   We can link these to the atoms name in column 3, alongside the coordinates of the atoms, to draw the protein. We could use the coordinates to adjust 
-	    the model matrix to place each atom, and then draw a sphere with the correct radius and colour.
-	* 
+	*   We can link these to the atoms name in column 3, alongside the coordinates of the atoms, to draw the protein. We could use the coordinates to adjust
+		the model matrix to place each atom, and then draw a sphere with the correct radius and colour.
+	*
 	* There are some alternatives to lines beginning with ATOM which we can probably ignore for now., we just need something that looks like an atom more than anything.
 	* - lines beginning with HETATM are the ligands
 	* - lines beginning with TER are the end of a chain
 	* - lines beginning with CONECT are the bonds
-	
-	
-	
+
+
+
 	*/
 
+bool ProteinLoader::loadProtein(const char* path) {
 
 	std::ifstream file;
 	std::string line;
@@ -67,43 +70,117 @@ bool ProteinLoader::loadProtein(const char* path) {
 		std::stringstream ss(line);
 
 		if (identifier == "ATOM") {
-			//although we use string streams in most cases where we read from a file in this program, pdb files arent deliminated using anything - the meaning of a character is determined by its index in the line. Therefore, it is more effective to use substrings and remove the whitespace.
-			std::string atomName = line.substr(12, 4); 
-			atomName.erase(std::remove_if(atomName.begin(), atomName.end(), isspace), atomName.end());
+			
+			std::string atomName = getAtomNameFromLine(line);
 			atomNames.push_back(atomName);
-			std::cout << atomName << std::endl;
+			//std::cout << atomName << std::endl;
 
-			glm::vec3 coordinate;
+			glm::vec3 coordinate = getAtomCoordinatesFromLine(line);
+			atomCoordinates.push_back(coordinate);
+			//std::cout << "Coordinates: " << coordinate.x << " " << coordinate.y << " " << coordinate.z << std::endl;
 
-			std::string coordString;
-			coordString = line.substr(30, 8); 
-			coordString.erase(std::remove_if(coordString.begin(), coordString.end(), isspace), coordString.end());
-			coordinate.x = std::stof(coordString);
+			//get the colour of the atom
+			glm::vec3 colourVector = getColorFromAtomName(atomName);
+			atomColours.push_back(colourVector);
+			//std::cout << "Colour: " << colourVector.x << " " << colourVector.y << " " << colourVector.z << std::endl;
 
-			coordString = line.substr(38, 8);
-			coordString.erase(std::remove_if(coordString.begin(), coordString.end(), isspace), coordString.end());
-			coordinate.y = std::stof(coordString);
-
-			coordString = line.substr(46, 8);
-			coordString.erase(std::remove_if(coordString.begin(), coordString.end(), isspace), coordString.end());
-			coordinate.z = std::stof(coordString);
-
-			coordinates.push_back(coordinate);
-
-			std::cout << coordinate.x << " " << coordinate.y << " " << coordinate.z << std::endl;
+			//et the radius of the atom
+			float radius = getRadiusFromAtomName(atomName);
+			atomRadii.push_back(radius);;
+			//std::cout << "Radius: " << radius << std::endl;
 		}
-		
-		
-		/*
-		if (do some  magic to worm out if the atom has ended) {
-
-		}
-		
-		*/
-
-		
 	}
-
-
 	return false;
 }
+
+std::string ProteinLoader::getAtomNameFromLine(std::string line) {
+	//although we use string streams in most cases where we read from a file in this program, pdb files arent deliminated using anything - the meaning of a character is determined by its index in the line. Therefore, it is more effective to use substrings and remove the whitespace.
+	std::string atomName = line.substr(12, 4);
+	atomName.erase(std::remove_if(atomName.begin(), atomName.end(), isspace), atomName.end());
+	return atomName;
+}
+
+glm::vec3 ProteinLoader::getAtomCoordinatesFromLine(std::string line) {
+	glm::vec3 coordinate;
+	std::string coordString;
+
+	coordString = line.substr(30, 8);
+	coordString.erase(std::remove_if(coordString.begin(), coordString.end(), isspace), coordString.end());
+	coordinate.x = std::stof(coordString);
+
+	coordString = line.substr(38, 8);
+	coordString.erase(std::remove_if(coordString.begin(), coordString.end(), isspace), coordString.end());
+	coordinate.y = std::stof(coordString);
+
+	coordString = line.substr(46, 8);
+	coordString.erase(std::remove_if(coordString.begin(), coordString.end(), isspace), coordString.end());
+	coordinate.z = std::stof(coordString);
+
+	return coordinate;
+}
+
+//this is basically the same as S.Ls code
+glm::vec3 ProteinLoader::getColorFromAtomName(std::string atomName){
+
+	glm::vec3 colourVector;
+	std::map <std::string, std::vector<float>>::iterator itr;
+	std::vector<float> current_colour;
+	itr = listOfColours.find(atomName);
+	if (itr == listOfColours.end())
+	{
+
+		current_colour.push_back(0.5);
+		current_colour.push_back(0.5);
+		current_colour.push_back(0.5);
+	}
+	else
+	{
+		current_colour = itr->second;
+	}
+
+	colourVector.x = current_colour[0];
+	colourVector.y = current_colour[1];
+	colourVector.z = current_colour[2];
+
+	return colourVector;
+}
+
+//this is basically the same as S.Ls code
+float ProteinLoader::getRadiusFromAtomName(std::string atomName) {
+	float radius;
+
+	std::map <std::string, float>::iterator itrRad = listOfRadii.find(atomName);
+
+	if (itrRad == listOfRadii.end())
+	{
+		radius = 10.0f;
+	}
+	else
+	{
+		radius = itrRad->second;
+	}
+
+	return radius;
+}
+
+//GITHUB COPILOT MADE THIS OUT OF THE BLUE RANDOMLY. WE NEED TO TEST WHETHER THIS WORKS.
+
+//void ProteinLoader::drawProtein() {
+//	//draw the protein
+//	for (int i = 0; i < coordinates.size(); i++) {
+//		glm::mat4 model = glm::mat4(1.0f);
+//		model = glm::translate(model, coordinates[i]);
+//		//model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+//		//model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+//		//model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+//		//model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+//		//model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+//		//model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+//		//model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+//		//model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+//		//model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+//		//model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+//		//model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+//		//model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0
+//	}
+//}

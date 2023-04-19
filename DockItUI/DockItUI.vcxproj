@@ -104,7 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)libraries\glew\include;$(SolutionDir)libraries\glfw\include;$(SolutionDir)libraries\openvr\headers;$(SolutionDir)libraries\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)libraries\glew\include;$(SolutionDir)libraries\glfw\include;$(SolutionDir)libraries\openvr\headers;$(SolutionDir)libraries\glm;$(SolutionDir)libraries\other;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -133,6 +133,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Protein3D.cpp" />
+    <ClCompile Include="src\Sphere.cpp" />
+    <ClCompile Include="src\DataTable.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\Model3D.cpp" />
     <ClCompile Include="src\ProteinLoader.cpp" />
@@ -142,6 +145,9 @@
     <ClCompile Include="src\VRLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Protein3D.h" />
+    <ClInclude Include="src\Sphere.h" />
+    <ClInclude Include="src\DataTable.h" />
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\Model3D.h" />
     <ClInclude Include="src\ProteinLoader.h" />
@@ -152,6 +158,7 @@
   <ItemGroup>
     <None Include="src\shaders\basic.shader" />
     <None Include="src\shaders\basicvr.shader" />
+    <None Include="src\shaders\textures.shader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
