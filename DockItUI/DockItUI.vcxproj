@@ -158,6 +158,7 @@
   <ItemGroup>
     <None Include="src\shaders\basic.shader" />
     <None Include="src\shaders\basicvr.shader" />
+    <None Include="src\shaders\textures.shader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

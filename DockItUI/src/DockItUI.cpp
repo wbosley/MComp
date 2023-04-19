@@ -37,7 +37,8 @@ glm::mat4 ProjectionMatrix;
 glm::mat4 ModelViewMatrix;
 glm::mat4 ViewMatrix;
 glm::mat4 ModelMatrix;
-Shader myShader;
+Shader vrShader;
+Shader controllerShader;
 vr::IVRSystem* pHMD;
 OBJLoader objLoader;
 ProteinLoader proteinLoader;
@@ -68,22 +69,25 @@ void renderAll(glm::mat4 ViewMatrix) {
 //
 // Returns: N/A
 //-----------------------------------------------------------------------------
+	glUseProgram(vrShader.getShaderProgram());
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.3f, 0.2f, 0.5f, 1.0f);
 
 	ModelMatrix = glm::mat4(1.0f);
 	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-5, 0, 7));
 
-	glUniformMatrix4fv(glGetUniformLocation(myShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * ModelMatrix));
-	firstModel.render(myShader);
+	glUniformMatrix4fv(glGetUniformLocation(vrShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * ModelMatrix));
+	firstModel.render(vrShader);
 
-	ModelMatrix = glm::mat4(1.0f);
-	ModelMatrix = vrLoader.getHeadsetMatrix();
+	//ModelMatrix = glm::mat4(1.0f);
+	//ModelMatrix = vrLoader.getHeadsetMatrix();
 	//ModelMatrix = glm::translate(ModelMatrix, glm::vec3(3, 0, 7));
-	glUniformMatrix4fv(glGetUniformLocation(myShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * ModelMatrix));
-	//firstProtein.render(myShader);
+	//glUniformMatrix4fv(glGetUniformLocation(vrShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * ModelMatrix));
+	//firstProtein.render(vrShader);
 	
-	vrLoader.renderControllers(myShader, ViewMatrix);
+	
+	glUseProgram(controllerShader.getShaderProgram());
+	vrLoader.renderControllers(controllerShader, ViewMatrix);
 }
 
 void renderCompanionWindow() {
@@ -96,11 +100,11 @@ void display() {
 //
 // Returns: N/A
 //-----------------------------------------------------------------------------
-	glUseProgram(myShader.getShaderProgram());
+	glUseProgram(vrShader.getShaderProgram());
 	vrLoader.refresh();
 
 	//Projection Matrix for screen.
-	//glUniformMatrix4fv(glGetUniformLocation(myShader.getShaderProgram(), "ProjectionMatrix"), 1, GL_FALSE, &ProjectionMatrix[0][0]);
+	//glUniformMatrix4fv(glGetUniformLocation(vrShader.getShaderProgram(), "ProjectionMatrix"), 1, GL_FALSE, &ProjectionMatrix[0][0]);
 
 	glEnable(GL_MULTISAMPLE);
 
@@ -121,10 +125,10 @@ void display() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, screenWidth, screenHeight);
 	//so we can use the same shader for the VR headset and the companion window, we multiply the projection matrix by the view matrix here rather than in the shader.
-	//renderAll(ProjectionMatrix * camera.getMatrix());
+	renderAll(ProjectionMatrix * camera.getMatrix());
 
 	//Code to make the companion window display view from headset location - George
-	renderAll(ProjectionMatrix * vrLoader.getHeadsetMatrix());
+	//renderAll(ProjectionMatrix * vrLoader.getHeadsetMatrix());
 	
 	//Render to the companion window.
 	renderCompanionWindow();
@@ -176,6 +180,54 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	if (key == GLFW_KEY_RIGHT && action == GLFW_REPEAT || action == GLFW_PRESS) {
 		camera.rotate(0.1, RIGHT);
 	}
+}
+
+void GLAPIENTRY
+messageCallback(GLenum source,
+	GLenum type,
+	unsigned int id,
+	GLenum severity,
+	GLsizei length,
+	const char* message,
+	const void* userParam)
+{
+	// ignore non-significant error/warning codes
+	if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
+
+	std::cout << "---------------" << std::endl;
+	std::cout << "Debug message (" << id << "): " << message << std::endl;
+
+	switch (source)
+	{
+	case GL_DEBUG_SOURCE_API:             std::cout << "Source: API"; break;
+	case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   std::cout << "Source: Window System"; break;
+	case GL_DEBUG_SOURCE_SHADER_COMPILER: std::cout << "Source: Shader Compiler"; break;
+	case GL_DEBUG_SOURCE_THIRD_PARTY:     std::cout << "Source: Third Party"; break;
+	case GL_DEBUG_SOURCE_APPLICATION:     std::cout << "Source: Application"; break;
+	case GL_DEBUG_SOURCE_OTHER:           std::cout << "Source: Other"; break;
+	} std::cout << std::endl;
+
+	switch (type)
+	{
+	case GL_DEBUG_TYPE_ERROR:               std::cout << "Type: Error"; break;
+	case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: std::cout << "Type: Deprecated Behaviour"; break;
+	case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  std::cout << "Type: Undefined Behaviour"; break;
+	case GL_DEBUG_TYPE_PORTABILITY:         std::cout << "Type: Portability"; break;
+	case GL_DEBUG_TYPE_PERFORMANCE:         std::cout << "Type: Performance"; break;
+	case GL_DEBUG_TYPE_MARKER:              std::cout << "Type: Marker"; break;
+	case GL_DEBUG_TYPE_PUSH_GROUP:          std::cout << "Type: Push Group"; break;
+	case GL_DEBUG_TYPE_POP_GROUP:           std::cout << "Type: Pop Group"; break;
+	case GL_DEBUG_TYPE_OTHER:               std::cout << "Type: Other"; break;
+	} std::cout << std::endl;
+
+	switch (severity)
+	{
+	case GL_DEBUG_SEVERITY_HIGH:         std::cout << "Severity: high"; break;
+	case GL_DEBUG_SEVERITY_MEDIUM:       std::cout << "Severity: medium"; break;
+	case GL_DEBUG_SEVERITY_LOW:          std::cout << "Severity: low"; break;
+	case GL_DEBUG_SEVERITY_NOTIFICATION: std::cout << "Severity: notification"; break;
+	} std::cout << std::endl;
+	std::cout << std::endl;
 }
 
 void createFrameBuffer(int width, int height, FrameBuffer& framebuffer) {
@@ -266,7 +318,8 @@ int init() {
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glEnable(GL_DEPTH_TEST);
 
-	myShader.createShaderFromFile("src/shaders/basicvr.shader");
+	vrShader.createShaderFromFile("src/shaders/basicvr.shader");
+	controllerShader.createShaderFromFile("src/shaders/textures.shader");
 
 	if (vrLoader.initVR() != 0) {
 		std::cout << "Failed to setup VR." << std::endl;
@@ -286,7 +339,8 @@ int init() {
 	camera.setPosition(glm::vec3(0.0, -2.5, -15.0));
 	
 
-	
+	glEnable(GL_DEBUG_OUTPUT);
+	glDebugMessageCallback(messageCallback, 0);
 
 }
 
@@ -302,12 +356,14 @@ int main()
 		// Main render loop.
 		display();
 
+
 		vrLoader.handleInput();
 		// Swap front and back buffers
 		glfwSwapBuffers(window);
 
 		// Poll for and process events
 		glfwPollEvents();
+
 	}
 
 	glfwTerminate();

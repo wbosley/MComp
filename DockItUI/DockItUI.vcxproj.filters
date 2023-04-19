@@ -109,5 +109,8 @@
     <None Include="src\shaders\basicvr.shader">
       <Filter>Resource Files\Shaders</Filter>
     </None>
+    <None Include="src\shaders\textures.shader">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

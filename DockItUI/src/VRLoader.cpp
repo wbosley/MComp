@@ -97,6 +97,7 @@ glm::mat4 VRLoader::convertSteamVRMatrix(const vr::HmdMatrix34_t& pose) {
 
 Model3D VRLoader::FindOrLoadRenderModel(const char * renderModelName) {
 	vr::RenderModel_t* pModel;
+	vr::RenderModel_TextureMap_t * pTexture;
 	vr::EVRRenderModelError error;
 	while (1) {
 		error = vr::VRRenderModels()->LoadRenderModel_Async(renderModelName, &pModel);
@@ -105,22 +106,15 @@ Model3D VRLoader::FindOrLoadRenderModel(const char * renderModelName) {
 		}
 	}
 
-	//vr::RenderModel_Vertex_t* pVerts[pModel->unVertexCount]
-	
-	//Convert pModel vertices into a vector of glm vertices
-	std::vector<glm::vec3> vertices;
-	for (int i = 0; i < pModel->unVertexCount; i++) {
-		vertices.push_back(glm::vec3(pModel->rVertexData[i].vPosition.v[0], pModel->rVertexData[i].vPosition.v[1], pModel->rVertexData[i].vPosition.v[2]));
-	}
-
-	//Convert pModel indices into a vector of unsigned int
-	std::vector<unsigned int> indices;
-	for (int i = 0; i < pModel->unTriangleCount * 3; i++) {
-		indices.push_back(pModel->rIndexData[i]);
+	while (1) {
+		error = vr::VRRenderModels()->LoadTexture_Async( pModel->diffuseTextureId, &pTexture);
+		if (error != vr::VRRenderModelError_Loading) {
+			break;
+		}
 	}
 
 	Model3D controller;
-	controller.loadOpenVRModel(vertices, indices);
+	controller.loadOpenVRModel(pModel, pTexture);
 
 
 	return controller;
@@ -323,21 +317,14 @@ void VRLoader::render(vr::Texture_t Left, vr::Texture_t Right) {
 
 glm::mat4 VRLoader::getHeadsetMatrix() {
 	return this->mat4HMDPose;
-	//return this->mat4DevicePose[1];
 }
 
-Model3D* VRLoader::getControllerModel(EHand eHand) {
-	return &m_rHand[eHand].m_pRenderModel;
-}
 
 void VRLoader::renderControllers(Shader shader, glm::mat4 ViewMatrix) {
 	for (EHand eHand = Left; eHand <= Right; ((int&)eHand)++)
 	{
-		std::cout << "show controller: " << m_rHand[eHand].m_bShowController << std::endl;
-		std::cout << "model valid: " << m_rHand[eHand].m_pRenderModel.isModelValid << std::endl;
 		if (!m_rHand[eHand].m_bShowController || !m_rHand[eHand].m_pRenderModel.isModelValid)
 			continue;
-		std::cout << "here!" << std::endl;
 
 		glm::mat4 matDeviceToTracking = m_rHand[eHand].m_rmat4Pose;
 		glm::mat4 matMVP = ViewMatrix * matDeviceToTracking;

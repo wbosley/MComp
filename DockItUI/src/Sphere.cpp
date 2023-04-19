@@ -16,7 +16,7 @@ void Sphere::setRadius(float rad)
 }
 
 void Sphere::initSphere() {
-	putModelDataInVbosAndVaos();
+	putModelDataInVbosAndVaos(NO_TEXTURES);
 }
 
 void Sphere::setCentre(glm::vec3 coord)

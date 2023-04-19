@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
+#include "openvr.h"
 class Model3D
 {
 
@@ -13,8 +14,13 @@ class Model3D
 		Model3D();
 		~Model3D();
 
+		enum RENDER_TYPE
+		{
+			NO_TEXTURES, TEXTURES
+		};
+
 		//will return 1 or zero depending on failure or success
-		int loadOpenVRModel(std::vector<glm::vec3> vertices, std::vector<unsigned int> vertices_indices);
+		int loadOpenVRModel(vr::RenderModel_t* vr_model, vr::RenderModel_TextureMap_t* vr_texture);
 		int loadModelFromObj(OBJLoader obj);
 		int render(Shader myShader);
 
@@ -31,12 +37,18 @@ class Model3D
 		std::vector<unsigned int> uvs_indices;
 		std::vector<unsigned int> normals_indices;
 
+		const uint8_t * textureData;
+		uint16_t width;
+		uint16_t height;
+
+		GLuint texture;
+
 		GLuint VAO;
 		GLuint* VBOs;
 
 		void updateBufferData();
 
-		int putModelDataInVbosAndVaos();
+		int putModelDataInVbosAndVaos(RENDER_TYPE renderMode);
 
 };
 

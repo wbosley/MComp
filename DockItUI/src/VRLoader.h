@@ -29,7 +29,6 @@ class VRLoader
 		GLuint renderWidth;
 		GLuint renderHeight;
 		glm::mat4 getHeadsetMatrix();
-		Model3D* getControllerModel(EHand eHand);
 		struct ControllerInfo_t
 		{
 			vr::VRInputValueHandle_t m_source = vr::k_ulInvalidInputValueHandle;
