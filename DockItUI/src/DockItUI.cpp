@@ -73,17 +73,18 @@ void renderAll(glm::mat4 ViewMatrix) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.3f, 0.2f, 0.5f, 1.0f);
 
-	ModelMatrix = glm::mat4(1.0f);
-	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-5, 0, 7));
-
-	glUniformMatrix4fv(glGetUniformLocation(vrShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * ModelMatrix));
-	firstModel.render(vrShader);
-
 	//ModelMatrix = glm::mat4(1.0f);
-	//ModelMatrix = vrLoader.getHeadsetMatrix();
-	//ModelMatrix = glm::translate(ModelMatrix, glm::vec3(3, 0, 7));
+	//ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-5, 0, 7));
+
 	//glUniformMatrix4fv(glGetUniformLocation(vrShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * ModelMatrix));
-	//firstProtein.render(vrShader);
+	//firstModel.render(vrShader);
+
+	ModelMatrix = glm::mat4(1.0f);
+	//ModelMatrix = vrLoader.getHeadsetMatrix();
+	//ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-5, 0, -150));
+	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-5, 0, 25));
+	glUniformMatrix4fv(glGetUniformLocation(vrShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * ModelMatrix));
+	firstProtein.render(vrShader);
 	
 	
 	glUseProgram(controllerShader.getShaderProgram());
@@ -125,10 +126,10 @@ void display() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, screenWidth, screenHeight);
 	//so we can use the same shader for the VR headset and the companion window, we multiply the projection matrix by the view matrix here rather than in the shader.
-	renderAll(ProjectionMatrix * camera.getMatrix());
+	//renderAll(ProjectionMatrix * camera.getMatrix());
 
 	//Code to make the companion window display view from headset location - George
-	//renderAll(ProjectionMatrix * vrLoader.getHeadsetMatrix());
+	renderAll(ProjectionMatrix * vrLoader.getHeadsetMatrix());
 	
 	//Render to the companion window.
 	renderCompanionWindow();

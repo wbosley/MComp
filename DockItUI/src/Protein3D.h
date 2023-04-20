@@ -8,7 +8,7 @@ class Protein3D
 		Protein3D();
 		~Protein3D();
 		int loadProteinFromProteinLoader(ProteinLoader proteinLoader);
-		int render(Shader myShader);
+		int render(Shader shader);
 
 	private:
 		std::vector<std::string> atomNames;
@@ -17,6 +17,7 @@ class Protein3D
 		std::vector<float> atomRadii;
 
 		std::vector<Sphere> spheres;
+		Model3D protein;
 		int constructSpheres();
 	//constructspheres
 

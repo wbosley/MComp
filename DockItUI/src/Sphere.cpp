@@ -116,17 +116,17 @@ int Sphere::constructGeometry(int level)
 
 	for (i = 0; i < sizeOfVerts; i += 3)
 	{
-		Model3D::vertices.push_back(glm::vec3(verts[i], verts[i + 1], verts[i + 2]));
+		this->vertices.push_back(glm::vec3(verts[i], verts[i + 1], verts[i + 2]));
 	}
 
 	for (i = 0; i < sizeOfNorms; i += 3)
 	{
-		Model3D::normals.push_back(glm::vec3(norms[i], norms[i + 1], norms[i + 2]));
+		this->normals.push_back(glm::vec3(norms[i], norms[i + 1], norms[i + 2]));
 	}
 
 	for (i = 0; i < sizeOfTInds; i++)
 	{
-		Model3D::vertices_indices.push_back(tInds[i]);
+		this->vertices_indices.push_back(tInds[i]);
 	}
 
 	//int vaoAndVboinitialised = putModelDataInVbosAndVaos();

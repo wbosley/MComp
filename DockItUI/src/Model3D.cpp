@@ -56,6 +56,11 @@ int Model3D::loadModelFromObj(OBJLoader obj)
 
 }
 
+int Model3D::compileMesh() {
+	putModelDataInVbosAndVaos(NO_TEXTURES);
+	return 0;
+}
+
 int Model3D::putModelDataInVbosAndVaos(RENDER_TYPE renderMode)
 {
 	if (renderMode == NO_TEXTURES) {
@@ -151,6 +156,19 @@ int Model3D::putModelDataInVbosAndVaos(RENDER_TYPE renderMode)
 
 
 	isModelValid = true;
+	return 0;
+}
+
+int Model3D::addModelToMesh(Model3D model) {
+
+	//add data from parameter model to this model
+	for (int i = 0; i < model.vertices.size(); i++) {
+		this->vertices.push_back(model.vertices[i]);
+	}
+	for (int i = 0; i < model.vertices_indices.size(); i++) {
+		this->vertices_indices.push_back(model.vertices_indices[i] + this->vertices.size());
+	}
+
 	return 0;
 }
 

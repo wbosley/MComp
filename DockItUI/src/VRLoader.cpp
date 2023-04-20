@@ -6,7 +6,7 @@ VRLoader::VRLoader() {
 //-----------------------------------------------------------------------------
 
 	this->nearClip = 0.1f;
-	this->farClip = 30.0f;
+	this->farClip = 200.0f;
 }
 
 VRLoader::~VRLoader() {
