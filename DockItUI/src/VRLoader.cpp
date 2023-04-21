@@ -10,13 +10,18 @@ VRLoader::VRLoader() {
 }
 
 VRLoader::~VRLoader() {
-	//-----------------------------------------------------------------------------
-	// Purpose: Destructor.
-	//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+// Purpose: Destructor.
+//-----------------------------------------------------------------------------
 }
 
 std::string VRLoader::GetTrackedDeviceString(vr::TrackedDeviceIndex_t unDevice, vr::TrackedDeviceProperty prop, vr::TrackedPropertyError* peError = NULL)
 {
+//-----------------------------------------------------------------------------
+// Purpose: Converts a device index to a device name in string format.
+// 
+// Returns: The string denoting this device's name (for loading the correct model)
+//-----------------------------------------------------------------------------
 	uint32_t unRequiredBufferLen = vr::VRSystem()->GetStringTrackedDeviceProperty(unDevice, prop, NULL, 0, peError);
 	if (unRequiredBufferLen == 0)
 		return "";
@@ -96,9 +101,15 @@ glm::mat4 VRLoader::convertSteamVRMatrix(const vr::HmdMatrix34_t& pose) {
 }
 
 Model3D VRLoader::FindOrLoadRenderModel(const char * renderModelName) {
-	vr::RenderModel_t* pModel;
-	vr::RenderModel_TextureMap_t * pTexture;
+//-----------------------------------------------------------------------------
+// Purpose: Finds a render model using the render model's name (renderModelname).
+//
+// Returns: The render model.
+//-----------------------------------------------------------------------------
+	vr::RenderModel_t* pModel;//holds information about the model
+	vr::RenderModel_TextureMap_t * pTexture;//holds texture info of model
 	vr::EVRRenderModelError error;
+	//this is an async function, so we need to wait for it to finish loading (hence the while loop). The same goes for the textures.
 	while (1) {
 		error = vr::VRRenderModels()->LoadRenderModel_Async(renderModelName, &pModel);
 		if (error != vr::VRRenderModelError_Loading) {
@@ -114,7 +125,7 @@ Model3D VRLoader::FindOrLoadRenderModel(const char * renderModelName) {
 	}
 
 	Model3D controller;
-	controller.loadOpenVRModel(pModel, pTexture);
+	controller.loadOpenVRModel(pModel, pTexture); // make a Model3D of the controller
 
 
 	return controller;
@@ -139,6 +150,7 @@ void VRLoader::updateHMDPose() {
 	int validPoseCount = 0;
 	std::string poseClasses = "";
 
+	//prints the strings of all connected devices, and updates their poses.
 	for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice) {
 		if (trackedDevicePose[nDevice].bPoseIsValid) {
 			validPoseCount++;
@@ -186,38 +198,46 @@ void VRLoader::handleInput() {
 	m_rHand[Left].m_bShowController = true;
 	m_rHand[Right].m_bShowController = true;
 
+	//this creates a VREvent_t object, and stores whatever event happens in the "event" object. This loops through every event that happens, and prints them using ProcessVREvent. (For our own benefit)
 	vr::VREvent_t event;
 	while (pHMD->PollNextEvent(&event, sizeof(event)))
 	{
 		ProcessVREvent(event);
 	}
-	vr::VRActiveActionSet_t actionSet = { 0 };
+	vr::VRActiveActionSet_t actionSet = { 0 };//We think this is something to do with the inoput bindings
 	actionSet.ulActionSet = m_actionsetDemo;
 	vr::VRInput()->UpdateActionState(&actionSet, sizeof(actionSet), 1);
 
+	//loops through each hand, casts the hand enum to an int, and loops through both enums. This is used to get the pose of each hand, and if it's active or not.
 	for (EHand eHand = Left; eHand <= Right; ((int&)eHand)++)
 	{
 		vr::InputPoseActionData_t poseData;
 
+		//we pass this the controllers pose data, and we get a filled pose data struct which holds info about the controller
 		if (vr::VRInput()->GetPoseActionDataForNextFrame(m_rHand[eHand].m_actionPose, vr::TrackingUniverseStanding, &poseData, sizeof(poseData), vr::k_ulInvalidInputValueHandle) != vr::VRInputError_None
-			|| !poseData.bActive || !poseData.pose.bPoseIsValid)
+			|| !poseData.bActive || !poseData.pose.bPoseIsValid)//if this pose data returns an error, or the controller isnt on, dont show the controller
 		{
 			m_rHand[eHand].m_bShowController = false;
 		}
-		else
+		else //If we have no errors:
 		{
+			//get the transform of the controller - where the controller is compared to the headset (we think)
 			m_rHand[eHand].m_rmat4Pose = convertSteamVRMatrix(poseData.pose.mDeviceToAbsoluteTracking);
 
+			//get info about the device based off the pose data. poseData includes info about the current state of the controller, and we use this to see if its being tracked by the headset / base station - if its being tracxked its in view (we think)
 			vr::InputOriginInfo_t originInfo;
 			if (vr::VRInput()->GetOriginTrackedDeviceInfo(poseData.activeOrigin, &originInfo, sizeof(originInfo)) == vr::VRInputError_None
 				&& originInfo.trackedDeviceIndex != vr::k_unTrackedDeviceIndexInvalid)
 			{
+				//There is a list of all devices which are connected. trackeddevice index is the index of THIS device in that list. We use this to get the name of the device, and if it's different to the last time we checked, we load a new model for it.
 				std::string sRenderModelName = GetTrackedDeviceString(originInfo.trackedDeviceIndex, vr::Prop_RenderModelName_String);
+				//Once we load a model name for the hand, we store the model name in the hand. once this changes, we need to update the model. this is so we dont reload the model every frame.
 				if (sRenderModelName != m_rHand[eHand].m_sRenderModelName)
 				{
+					//set the render model in the hand
 					m_rHand[eHand].m_pRenderModel = FindOrLoadRenderModel(sRenderModelName.c_str());
 					std::cout << "Loaded: " << sRenderModelName << std::endl;
-					m_rHand[eHand].m_sRenderModelName = sRenderModelName;
+					m_rHand[eHand].m_sRenderModelName = sRenderModelName; //set the render name also. this is so the thing where we check the render model every frame so we dont have to re-load it works.
 				}
 			}
 		}

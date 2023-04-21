@@ -15,6 +15,7 @@ Model3D::~Model3D()
 
 int Model3D::loadOpenVRModel(vr::RenderModel_t* vr_model, vr::RenderModel_TextureMap_t* vr_texture) {
 
+	//Convert vr_model vertices into a vector of glm vertices
 	for (int i = 0; i < vr_model->unVertexCount; i++) {
 		this->vertices.push_back(glm::vec3(vr_model->rVertexData[i].vPosition.v[0], vr_model->rVertexData[i].vPosition.v[1], vr_model->rVertexData[i].vPosition.v[2]));
 	}
@@ -32,6 +33,7 @@ int Model3D::loadOpenVRModel(vr::RenderModel_t* vr_model, vr::RenderModel_Textur
 	this->width = vr_texture->unWidth;
 	this->height = vr_texture->unHeight;
 
+	//TEXTURES is an enum for specifiying if a model has textures or not.
 	int vaoAndVboinitialised = putModelDataInVbosAndVaos(TEXTURES);
 
 	//adding together all the returned values to make sure ntohing broke. if more than 0 then something went wrong.
@@ -133,19 +135,23 @@ int Model3D::putModelDataInVbosAndVaos(RENDER_TYPE renderMode)
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 
+		//Textures work differently. They arent bound to a vao, their bound to theyr own thing. We could bind a model and then bind an alternative texture if we wanted to. We dont assign a texture to a model when we make the VAOs.
 		glGenTextures(1, &this->texture);
 		glBindTexture(GL_TEXTURE_2D, this->texture);
+		//set up how the textures will appear on the model.
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
+		//todo check if we need this
 		GLfloat fLargest;
 		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &fLargest);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, fLargest);
 
+		//this generates  the texture, using the textures width, height, and texture data.
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this->width, this->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, this->textureData);
-		glGenerateMipmap(GL_TEXTURE_2D);
+		glGenerateMipmap(GL_TEXTURE_2D); // this generates the mipmaps for the texture. Mipmaps are different versions of the texture at different sizes. This is so that the texture can be rendered at different sizes without looking bad.
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 
