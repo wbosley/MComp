@@ -19,9 +19,6 @@ class Protein3D
 		std::vector<Sphere> spheres;
 		Model3D protein;
 		int constructSpheres();
-	//constructspheres
-
-	//render- loop through spheres and use their render function from model3d
 
 };
 

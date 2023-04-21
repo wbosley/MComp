@@ -21,17 +21,11 @@ void Sphere::initSphere() {
 
 void Sphere::setCentre(glm::vec3 coord)
 {
-	//std::cout<<"vertex1 before: " << vertices[0].x << " " << vertices[0].y << " " << vertices[0].z << std::endl;
-	
-	//loop through vertices
 	for (int i = 0; i < vertices.size(); i++) {
 		vertices[i].x += coord.x;
 		vertices[i].y += coord.y;
 		vertices[i].z += coord.z;
 	}
-
-	//std::cout << "vertex1 after: " << vertices[0].x << " " << vertices[0].y << " " << vertices[0].z << std::endl;
-	//updateBufferData();
 }
 
 int Sphere::constructGeometry(int level)
@@ -128,9 +122,5 @@ int Sphere::constructGeometry(int level)
 	{
 		this->vertices_indices.push_back(tInds[i]);
 	}
-
-	//int vaoAndVboinitialised = putModelDataInVbosAndVaos();
-	//adding together all the returned values to make sure ntohing broke. if more than 0 then something went wrong.
-	//return 0 + vaoAndVboinitialised;
 	return 0;
 }
