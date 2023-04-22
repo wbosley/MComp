@@ -86,7 +86,7 @@ bool ProteinLoader::loadProtein(const char* path) {
 
 			//et the radius of the atom
 			float radius = getRadiusFromAtomName(atomName);
-			atomRadii.push_back(radius);;
+			atomRadius.push_back(radius);;
 			//std::cout << "Radius: " << radius << std::endl;
 		}
 	}

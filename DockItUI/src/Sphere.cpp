@@ -15,6 +15,13 @@ void Sphere::setRadius(float rad)
 	r = rad;
 }
 
+void Sphere::setColour(glm::vec3 colour) {
+	//add the colour vec3 to the colours vector for each vertex
+	for (int i = 0; i < vertices.size(); i++) {
+		this->colours.push_back(colour);
+	}
+}
+
 void Sphere::initSphere() {
 	putModelDataInVbosAndVaos(NO_TEXTURES);
 }

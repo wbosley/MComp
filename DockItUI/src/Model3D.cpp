@@ -59,7 +59,7 @@ int Model3D::loadModelFromObj(OBJLoader obj)
 }
 
 int Model3D::compileMesh() {
-	putModelDataInVbosAndVaos(NO_TEXTURES);
+	putModelDataInVbosAndVaos(COLOUR);
 	return 0;
 }
 
@@ -157,7 +157,39 @@ int Model3D::putModelDataInVbosAndVaos(RENDER_TYPE renderMode)
 
 	}
 	else {
-		//i dunno what to do here
+		VBOs = new GLuint[3];
+
+		//make VBOs for vertices and indices
+		glGenBuffers(3, this->VBOs);
+
+		//making the VAO and binding it
+		glGenVertexArrays(1, &this->VAO);
+		glBindVertexArray(this->VAO);
+
+		//put vertices in vbo
+		glBindBuffer(GL_ARRAY_BUFFER, this->VBOs[0]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * this->vertices.size(), &this->vertices[0], GL_STATIC_DRAW);
+
+		//put this VBO in the VAO, saying that we want it in the 0th location in the shader.
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0); //tells opengl how to retrieve VAO from memory. Inputs: What location in the shader this bound VBO is for,
+		glEnableVertexAttribArray(0);
+
+		//put indices in vbo
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->VBOs[1]);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * this->vertices_indices.size(), &this->vertices_indices[0], GL_STATIC_DRAW);
+
+		//put this VBO in the VAO, saying that we want it in the 0th location in the shader.
+		//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0); //tells opengl how to retrieve VAO from memory. Inputs: What location in the shader this bound VBO is for,
+		//glEnableVertexAttribArray(1);
+
+		glBindBuffer(GL_ARRAY_BUFFER, this->VBOs[2]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3)* this->colours.size(), &this->colours[0], GL_STATIC_DRAW);
+
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0); //tells opengl how to retrieve VAO from memory. Inputs: What location in the shader this bound VBO is for,
+		glEnableVertexAttribArray(2);
+		//unbind the vbo and vao
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
 	}
 
 
@@ -173,6 +205,10 @@ int Model3D::addModelToMesh(Model3D model) {
 	}
 	for (int i = 0; i < model.vertices_indices.size(); i++) {
 		this->vertices_indices.push_back(model.vertices_indices[i] + this->vertices.size());
+	}
+	//add color data
+	for (int i = 0; i < model.colours.size(); i++) {
+		this->colours.push_back(model.colours[i]);
 	}
 
 	return 0;

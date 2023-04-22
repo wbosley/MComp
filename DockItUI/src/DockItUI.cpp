@@ -39,6 +39,7 @@ glm::mat4 ViewMatrix;
 glm::mat4 ModelMatrix;
 Shader vrShader;
 Shader controllerShader;
+Shader proteinShader;
 vr::IVRSystem* pHMD;
 OBJLoader objLoader;
 ProteinLoader proteinLoader;
@@ -79,12 +80,13 @@ void renderAll(glm::mat4 ViewMatrix) {
 	//glUniformMatrix4fv(glGetUniformLocation(vrShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * ModelMatrix));
 	//firstModel.render(vrShader);
 
+	glUseProgram(proteinShader.getShaderProgram());
 	ModelMatrix = glm::mat4(1.0f);
 	//ModelMatrix = vrLoader.getHeadsetMatrix();
 	//ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-5, 0, -150));
 	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-5, 0, 25));
-	glUniformMatrix4fv(glGetUniformLocation(vrShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * ModelMatrix));
-	firstProtein.render(vrShader);
+	glUniformMatrix4fv(glGetUniformLocation(proteinShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * ModelMatrix));
+	firstProtein.render(proteinShader);
 	
 	
 	glUseProgram(controllerShader.getShaderProgram());
@@ -320,7 +322,8 @@ int init() {
 	glEnable(GL_DEPTH_TEST);
 
 	vrShader.createShaderFromFile("src/shaders/basicvr.shader");
-	controllerShader.createShaderFromFile("src/shaders/textures.shader");
+	controllerShader.createShaderFromFile("src/shaders/basicvr_texture.shader");
+	proteinShader.createShaderFromFile("src/shaders/basicvr_colour.shader");
 
 	if (vrLoader.initVR() != 0) {
 		std::cout << "Failed to setup VR." << std::endl;

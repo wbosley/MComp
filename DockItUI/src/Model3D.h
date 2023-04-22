@@ -16,7 +16,7 @@ class Model3D
 
 		enum RENDER_TYPE
 		{
-			NO_TEXTURES, TEXTURES
+			NO_TEXTURES, TEXTURES, COLOUR
 		};
 
 		//will return 1 or zero depending on failure or success
@@ -38,6 +38,8 @@ class Model3D
 		std::vector<unsigned int> vertices_indices;
 		std::vector<unsigned int> uvs_indices;
 		std::vector<unsigned int> normals_indices;
+
+		std::vector<glm::vec3> colours;
 
 		const uint8_t * textureData;
 		uint16_t width;

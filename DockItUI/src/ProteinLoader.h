@@ -16,7 +16,7 @@ public:
     std::vector<std::string> atomNames;
     std::vector<glm::vec3> atomCoordinates;
     std::vector<glm::vec3> atomColours;
-    std::vector<float> atomRadii;
+    std::vector<float> atomRadius;
 
 private:
     DataTables* data;

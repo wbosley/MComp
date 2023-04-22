@@ -10,6 +10,7 @@ public:
 	int constructGeometry(int level);
 	void setRadius(float rad);
 	void setCentre(glm::vec3 coord);
+	void setColour(glm::vec3 colour);
 	void initSphere();
 
 private:
