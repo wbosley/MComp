@@ -23,10 +23,10 @@ class Model3D
 		int loadOpenVRModel(vr::RenderModel_t* vr_model, vr::RenderModel_TextureMap_t* vr_texture);
 		int loadModelFromObj(OBJLoader obj);
 		int addModelToMesh(Model3D model);
-		int compileMesh();
+		int compileModel();
 		int render(Shader myShader);
 
-		bool isModelValid;
+		bool isModelCompiled;
 		
 
 	protected:
@@ -50,9 +50,12 @@ class Model3D
 		GLuint VAO;
 		GLuint* VBOs;
 
+		RENDER_TYPE render_type;
+
 		void updateBufferData();
 
 		int putModelDataInVbosAndVaos(RENDER_TYPE renderMode);
+		
 
 };
 

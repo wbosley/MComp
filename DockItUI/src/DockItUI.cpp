@@ -282,10 +282,11 @@ void createFrameBuffer(int width, int height, FrameBuffer& framebuffer) {
 int initModels() {
 	objLoader.loadOBJ("src/models/teapot.obj");
 	firstModel.loadModelFromObj(objLoader);
+	firstModel.compileModel();
 
 	proteinLoader.loadProtein("src/proteins/1ADG7046.pdb");
 	firstProtein.loadProteinFromProteinLoader(proteinLoader);
-
+	firstProtein.compileModel();
 	return 0;
 }
 

@@ -29,8 +29,12 @@ int Protein3D::constructSpheres() {
 		sphere.setColour(atomColours[i]);
 		protein.addModelToMesh(sphere);
 	}
-	protein.compileMesh();
 
+	return 0;
+}
+
+int Protein3D::compileModel() {
+	protein.compileModel();
 	return 0;
 }
 

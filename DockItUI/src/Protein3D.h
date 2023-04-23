@@ -9,6 +9,7 @@ class Protein3D
 		~Protein3D();
 		int loadProteinFromProteinLoader(ProteinLoader proteinLoader);
 		int render(Shader shader);
+		int compileModel();
 
 	private:
 		std::vector<std::string> atomNames;

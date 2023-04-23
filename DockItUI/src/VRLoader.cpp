@@ -126,6 +126,7 @@ Model3D VRLoader::FindOrLoadRenderModel(const char * renderModelName) {
 
 	Model3D controller;
 	controller.loadOpenVRModel(pModel, pTexture); // make a Model3D of the controller
+	controller.compileModel(); //compile the model
 
 
 	return controller;
@@ -281,6 +282,7 @@ int VRLoader::initVR() {
 
 	error = vr::VRInput()->SetActionManifestPath("C:/Users/Eleva/Documents/GitHub/MComp/DockItUI/src/hellovr_actions.json");
 
+	//wills path: "C:/Users/Will/Documents/GitHub/MComp/DockItUI/src/hellovr_actions.json"
 	//std::cout << "error: " << error << std::endl;
 
 	vr::VRInput()->GetActionHandle("/actions/demo/in/HideCubes", &m_actionHideCubes);
@@ -341,17 +343,21 @@ glm::mat4 VRLoader::getHeadsetMatrix() {
 
 
 void VRLoader::renderControllers(Shader shader, glm::mat4 ViewMatrix) {
+	//loop through hands
 	for (EHand eHand = Left; eHand <= Right; ((int&)eHand)++)
 	{
-		if (!m_rHand[eHand].m_bShowController || !m_rHand[eHand].m_pRenderModel.isModelValid)
+		//if controller is not to be shown, dont render it.
+		if (!m_rHand[eHand].m_bShowController || !m_rHand[eHand].m_pRenderModel.isModelCompiled)
 			continue;
 
+		//get thhe controllers matrices, and multiply them by the view matrix to get the MVP matrix, so we can pass it to shader.
 		glm::mat4 matDeviceToTracking = m_rHand[eHand].m_rmat4Pose;
 		glm::mat4 matMVP = ViewMatrix * matDeviceToTracking;
 
+		//pass it to shader.
 		glUniformMatrix4fv(glGetUniformLocation(shader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(matMVP));
 
-
+		//render it! ^_^ (we pass the shader so we can have different shaders for different things.)
 		m_rHand[eHand].m_pRenderModel.render(shader);
 	}
 }

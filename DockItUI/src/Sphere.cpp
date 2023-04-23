@@ -22,10 +22,6 @@ void Sphere::setColour(glm::vec3 colour) {
 	}
 }
 
-void Sphere::initSphere() {
-	putModelDataInVbosAndVaos(NO_TEXTURES);
-}
-
 void Sphere::setCentre(glm::vec3 coord)
 {
 	for (int i = 0; i < vertices.size(); i++) {

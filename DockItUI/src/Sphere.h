@@ -11,7 +11,6 @@ public:
 	void setRadius(float rad);
 	void setCentre(glm::vec3 coord);
 	void setColour(glm::vec3 colour);
-	void initSphere();
 
 private:
 	float cx, cy, cz; //centre of the sphere
