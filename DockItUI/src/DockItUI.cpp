@@ -104,12 +104,12 @@ void display() {
 // Returns: N/A
 //-----------------------------------------------------------------------------
 	glUseProgram(vrShader.getShaderProgram());
-	vrLoader.refresh();
+	vrLoader.refresh(); //updates positions of the openVR devices.
 
 	//Projection Matrix for screen.
 	//glUniformMatrix4fv(glGetUniformLocation(vrShader.getShaderProgram(), "ProjectionMatrix"), 1, GL_FALSE, &ProjectionMatrix[0][0]);
 
-	glEnable(GL_MULTISAMPLE);
+	glEnable(GL_MULTISAMPLE);//enables anti ailiasing
 
 	// Left eye
 	glBindFramebuffer(GL_FRAMEBUFFER, LeftEyeFrameBuffer.m_nRenderFramebufferId);
@@ -125,7 +125,7 @@ void display() {
 
 	glDisable(GL_MULTISAMPLE);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0); //also means binding the default fram buffer. We are rendering to the monitor now
 	glViewport(0, 0, screenWidth, screenHeight);
 	//so we can use the same shader for the VR headset and the companion window, we multiply the projection matrix by the view matrix here rather than in the shader.
 	//renderAll(ProjectionMatrix * camera.getMatrix());
@@ -133,7 +133,7 @@ void display() {
 	//Code to make the companion window display view from headset location - George
 	renderAll(ProjectionMatrix * vrLoader.getHeadsetMatrix());
 	
-	//Render to the companion window.
+	//Render to the companion window. (Used for if we were putting the headset's eyes quad onto the screen as a texture. Not implemented yet) 
 	renderCompanionWindow();
 
 
@@ -150,6 +150,12 @@ void display() {
 }
 
 void reshape(GLFWwindow* window, int width, int height) {
+//-----------------------------------------------------------------------------
+// Purpose: Explains to openGL what size window we are rendering to. 
+//			Creates a projection matrix based off of the window size.
+// 
+// Returns: n/a
+//-----------------------------------------------------------------------------
 	screenWidth = width;
 	screenHeight = height;
 	glViewport(0, 0, screenWidth, screenHeight);
@@ -194,6 +200,15 @@ messageCallback(GLenum source,
 	const char* message,
 	const void* userParam)
 {
+//-----------------------------------------------------------------------------
+// Purpose: Debugging function we found on web to help us resolve errors.
+//			it wont be in the final product. Prints errors in human readable format.
+//		
+// Author: https://learnopengl.com/In-Practice/Debugging	
+// 
+// Returns: n/a
+//-----------------------------------------------------------------------------
+	
 	// ignore non-significant error/warning codes
 	if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
 
@@ -280,6 +295,11 @@ void createFrameBuffer(int width, int height, FrameBuffer& framebuffer) {
 }
 
 int initModels() {
+//-----------------------------------------------------------------------------
+// Purpose: Loads and compiles models/proteins.
+// 
+// Returns: (In future) 1 or 0 depending on whether the program ran successfully or not. 
+//-----------------------------------------------------------------------------
 	objLoader.loadOBJ("src/models/teapot.obj");
 	firstModel.loadModelFromObj(objLoader);
 	firstModel.compileModel();
@@ -290,8 +310,14 @@ int initModels() {
 	return 0;
 }
 
-int init() {
 
+int init() {
+//-----------------------------------------------------------------------------
+// Purpose: Initialise all the libraries, models, shaders.
+// 
+// Returns: 1 or 0 depending on whether the initialisation was successful.
+//-----------------------------------------------------------------------------
+	
 	//Initialise GLFW.
 	if (!glfwInit())
 	{
@@ -307,7 +333,7 @@ int init() {
 	}
 	glfwMakeContextCurrent(window);
 
-	//Initialise GLEW and check for errors.
+	//Initialise GLEW and check for errors. (GLEW is a library allowing use of opengl with languages other than c)
 	glewExperimental = GL_TRUE;
 	err = glewInit();
 	if (GLEW_OK != err)
@@ -317,7 +343,7 @@ int init() {
 	}
 
 	reshape(window, screenWidth, screenHeight);
-	glfwSetFramebufferSizeCallback(window, reshape);
+	glfwSetFramebufferSizeCallback(window, reshape); //if window size changes, reshape the viewport et.c using "reshape()", 
 	glfwSetKeyCallback(window, key_callback);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glEnable(GL_DEPTH_TEST);
@@ -331,6 +357,7 @@ int init() {
 		return -1;
 	}
 
+	//create frame buffers. these are used to store the images/textures that display to the left and right eyes.
 	createFrameBuffer(vrLoader.renderWidth, vrLoader.renderHeight, LeftEyeFrameBuffer);
 	createFrameBuffer(vrLoader.renderWidth, vrLoader.renderHeight, RightEyeFrameBuffer);
 
@@ -340,17 +367,24 @@ int init() {
 		return -1;
 	}
 
+	//set up the keyboard controlled camera and set its initial position.
 	camera = Camera();
 	camera.setPosition(glm::vec3(0.0, -2.5, -15.0));
 	
 
-	glEnable(GL_DEBUG_OUTPUT);
+	glEnable(GL_DEBUG_OUTPUT);//enables a debugging mode. if theres an error in any opengl code it will run the message callback function.
 	glDebugMessageCallback(messageCallback, 0);
 
 }
 
 int main()
 {
+//-----------------------------------------------------------------------------
+// Purpose: First function which runs in the program. 
+// 
+// Returns: 1 or 0 depending on whether the program ran successfully or not.
+//-----------------------------------------------------------------------------
+
 	//Initialisation function.
 	init();
 
@@ -363,10 +397,10 @@ int main()
 
 
 		vrLoader.handleInput();
-		// Swap front and back buffers
+		// Swap front and back buffers. Puts the complete frame on screen once its completed rendering.
 		glfwSwapBuffers(window);
 
-		// Poll for and process events
+		// Poll for and process events (keyboard + mouse input stuff)
 		glfwPollEvents();
 
 	}
