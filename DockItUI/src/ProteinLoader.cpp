@@ -119,7 +119,7 @@ glm::vec3 ProteinLoader::getAtomCoordinatesFromLine(std::string line) {
 	return coordinate;
 }
 
-//this is basically the same as S.Ls code
+//ALmost the same as code from stephen. need to get who to credit for this and datatable.
 glm::vec3 ProteinLoader::getColorFromAtomName(std::string atomName){
 
 	glm::vec3 colourVector;
@@ -145,7 +145,7 @@ glm::vec3 ProteinLoader::getColorFromAtomName(std::string atomName){
 	return colourVector;
 }
 
-//this is basically the same as S.Ls code
+//ALmost the same as code from stephen. need to get who to credit for this and datatable.
 float ProteinLoader::getRadiusFromAtomName(std::string atomName) {
 	float radius;
 
