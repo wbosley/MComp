@@ -171,6 +171,7 @@ void VRLoader::updateHMDPose() {
 		}
 	}
 
+	//get the pose of the HMD, and turns it to a GLM matrix. We can get the pose of the controllers in a similar way (Which is done elsewhere).
 	this->mat4DevicePose[vr::k_unTrackedDeviceIndex_Hmd] = convertSteamVRMatrix(trackedDevicePose[vr::k_unTrackedDeviceIndex_Hmd].mDeviceToAbsoluteTracking);
 	if (trackedDevicePose[vr::k_unTrackedDeviceIndex_Hmd].bPoseIsValid) {
 		this->mat4HMDPose = mat4DevicePose[vr::k_unTrackedDeviceIndex_Hmd];
@@ -196,8 +197,16 @@ void VRLoader::ProcessVREvent(const vr::VREvent_t& event)
 }
 
 void VRLoader::handleInput() {
+	//-----------------------------------------------------------------------------
+	// Purpose: Updates the model data for the controllers based on what the user 
+	//			is inputting, and loads the model if they are not already loaded.
+	// 
+	// Returns: N/A
+	//-----------------------------------------------------------------------------
 	m_rHand[Left].m_bShowController = true;
 	m_rHand[Right].m_bShowController = true;
+
+	//a vr event happens when a vr device is attached or detached
 
 	//this creates a VREvent_t object, and stores whatever event happens in the "event" object. This loops through every event that happens, and prints them using ProcessVREvent. (For our own benefit)
 	vr::VREvent_t event;
@@ -205,7 +214,7 @@ void VRLoader::handleInput() {
 	{
 		ProcessVREvent(event);
 	}
-	vr::VRActiveActionSet_t actionSet = { 0 };//We think this is something to do with the inoput bindings
+	vr::VRActiveActionSet_t actionSet = { 0 };//We think this is something to do with the inoput bindings. Code leftover from the sample code to get controllers working.
 	actionSet.ulActionSet = m_actionsetDemo;
 	vr::VRInput()->UpdateActionState(&actionSet, sizeof(actionSet), 1);
 
@@ -246,6 +255,11 @@ void VRLoader::handleInput() {
 }
 
 int VRLoader::initVR() {
+//-----------------------------------------------------------------------------
+// Purpose: Initialise OpenVR.
+// 
+// Returns: 1 or 0 depending on whether OpenVr started successfully or not.
+//-----------------------------------------------------------------------------
 	if (vr::VR_IsHmdPresent()) {
 		std::cout << "HMD is present." << std::endl;
 		if (vr::VR_IsRuntimeInstalled()) {
@@ -264,6 +278,7 @@ int VRLoader::initVR() {
 	//Load SteamVR Runtime
 
 	vr::EVRInitError evrError = vr::VRInitError_None;
+	//pHMD is our object for storing information about + doing commands the headset. Its basically as if the headset was an object in code.
 	pHMD = vr::VR_Init(&evrError, vr::VRApplication_Scene);
 
 	if (evrError != vr::VRInitError_None) {
@@ -273,18 +288,19 @@ int VRLoader::initVR() {
 
 	vr::EVRInitError cError = vr::VRInitError_None;
 
+	//compistor is used to render to the headsets screens.
 	if (!vr::VRCompositor()) {
 		std::cout << "Could not load Compositor." << std::endl;
 		return -1;
 	}
 
+	//check controller keybinding files loads properly
 	vr::EVRInputError error = vr::VRInputError_None;
-
-	error = vr::VRInput()->SetActionManifestPath("C:/Users/Eleva/Documents/GitHub/MComp/DockItUI/src/hellovr_actions.json");
-
-	//wills path: "C:/Users/Will/Documents/GitHub/MComp/DockItUI/src/hellovr_actions.json"
+	//error = vr::VRInput()->SetActionManifestPath("C:/Users/Eleva/Documents/GitHub/MComp/DockItUI/src/hellovr_actions.json");
+	error = vr::VRInput()->SetActionManifestPath("C:/Users/Will/Documents/GitHub/MComp/DockItUI/src/hellovr_actions.json");
 	//std::cout << "error: " << error << std::endl;
 
+	//get the keybindings, and store them in the action handles. Mainly used for bug fixing at the moment - we are still working on figuring out this codes exact use, but our program works when its here.
 	vr::VRInput()->GetActionHandle("/actions/demo/in/HideCubes", &m_actionHideCubes);
 	vr::VRInput()->GetActionHandle("/actions/demo/in/HideThisController", &m_actionHideThisController);
 	vr::VRInput()->GetActionHandle("/actions/demo/in/TriggerHaptic", &m_actionTriggerHaptic);
@@ -302,21 +318,17 @@ int VRLoader::initVR() {
 
 
 
-	//I assume this is getting the render size of headset's eyes.
+	//getting the render size of headset's eyes.
 	this->pHMD->GetRecommendedRenderTargetSize(&renderWidth, &renderHeight);
 
-	//Create frame buffer for left and right eye using the render size.
-	//createFrameBuffer(renderWidth, renderHeight, LeftEyeFrameBuffer);
-	//createFrameBuffer(renderWidth, renderHeight, RightEyeFrameBuffer);
-
 	//Setup eye matrices.
-
 	this->ProjectionMatrixLeftEye = getEyeProjectionMatrix(vr::Eye_Left);
 	this->ProjectionMatrixRightEye = getEyeProjectionMatrix(vr::Eye_Right);
 
 	this->ViewMatrixLeftEye = getEyeViewMatrix(vr::Eye_Left);
 	this->ViewMatrixRightEye = getEyeViewMatrix(vr::Eye_Right);
 
+	//sets the default position of the headset to 0,0,0.
 	this->mat4HMDPose = glm::mat4(1.0f);
 
 	return 0;
@@ -333,6 +345,7 @@ void VRLoader::refresh() {
 }
 
 void VRLoader::render(vr::Texture_t Left, vr::Texture_t Right) {
+	//puts the textures into the eyes
 	vr::VRCompositor()->Submit(vr::Eye_Left, &Left);
 	vr::VRCompositor()->Submit(vr::Eye_Right, &Right);
 }
