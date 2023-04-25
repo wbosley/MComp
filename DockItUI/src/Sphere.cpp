@@ -33,6 +33,8 @@ void Sphere::setCentre(glm::vec3 coord)
 
 int Sphere::constructGeometry(int level)
 {
+	//Code from stephen to construct a sphere
+
 	//create the memory for the sphere
 	int sizeOfVerts = ((level - 2) * level + 2) * 3;
 	int sizeOfNorms = ((level - 2) * level + 2) * 3;
