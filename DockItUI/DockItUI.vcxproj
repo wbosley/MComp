@@ -104,7 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)libraries\glew\include;$(SolutionDir)libraries\glfw\include;$(SolutionDir)libraries\openvr\headers;$(SolutionDir)libraries\glm;$(SolutionDir)libraries\other;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)libraries\glew\include;$(SolutionDir)libraries\glfw\include;$(SolutionDir)libraries\openvr\headers;$(SolutionDir)libraries\glm;$(SolutionDir)libraries\other;$(SolutionDir)libraries\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -133,6 +133,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\GUILoader.cpp" />
+    <ClCompile Include="libraries\imgui\imgui.cpp" />
+    <ClCompile Include="libraries\imgui\imgui_demo.cpp" />
+    <ClCompile Include="libraries\imgui\imgui_draw.cpp" />
+    <ClCompile Include="libraries\imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="libraries\imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="libraries\imgui\imgui_tables.cpp" />
+    <ClCompile Include="libraries\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\Protein3D.cpp" />
     <ClCompile Include="src\Sphere.cpp" />
     <ClCompile Include="src\DataTable.cpp" />
@@ -145,6 +153,16 @@
     <ClCompile Include="src\VRLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\GUILoader.h" />
+    <ClInclude Include="libraries\imgui\imconfig.h" />
+    <ClInclude Include="libraries\imgui\imgui.h" />
+    <ClInclude Include="libraries\imgui\imgui_impl_glfw.h" />
+    <ClInclude Include="libraries\imgui\imgui_impl_opengl3.h" />
+    <ClInclude Include="libraries\imgui\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="libraries\imgui\imgui_internal.h" />
+    <ClInclude Include="libraries\imgui\imstb_rectpack.h" />
+    <ClInclude Include="libraries\imgui\imstb_textedit.h" />
+    <ClInclude Include="libraries\imgui\imstb_truetype.h" />
     <ClInclude Include="src\Protein3D.h" />
     <ClInclude Include="src\Sphere.h" />
     <ClInclude Include="src\DataTable.h" />
@@ -156,6 +174,9 @@
     <ClInclude Include="src\VRLoader.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="src\hellovr_actions.json" />
+    <None Include="src\hellovr_bindings_generic.json" />
+    <None Include="src\hellovr_bindings_vive_controller.json" />
     <None Include="src\shaders\basic.shader" />
     <None Include="src\shaders\basicvr.shader" />
     <None Include="src\shaders\basicvr_colour.shader" />

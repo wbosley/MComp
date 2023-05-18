@@ -17,6 +17,10 @@
 #include "ProteinLoader.h"
 #include "Sphere.h"
 #include "Protein3D.h"
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+#include "GUILoader.h"
 
 #define FORWARD 0
 #define BACKWARD 1
@@ -60,8 +64,12 @@ glm::mat4 ProjectionMatrixRightEye;
 glm::mat4 ViewMatrixLeftEye;
 glm::mat4 ViewMatrixRightEye;
 VRLoader vrLoader;
+GUILoader guiLoader;
 GLuint VAOwad;
 
+void renderInterface() {
+
+}
 
 void renderAll(glm::mat4 ViewMatrix) {
 //-----------------------------------------------------------------------------
@@ -86,12 +94,20 @@ void renderAll(glm::mat4 ViewMatrix) {
 	//ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-5, 0, -150));
 	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-5, 0, 25));
 	glUniformMatrix4fv(glGetUniformLocation(proteinShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * ModelMatrix));
-	firstProtein.render(proteinShader);
+	//firstProtein.render(proteinShader);
 	
 	
 	glUseProgram(controllerShader.getShaderProgram());
 	vrLoader.renderControllers(controllerShader, ViewMatrix);
+
+	guiLoader.renderVRGui(ViewMatrix);
+
+
+
+	renderInterface();
 }
+
+
 
 void renderCompanionWindow() {
 
@@ -135,7 +151,6 @@ void display() {
 	
 	//Render to the companion window. (Used for if we were putting the headset's eyes quad onto the screen as a texture. Not implemented yet) 
 	renderCompanionWindow();
-
 
 	// Turn framebuffer texture into an OpenVR texture.
 	vr::Texture_t leftEyeTexture = { (void*)(uintptr_t)LeftEyeFrameBuffer.m_nRenderTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
@@ -324,6 +339,8 @@ int init() {
 		exit(EXIT_FAILURE);
 	}
 
+
+
 	//Create window and check for errors.
 	window = glfwCreateWindow(screenWidth, screenHeight, "DockItUI", NULL, NULL);
 	if (!window)
@@ -341,6 +358,9 @@ int init() {
 		std::cout << "Error: " << glewGetErrorString(err) << std::endl;
 		glfwTerminate();
 	}
+
+
+
 
 	reshape(window, screenWidth, screenHeight);
 	glfwSetFramebufferSizeCallback(window, reshape); //if window size changes, reshape the viewport et.c using "reshape()", 
@@ -375,6 +395,11 @@ int init() {
 	glEnable(GL_DEBUG_OUTPUT);//enables a debugging mode. if theres an error in any opengl code it will run the message callback function.
 	glDebugMessageCallback(messageCallback, 0);
 
+	if (guiLoader.init(window) != 0) {
+		std::cout << "Failed to initialise GUI." << std::endl;
+			return -1;
+	}
+
 }
 
 int main()
@@ -389,14 +414,19 @@ int main()
 	init();
 
 
+
 	// Loop until the user closes the window
 	while (!glfwWindowShouldClose(window))
 	{
+
 		// Main render loop.
 		display();
 
-
+		//Handling Controller Input.
 		vrLoader.handleInput();
+
+		//guiLoader.renderWindowGui();
+
 		// Swap front and back buffers. Puts the complete frame on screen once its completed rendering.
 		glfwSwapBuffers(window);
 
@@ -404,6 +434,10 @@ int main()
 		glfwPollEvents();
 
 	}
+
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
 
 	glfwTerminate();
 	return 0;

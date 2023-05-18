@@ -197,12 +197,12 @@ void VRLoader::ProcessVREvent(const vr::VREvent_t& event)
 }
 
 void VRLoader::handleInput() {
-	//-----------------------------------------------------------------------------
-	// Purpose: Updates the model data for the controllers based on what the user 
-	//			is inputting, and loads the model if they are not already loaded.
-	// 
-	// Returns: N/A
-	//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+// Purpose: Updates the model data for the controllers based on what the user 
+//			is inputting, and loads the model if they are not already loaded.
+// 
+// Returns: N/A
+//-----------------------------------------------------------------------------
 	m_rHand[Left].m_bShowController = true;
 	m_rHand[Right].m_bShowController = true;
 
@@ -296,8 +296,8 @@ int VRLoader::initVR() {
 
 	//check controller keybinding files loads properly
 	vr::EVRInputError error = vr::VRInputError_None;
-	//error = vr::VRInput()->SetActionManifestPath("C:/Users/Eleva/Documents/GitHub/MComp/DockItUI/src/hellovr_actions.json");
-	error = vr::VRInput()->SetActionManifestPath("C:/Users/Will/Documents/GitHub/MComp/DockItUI/src/hellovr_actions.json");
+	error = vr::VRInput()->SetActionManifestPath("C:/Users/Eleva/Documents/GitHub/MComp/DockItUI/src/hellovr_actions.json");
+	//error = vr::VRInput()->SetActionManifestPath("C:/Users/Will/Documents/GitHub/MComp/DockItUI/src/hellovr_actions.json");
 	//std::cout << "error: " << error << std::endl;
 
 	//get the keybindings, and store them in the action handles. Mainly used for bug fixing at the moment - we are still working on figuring out this codes exact use, but our program works when its here.
