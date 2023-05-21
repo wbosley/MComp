@@ -46,6 +46,9 @@
     <Filter Include="Header Files\3D">
       <UniqueIdentifier>{f8590259-ca67-4b29-918b-9361d31852af}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\FrameBuffer">
+      <UniqueIdentifier>{4aff3b1c-ddc9-4c64-85be-f62b7033019d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\DockItUI.cpp">
@@ -105,8 +108,11 @@
     <ClCompile Include="src\Quad3D.cpp">
       <Filter>Header Files\3D</Filter>
     </ClCompile>
-    <ClCompile Include="ImGui3D.cpp">
+    <ClCompile Include="src\ImGui3D.cpp">
       <Filter>Header Files\3D</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FrameBuffer.cpp">
+      <Filter>Header Files\FrameBuffer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -170,8 +176,11 @@
     <ClInclude Include="src\Quad3D.h">
       <Filter>Header Files\3D</Filter>
     </ClInclude>
-    <ClInclude Include="ImGui3D.h">
+    <ClInclude Include="src\ImGui3D.h">
       <Filter>Header Files\3D</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FrameBuffer.h">
+      <Filter>Header Files\FrameBuffer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

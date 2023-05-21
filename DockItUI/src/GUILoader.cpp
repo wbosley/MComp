@@ -11,16 +11,20 @@ GUILoader::~GUILoader() {
 
 int GUILoader::initGLFWGui(GLFWwindow* window) {
 	this->window = window;
-	context_glfw = ImGui::CreateContext();
+	this->context_glfw = ImGui::CreateContext();
+	std::cout << "context_glfw: " << this->context_glfw << std::endl;
+	ImGui::SetCurrentContext(this->context_glfw);
 	io = &ImGui::GetIO();
 	ImGui::StyleColorsDark();
 	ImGui_ImplOpenGL3_Init("#version 460");
-	//ImGui_ImplGlfw_InitForOpenGL(window, true);
-
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	return 0;
 }
 
-int GUILoader::initVRGui() {
+int GUILoader::initVRGui(GLuint shader) {
+	this->shader = shader;
+	auto vrWindow1 = ImGui3D(ImGui::CreateContext(), 200, 200, shader);
+	vr_windows.push_back(vrWindow1);
 
 	return 0;
 }
@@ -30,9 +34,9 @@ GUILoader::CAMERA_MODE GUILoader::getCameraMode() {
 }
 
 void GUILoader::renderWindowGui() {
-	ImGui::SetCurrentContext(context_glfw);
+	ImGui::SetCurrentContext(this->context_glfw);
 	ImGui_ImplOpenGL3_NewFrame();
-	//ImGui_ImplGlfw_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
 	ImGui::SetNextWindowCollapsed(false);
@@ -69,7 +73,7 @@ void GUILoader::renderWindowGui() {
 
 
 	ImGui::Begin("DockIt User Interface", NULL, window_flags);
-	//ImGui::Text("FPS: %.1f", io->Framerate);
+	ImGui::Text("FPS: %.1f", io->Framerate);
 	ImGui::Text("Camera Mode: ");
 	if (ImGui::Button("VR Camera")) {
 		camera_mode = VR_VIEW;
@@ -85,8 +89,11 @@ void GUILoader::renderWindowGui() {
 }
 
 void GUILoader::renderVRGui(glm::mat4 matrix) {
-	context_vr[0] = ImGui::CreateContext();
-
-
-
+	glUseProgram(shader);
+	glUniformMatrix4fv(glGetUniformLocation(shader, "matrix"), 1, GL_FALSE, value_ptr(matrix));
+	vr_windows[0].start();
+	ImGui::Begin("DockIt User Interface", NULL);
+	ImGui::Text("THIS IS A TEST WINDOW :)");
+	ImGui::End();
+	vr_windows[0].render();
 }

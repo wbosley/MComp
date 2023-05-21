@@ -365,6 +365,21 @@ void    ImGui_ImplOpenGL3_Shutdown()
     IM_DELETE(bd);
 }
 
+void    ImGui_ImplVR_NewFrame(int width, int height)
+{
+    ImGui_ImplOpenGL3_Data* bd = ImGui_ImplOpenGL3_GetBackendData();
+    IM_ASSERT(bd != nullptr && "Did you call ImGui_ImplOpenGL3_Init()?");
+
+    ImGuiIO& io = ImGui::GetIO();
+
+    io.DisplaySize = ImVec2(width, height);
+    io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
+
+
+    if (!bd->ShaderHandle)
+        ImGui_ImplOpenGL3_CreateDeviceObjects();
+}
+
 void    ImGui_ImplOpenGL3_NewFrame()
 {
     ImGui_ImplOpenGL3_Data* bd = ImGui_ImplOpenGL3_GetBackendData();

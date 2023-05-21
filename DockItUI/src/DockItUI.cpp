@@ -22,6 +22,7 @@
 #include "imgui_impl_opengl3.h"
 #include "GUILoader.h"
 #include "Quad3D.h"
+#include "FrameBuffer.h"
 
 #define FORWARD 0
 #define BACKWARD 1
@@ -55,11 +56,6 @@ Model3D firstModel;
 Model3D secondModel;
 Sphere firstSphere;
 Camera camera;
-struct FrameBuffer {
-	GLuint m_nDepthBufferId;
-	GLuint m_nRenderTextureId;
-	GLuint m_nRenderFramebufferId;
-};
 FrameBuffer LeftEyeFrameBuffer;
 FrameBuffer RightEyeFrameBuffer;
 FrameBuffer testBuffer;
@@ -109,12 +105,15 @@ void renderAll(glm::mat4 ViewMatrix) {
 	vrLoader.renderControllers(controllerShader.getShaderProgram(), ViewMatrix);
 
 	glUseProgram(quad3DShader.getShaderProgram());
-	quadTest.loadTexture(testBuffer.m_nRenderTextureId, 200, 200);
+	//quadTest.loadTexture(testBuffer.m_nRenderTextureId, 200, 200);
 	ModelMatrix = glm::mat4(1.0f);
 	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0, 0, 5));
 	ModelMatrix = glm::rotate(ModelMatrix, (float)glfwGetTime() * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
-	glUniformMatrix4fv(glGetUniformLocation(quad3DShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * ModelMatrix));
-	quadTest.render(quad3DShader.getShaderProgram());
+	guiLoader.renderVRGui(ViewMatrix * ModelMatrix);
+
+
+	//glUniformMatrix4fv(glGetUniformLocation(quad3DShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * ModelMatrix));
+	//quadTest.render(quad3DShader.getShaderProgram());
 
 	//guiLoader.renderVRGui(ViewMatrix);
 }
@@ -144,12 +143,12 @@ void display() {
 	//Projection Matrix for screen.
 	//glUniformMatrix4fv(glGetUniformLocation(vrShader.getShaderProgram(), "ProjectionMatrix"), 1, GL_FALSE, &ProjectionMatrix[0][0]);
 
-	glDisable(GL_DEPTH_TEST);
-	glBindFramebuffer(GL_FRAMEBUFFER, testBuffer.m_nRenderFramebufferId);
-	glViewport(0, 0, 200, 200);
-	guiLoader.renderWindowGui();
-	//renderAll(ProjectionMatrix * camera.getMatrix());
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//glDisable(GL_DEPTH_TEST);
+	//glBindFramebuffer(GL_FRAMEBUFFER, testBuffer.m_nRenderFramebufferId);
+	//glViewport(0, 0, 200, 200);
+	//guiLoader.renderWindowGui();
+	////renderAll(ProjectionMatrix * camera.getMatrix());
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	glEnable(GL_MULTISAMPLE);//enables anti ailiasing
 	glEnable(GL_DEPTH_TEST);
@@ -193,6 +192,7 @@ void display() {
 
 	//Render the texture to the headset.
 	vrLoader.render(leftEyeTexture, rightEyeTexture);
+	guiLoader.renderWindowGui();
 
 	//Clear all buffers.
 	glFlush();
@@ -298,52 +298,6 @@ messageCallback(GLenum source,
 	std::cout << std::endl;
 }
 
-void createFrameBuffer(int width, int height, FrameBuffer& framebuffer) {
-	//Frame buffers allow us to render to multiple viewports such as the left and right eye and companion window.
-	//Basically we are rendering to a texture instead of the screen.
-	//This allows us to render to multiple viewports without having to render the same scene multiple times.
-	//This is a very useful technique for VR. - george
-
-	//Generate a frame buffer and bind it.
-	glGenFramebuffers(1, &framebuffer.m_nRenderFramebufferId);
-	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.m_nRenderFramebufferId);
-
-	//Generate a render buffer, bind it and specify details about the buffer.
-	glGenRenderbuffers(1, &framebuffer.m_nDepthBufferId);
-	glBindRenderbuffer(GL_RENDERBUFFER, framebuffer.m_nDepthBufferId);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width , height);
-	//Unbind the render buffer.
-	glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
-	//Attach the render buffer to the frame buffer.
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, framebuffer.m_nDepthBufferId);
-
-	//Generate a texture, bind it and specify details about the texture.
-	glGenTextures(1, &framebuffer.m_nRenderTextureId);
-	glBindTexture(GL_TEXTURE_2D, framebuffer.m_nRenderTextureId);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-
-	//Set texture parameters.
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	
-	//Attach the texture to the frame buffer.
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, framebuffer.m_nRenderTextureId, 0);
-
-	//Unbind the texture.
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE) {
-		std::cout << "Framebuffer creation successful." << std::endl;
-	}
-	else {
-		std::cout << "Framebuffer creation FAILED." << std::endl;
-	}
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	
-}
-
 int initModels() {
 //-----------------------------------------------------------------------------
 // Purpose: Loads and compiles models/proteins.
@@ -358,7 +312,6 @@ int initModels() {
 	firstProtein.loadProteinFromProteinLoader(proteinLoader);
 	firstProtein.compileModel();
 
-	//quad = Quad3D::Quad3D();
 	quad.compileQuad();
 	quadTest.compileQuad();
 
@@ -421,9 +374,12 @@ int init() {
 	}
 
 	//create frame buffers. these are used to store the images/textures that display to the left and right eyes.
-	createFrameBuffer(vrLoader.renderWidth, vrLoader.renderHeight, LeftEyeFrameBuffer);
-	createFrameBuffer(vrLoader.renderWidth, vrLoader.renderHeight, RightEyeFrameBuffer);
-	createFrameBuffer(200, 200, testBuffer);
+	LeftEyeFrameBuffer.createFrameBuffer(vrLoader.renderWidth, vrLoader.renderHeight);
+	RightEyeFrameBuffer.createFrameBuffer(vrLoader.renderWidth, vrLoader.renderHeight);
+	//testBuffer.createFrameBuffer(200, 200);
+	//createFrameBuffer(vrLoader.renderWidth, vrLoader.renderHeight, LeftEyeFrameBuffer);
+	//createFrameBuffer(vrLoader.renderWidth, vrLoader.renderHeight, RightEyeFrameBuffer);
+	//createFrameBuffer(200, 200, testBuffer);
 
 
 	if (initModels() != 0) {
@@ -443,6 +399,10 @@ int init() {
 	if (guiLoader.initGLFWGui(window) != 0) {
 		std::cout << "Failed to initialise GUI." << std::endl;
 			return -1;
+	}
+	if (guiLoader.initVRGui(quad3DShader.getShaderProgram()) != 0) {
+		std::cout << "Failed to initialise VR GUI." << std::endl;
+		return -1;
 	}
 
 }

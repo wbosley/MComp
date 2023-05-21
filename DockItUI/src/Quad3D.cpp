@@ -15,7 +15,6 @@ Quad3D::Quad3D()
 	this->uvs.push_back(glm::vec2(0.0f, 0.0f));
 	this->uvs.push_back(glm::vec2(1.0f, 1.0f));
 	this->uvs.push_back(glm::vec2(1.0f, 0.0f));
-
 }
 Quad3D::~Quad3D()
 {
@@ -45,7 +44,6 @@ int Quad3D::compileQuad() {
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
-
 	return 0;
 }
 

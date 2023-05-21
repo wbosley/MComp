@@ -13,7 +13,6 @@ class Quad3D
 	private:
 		std::vector<glm::vec3> vertices;
 		std::vector<glm::vec2> uvs;
-
 		GLuint texture;
 		uint16_t texWidth;
 		uint16_t texHeight;
