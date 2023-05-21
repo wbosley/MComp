@@ -171,9 +171,9 @@ int Model3D::addModelToMesh(Model3D model) {
 	return 0;
 }
 
-int Model3D::render(Shader shader) 
+int Model3D::render(GLuint shader) 
 {
-	glUseProgram(shader.getShaderProgram());
+	glUseProgram(shader);
 
 	//bind the VAO
 	glBindVertexArray(this->VAO);

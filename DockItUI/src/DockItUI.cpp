@@ -21,6 +21,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "GUILoader.h"
+#include "Quad3D.h"
 
 #define FORWARD 0
 #define BACKWARD 1
@@ -43,6 +44,8 @@ glm::mat4 ViewMatrix;
 glm::mat4 ModelMatrix;
 Shader vrShader;
 Shader controllerShader;
+Shader quadShader;
+Shader quad3DShader;
 Shader proteinShader;
 vr::IVRSystem* pHMD;
 OBJLoader objLoader;
@@ -59,6 +62,7 @@ struct FrameBuffer {
 };
 FrameBuffer LeftEyeFrameBuffer;
 FrameBuffer RightEyeFrameBuffer;
+FrameBuffer testBuffer;
 glm::mat4 ProjectionMatrixLeftEye;
 glm::mat4 ProjectionMatrixRightEye;
 glm::mat4 ViewMatrixLeftEye;
@@ -66,10 +70,13 @@ glm::mat4 ViewMatrixRightEye;
 VRLoader vrLoader;
 GUILoader guiLoader;
 GLuint VAOwad;
+Quad3D quad;
+Quad3D quadTest;
 
-void renderInterface() {
-
-}
+enum CAMERA_MODE
+{
+	VR_VIEW, MONITOR_VIEW
+};
 
 void renderAll(glm::mat4 ViewMatrix) {
 //-----------------------------------------------------------------------------
@@ -78,39 +85,52 @@ void renderAll(glm::mat4 ViewMatrix) {
 //
 // Returns: N/A
 //-----------------------------------------------------------------------------
-	glUseProgram(vrShader.getShaderProgram());
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.3f, 0.2f, 0.5f, 1.0f);
 
+	//glUseProgram(vrShader.getShaderProgram());
 	//ModelMatrix = glm::mat4(1.0f);
 	//ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-5, 0, 7));
-
 	//glUniformMatrix4fv(glGetUniformLocation(vrShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * ModelMatrix));
-	//firstModel.render(vrShader);
+	//firstModel.render(vrShader.getShaderProgram());
 
 	glUseProgram(proteinShader.getShaderProgram());
 	ModelMatrix = glm::mat4(1.0f);
-	//ModelMatrix = vrLoader.getHeadsetMatrix();
-	//ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-5, 0, -150));
-	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-5, 0, 25));
+	//make model matrix smaller
+
+	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-5, 0, 15));
+	ModelMatrix = glm::rotate(ModelMatrix, (float)glfwGetTime() * 0.2f, glm::vec3(0.0f, 1.0f, 0.0f));
+	ModelMatrix = glm::scale(ModelMatrix, glm::vec3(0.1f, 0.1f, 0.1f));
 	glUniformMatrix4fv(glGetUniformLocation(proteinShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * ModelMatrix));
-	//firstProtein.render(proteinShader);
+	firstProtein.render(proteinShader.getShaderProgram());
 	
 	
 	glUseProgram(controllerShader.getShaderProgram());
-	vrLoader.renderControllers(controllerShader, ViewMatrix);
+	vrLoader.renderControllers(controllerShader.getShaderProgram(), ViewMatrix);
 
-	guiLoader.renderVRGui(ViewMatrix);
+	glUseProgram(quad3DShader.getShaderProgram());
+	quadTest.loadTexture(testBuffer.m_nRenderTextureId, 200, 200);
+	ModelMatrix = glm::mat4(1.0f);
+	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0, 0, 5));
+	ModelMatrix = glm::rotate(ModelMatrix, (float)glfwGetTime() * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
+	glUniformMatrix4fv(glGetUniformLocation(quad3DShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * ModelMatrix));
+	quadTest.render(quad3DShader.getShaderProgram());
 
-
-
-	renderInterface();
+	//guiLoader.renderVRGui(ViewMatrix);
 }
 
 
 
 void renderCompanionWindow() {
-
+//-----------------------------------------------------------------------------
+// Purpose: Renders the Companion window (on the monitor) with the left eye's
+// 		rendered texture.
+//
+// Returns: N/A
+//-----------------------------------------------------------------------------
+	glViewport(0, 0, screenWidth, screenHeight);
+	quad.loadTexture(LeftEyeFrameBuffer.m_nRenderTextureId, vrLoader.renderWidth, vrLoader.renderHeight);
+	quad.render(quadShader.getShaderProgram());
 }
 
 void display() {
@@ -119,13 +139,20 @@ void display() {
 //
 // Returns: N/A
 //-----------------------------------------------------------------------------
-	glUseProgram(vrShader.getShaderProgram());
 	vrLoader.refresh(); //updates positions of the openVR devices.
 
 	//Projection Matrix for screen.
 	//glUniformMatrix4fv(glGetUniformLocation(vrShader.getShaderProgram(), "ProjectionMatrix"), 1, GL_FALSE, &ProjectionMatrix[0][0]);
 
+	glDisable(GL_DEPTH_TEST);
+	glBindFramebuffer(GL_FRAMEBUFFER, testBuffer.m_nRenderFramebufferId);
+	glViewport(0, 0, 200, 200);
+	guiLoader.renderWindowGui();
+	//renderAll(ProjectionMatrix * camera.getMatrix());
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 	glEnable(GL_MULTISAMPLE);//enables anti ailiasing
+	glEnable(GL_DEPTH_TEST);
 
 	// Left eye
 	glBindFramebuffer(GL_FRAMEBUFFER, LeftEyeFrameBuffer.m_nRenderFramebufferId);
@@ -140,17 +167,25 @@ void display() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	glDisable(GL_MULTISAMPLE);
+	
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0); //also means binding the default fram buffer. We are rendering to the monitor now
-	glViewport(0, 0, screenWidth, screenHeight);
+	//glViewport(0, 0, screenWidth, screenHeight);
 	//so we can use the same shader for the VR headset and the companion window, we multiply the projection matrix by the view matrix here rather than in the shader.
 	//renderAll(ProjectionMatrix * camera.getMatrix());
 
 	//Code to make the companion window display view from headset location - George
-	renderAll(ProjectionMatrix * vrLoader.getHeadsetMatrix());
+	//renderAll(ProjectionMatrix * vrLoader.getHeadsetMatrix());
 	
 	//Render to the companion window. (Used for if we were putting the headset's eyes quad onto the screen as a texture. Not implemented yet) 
-	renderCompanionWindow();
+	if (guiLoader.getCameraMode() == MONITOR_VIEW) {
+		glViewport(0, 0, screenWidth, screenHeight);
+		renderAll(ProjectionMatrix * camera.getMatrix());
+		glDisable(GL_DEPTH_TEST);
+	}
+	else {
+		glDisable(GL_DEPTH_TEST);
+		renderCompanionWindow();
+	}
 
 	// Turn framebuffer texture into an OpenVR texture.
 	vr::Texture_t leftEyeTexture = { (void*)(uintptr_t)LeftEyeFrameBuffer.m_nRenderTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
@@ -322,6 +357,11 @@ int initModels() {
 	proteinLoader.loadProtein("src/proteins/1ADG7046.pdb");
 	firstProtein.loadProteinFromProteinLoader(proteinLoader);
 	firstProtein.compileModel();
+
+	//quad = Quad3D::Quad3D();
+	quad.compileQuad();
+	quadTest.compileQuad();
+
 	return 0;
 }
 
@@ -365,12 +405,15 @@ int init() {
 	reshape(window, screenWidth, screenHeight);
 	glfwSetFramebufferSizeCallback(window, reshape); //if window size changes, reshape the viewport et.c using "reshape()", 
 	glfwSetKeyCallback(window, key_callback);
+	glfwSwapInterval(0);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
-	glEnable(GL_DEPTH_TEST);
+	
 
 	vrShader.createShaderFromFile("src/shaders/basicvr.shader");
 	controllerShader.createShaderFromFile("src/shaders/basicvr_texture.shader");
 	proteinShader.createShaderFromFile("src/shaders/basicvr_colour.shader");
+	quadShader.createShaderFromFile("src/shaders/quad.shader");
+	quad3DShader.createShaderFromFile("src/shaders/quad3d.shader");
 
 	if (vrLoader.initVR() != 0) {
 		std::cout << "Failed to setup VR." << std::endl;
@@ -380,6 +423,7 @@ int init() {
 	//create frame buffers. these are used to store the images/textures that display to the left and right eyes.
 	createFrameBuffer(vrLoader.renderWidth, vrLoader.renderHeight, LeftEyeFrameBuffer);
 	createFrameBuffer(vrLoader.renderWidth, vrLoader.renderHeight, RightEyeFrameBuffer);
+	createFrameBuffer(200, 200, testBuffer);
 
 
 	if (initModels() != 0) {
@@ -388,14 +432,15 @@ int init() {
 	}
 
 	//set up the keyboard controlled camera and set its initial position.
-	camera = Camera();
-	camera.setPosition(glm::vec3(0.0, -2.5, -15.0));
+	//camera = Camera();
+	camera.setPosition(glm::vec3(0.0, 0.0, 0.0));
+	camera.setDirection(glm::vec3(0.0, -3.0, 0.0));
 	
 
 	glEnable(GL_DEBUG_OUTPUT);//enables a debugging mode. if theres an error in any opengl code it will run the message callback function.
 	glDebugMessageCallback(messageCallback, 0);
 
-	if (guiLoader.init(window) != 0) {
+	if (guiLoader.initGLFWGui(window) != 0) {
 		std::cout << "Failed to initialise GUI." << std::endl;
 			return -1;
 	}
@@ -425,7 +470,7 @@ int main()
 		//Handling Controller Input.
 		vrLoader.handleInput();
 
-		//guiLoader.renderWindowGui();
+		
 
 		// Swap front and back buffers. Puts the complete frame on screen once its completed rendering.
 		glfwSwapBuffers(window);

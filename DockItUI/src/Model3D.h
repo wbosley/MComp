@@ -1,6 +1,5 @@
 #pragma once
 #include "OBJLoader.h"
-#include "Shader.h"
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -24,7 +23,7 @@ class Model3D
 		int loadModelFromObj(OBJLoader obj);
 		int addModelToMesh(Model3D model);
 		int compileModel();
-		int render(Shader myShader);
+		int render(GLuint myShader);
 
 		bool isModelCompiled;
 		

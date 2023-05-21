@@ -355,7 +355,8 @@ glm::mat4 VRLoader::getHeadsetMatrix() {
 }
 
 
-void VRLoader::renderControllers(Shader shader, glm::mat4 ViewMatrix) {
+void VRLoader::renderControllers(GLuint shader, glm::mat4 ViewMatrix) {
+	glUseProgram(shader); //use the shader we passed in.
 	//loop through hands
 	for (EHand eHand = Left; eHand <= Right; ((int&)eHand)++)
 	{
@@ -368,7 +369,7 @@ void VRLoader::renderControllers(Shader shader, glm::mat4 ViewMatrix) {
 		glm::mat4 matMVP = ViewMatrix * matDeviceToTracking;
 
 		//pass it to shader.
-		glUniformMatrix4fv(glGetUniformLocation(shader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(matMVP));
+		glUniformMatrix4fv(glGetUniformLocation(shader, "matrix"), 1, GL_FALSE, value_ptr(matMVP));
 
 		//render it! ^_^ (we pass the shader so we can have different shaders for different things.)
 		m_rHand[eHand].m_pRenderModel.render(shader);

@@ -8,7 +8,7 @@ class Protein3D
 		Protein3D();
 		~Protein3D();
 		int loadProteinFromProteinLoader(ProteinLoader proteinLoader);
-		int render(Shader shader);
+		int render(GLuint shader);
 		int compileModel();
 
 	private:

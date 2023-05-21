@@ -64,6 +64,8 @@
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
+#include <stdio.h>
+#include <iostream>
 
 // Clang warnings with -Weverything
 #if defined(__clang__)
@@ -777,6 +779,7 @@ void ImGui_ImplGlfw_NewFrame()
     io.DisplaySize = ImVec2((float)w, (float)h);
     if (w > 0 && h > 0)
         io.DisplayFramebufferScale = ImVec2((float)display_w / (float)w, (float)display_h / (float)h);
+        std::cout << "w: " << w << " h: " << h << " display_w: " << display_w << " display_h: " << display_h << std::endl;
 
     // Setup time step
     double current_time = glfwGetTime();

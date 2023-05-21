@@ -24,7 +24,7 @@ class VRLoader
 		glm::mat4 getEyeViewProjectionMatrix(vr::Hmd_Eye eye);
 		void refresh();
 		void render(vr::Texture_t Left, vr::Texture_t Right);
-		void renderControllers(Shader shader, glm::mat4);
+		void renderControllers(GLuint shader, glm::mat4);
 		void handleInput();
 		GLuint renderWidth;
 		GLuint renderHeight;

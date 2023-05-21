@@ -133,6 +133,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ImGui3D.cpp" />
+    <ClCompile Include="src\Quad3D.cpp" />
     <ClCompile Include="src\GUILoader.cpp" />
     <ClCompile Include="libraries\imgui\imgui.cpp" />
     <ClCompile Include="libraries\imgui\imgui_demo.cpp" />
@@ -153,6 +155,8 @@
     <ClCompile Include="src\VRLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ImGui3D.h" />
+    <ClInclude Include="src\Quad3D.h" />
     <ClInclude Include="src\GUILoader.h" />
     <ClInclude Include="libraries\imgui\imconfig.h" />
     <ClInclude Include="libraries\imgui\imgui.h" />
@@ -181,6 +185,8 @@
     <None Include="src\shaders\basicvr.shader" />
     <None Include="src\shaders\basicvr_colour.shader" />
     <None Include="src\shaders\basicvr_texture.shader" />
+    <None Include="src\shaders\quad.shader" />
+    <None Include="src\shaders\quad3d.shader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

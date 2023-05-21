@@ -19,9 +19,6 @@
     <Filter Include="Header Files\Shader">
       <UniqueIdentifier>{ac94801a-d499-4955-8ecb-03c0a84559c4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Model3D">
-      <UniqueIdentifier>{f8590259-ca67-4b29-918b-9361d31852af}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Files\Shaders">
       <UniqueIdentifier>{7675a4c7-7d35-438d-9ac9-b5a6aaff0224}</UniqueIdentifier>
     </Filter>
@@ -37,9 +34,6 @@
     <Filter Include="Header Files\Protein3D">
       <UniqueIdentifier>{0fd4f97f-c6d6-40ed-bac4-97413e084a06}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Sphere">
-      <UniqueIdentifier>{e1563fe0-4360-46cd-adf8-b6a47e994c9b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\ImGui">
       <UniqueIdentifier>{5057d284-5aa6-4099-81e0-456cc6be4025}</UniqueIdentifier>
     </Filter>
@@ -48,6 +42,9 @@
     </Filter>
     <Filter Include="Header Files\GUILoader">
       <UniqueIdentifier>{23edb035-d2d4-4944-8407-626e8138bf8e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\3D">
+      <UniqueIdentifier>{f8590259-ca67-4b29-918b-9361d31852af}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -61,7 +58,7 @@
       <Filter>Header Files\Shader</Filter>
     </ClCompile>
     <ClCompile Include="src\Model3D.cpp">
-      <Filter>Header Files\Model3D</Filter>
+      <Filter>Header Files\3D</Filter>
     </ClCompile>
     <ClCompile Include="src\Camera.cpp">
       <Filter>Header Files\Camera</Filter>
@@ -77,9 +74,6 @@
     </ClCompile>
     <ClCompile Include="src\Protein3D.cpp">
       <Filter>Header Files\Protein3D</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Sphere.cpp">
-      <Filter>Header Files\Sphere</Filter>
     </ClCompile>
     <ClCompile Include="libraries\imgui\imgui.cpp">
       <Filter>Header Files\ImGui</Filter>
@@ -105,6 +99,15 @@
     <ClCompile Include="src\GUILoader.cpp">
       <Filter>Header Files\GUILoader</Filter>
     </ClCompile>
+    <ClCompile Include="src\Sphere.cpp">
+      <Filter>Header Files\3D</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Quad3D.cpp">
+      <Filter>Header Files\3D</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui3D.cpp">
+      <Filter>Header Files\3D</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\OBJLoader.h">
@@ -114,7 +117,7 @@
       <Filter>Header Files\Shader</Filter>
     </ClInclude>
     <ClInclude Include="src\Model3D.h">
-      <Filter>Header Files\Model3D</Filter>
+      <Filter>Header Files\3D</Filter>
     </ClInclude>
     <ClInclude Include="src\Camera.h">
       <Filter>Header Files\Camera</Filter>
@@ -130,9 +133,6 @@
     </ClInclude>
     <ClInclude Include="src\Protein3D.h">
       <Filter>Header Files\Protein3D</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Sphere.h">
-      <Filter>Header Files\Sphere</Filter>
     </ClInclude>
     <ClInclude Include="libraries\imgui\imconfig.h">
       <Filter>Header Files\ImGui</Filter>
@@ -164,6 +164,15 @@
     <ClInclude Include="src\GUILoader.h">
       <Filter>Header Files\GUILoader</Filter>
     </ClInclude>
+    <ClInclude Include="src\Sphere.h">
+      <Filter>Header Files\3D</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Quad3D.h">
+      <Filter>Header Files\3D</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui3D.h">
+      <Filter>Header Files\3D</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\basic.shader">
@@ -185,6 +194,12 @@
       <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include="src\shaders\basicvr_texture.shader">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="src\shaders\quad.shader">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="src\shaders\quad3d.shader">
       <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>

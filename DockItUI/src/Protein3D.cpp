@@ -38,7 +38,7 @@ int Protein3D::compileModel() {
 	return 0;
 }
 
-int Protein3D::render(Shader shader) {
+int Protein3D::render(GLuint shader) {
 
 	protein.render(shader);
 
