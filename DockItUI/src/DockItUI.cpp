@@ -105,19 +105,20 @@ void renderAll(glm::mat4 ViewMatrix) {
 	vrLoader.renderControllers(controllerShader.getShaderProgram(), ViewMatrix);
 
 	glUseProgram(quad3DShader.getShaderProgram());
-	std::vector<glm::mat4> vrWindowMatrices;
+	std::vector<glm::mat4> vrWindowMatrices = std::vector<glm::mat4>();
+	std::vector<glm::mat4> *vrWindowMatrices_ptr = &vrWindowMatrices;
 
 	//quadTest.loadTexture(testBuffer.m_nRenderTextureId, 200, 200);
 	ModelMatrix = glm::mat4(1.0f);
 	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0, 0, 5));
 	ModelMatrix = glm::rotate(ModelMatrix, (float)glfwGetTime() * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
-	vrWindowMatrices.push_back(ViewMatrix * ModelMatrix);
+	vrWindowMatrices_ptr->push_back(ViewMatrix * ModelMatrix);
 
 	ModelMatrix = glm::mat4(1.0f);
-	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0, 0, 5));
+	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0, 0, 3));
 	ModelMatrix = glm::rotate(ModelMatrix, (float)glfwGetTime() * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
-	vrWindowMatrices.push_back(ViewMatrix * ModelMatrix);
-	guiLoader.renderVRGui(&vrWindowMatrices);
+	vrWindowMatrices_ptr->push_back(ViewMatrix * ModelMatrix);
+	guiLoader.renderVRGui(vrWindowMatrices_ptr);
 
 
 	//glUniformMatrix4fv(glGetUniformLocation(quad3DShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * ModelMatrix));
@@ -409,7 +410,7 @@ int init() {
 		std::cout << "Failed to initialise GUI." << std::endl;
 			return -1;
 	}
-	if (guiLoader.initVRGui(quad3DShader.getShaderProgram()) != 0) {
+	if (guiLoader.initVRGui() != 0) {
 		std::cout << "Failed to initialise VR GUI." << std::endl;
 		return -1;
 	}

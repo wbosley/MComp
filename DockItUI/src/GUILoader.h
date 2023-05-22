@@ -22,9 +22,10 @@ class GUILoader
 		GUILoader();
 		~GUILoader();
 		int initGLFWGui(GLFWwindow* window);
-		int initVRGui(GLuint shader);
+		int initVRGui();
 		void renderWindowGui();
 		void renderVRGui(std::vector<glm::mat4>* matrices);
+		void vrWindowInfo(int index);
 		CAMERA_MODE getCameraMode();
 	private:
 		GLFWwindow* window;
@@ -32,8 +33,5 @@ class GUILoader
 		CAMERA_MODE camera_mode = MONITOR_VIEW;
 		ImGuiContext* context_glfw;
 		std::vector<ImGui3D> vr_windows;
-		GLuint shader;
-
-
 };
 

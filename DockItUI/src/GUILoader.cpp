@@ -21,10 +21,11 @@ int GUILoader::initGLFWGui(GLFWwindow* window) {
 	return 0;
 }
 
-int GUILoader::initVRGui(GLuint shader) {
-	this->shader = shader;
-	auto vrWindow1 = ImGui3D(ImGui::CreateContext(), 200, 200);
-	vr_windows.push_back(vrWindow1);
+int GUILoader::initVRGui() {
+	ImGui3D vrWindow = ImGui3D(ImGui::CreateContext(), 200, 200);
+	vr_windows.push_back(vrWindow);
+	vrWindow = ImGui3D(ImGui::CreateContext(), 200, 200);
+	vr_windows.push_back(vrWindow);
 	return 0;
 }
 
@@ -87,12 +88,56 @@ void GUILoader::renderWindowGui() {
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void GUILoader::renderVRGui(std::vector<glm::mat4> matrix) {
+void GUILoader::renderVRGui(std::vector<glm::mat4> *matrices) {
+	GLuint shader;
+	glGetIntegerv(GL_CURRENT_PROGRAM, reinterpret_cast<GLint*>(&shader));
 	glUseProgram(shader);
-	glUniformMatrix4fv(glGetUniformLocation(shader, "matrix"), 1, GL_FALSE, value_ptr(matrix));
-	vr_windows[0].start();
-	ImGui::Begin("DockIt User Interface", NULL);
-	ImGui::Text("THIS IS A TEST WINDOW :)");
-	ImGui::End();
-	vr_windows[0].render();
+	if (matrices->size() != vr_windows.size()) {
+		std::cout << "ERROR: Matrices and VR windows are not the same size!" << std::endl;
+		return;
+	}
+
+	for (int i = 0; i < matrices->size(); i++) {
+		glUniformMatrix4fv(glGetUniformLocation(shader, "matrix"), 1, GL_FALSE, value_ptr(matrices->at(i)));
+		vr_windows[i].start();
+		vrWindowInfo(i);
+		vr_windows[i].render();
+	}
+		
+	//int index = 0;
+
+
+	//glUniformMatrix4fv(glGetUniformLocation(shader, "matrix"), 1, GL_FALSE, value_ptr(matrices->at(index)));
+	//index++;
+	//vr_windows[0].start();
+	//ImGui::Begin("DockIt User Interface", NULL);
+	//ImGui::Text("THIS IS A TEST WINDOW :)");
+	//ImGui::End();
+	//vr_windows[0].render();
+
+	//glUniformMatrix4fv(glGetUniformLocation(shader, "matrix"), 1, GL_FALSE, value_ptr(matrices->at(index)));
+	//index++;
+	//vr_windows[1].start();
+	//vr_windows[1].render();
+}
+
+void GUILoader::vrWindowInfo(int index) {
+	switch (index) {
+	case 0:
+		ImGui::Begin("DockIt User Interface", NULL);
+		ImGui::Text("THIS IS A TEST WINDOW :)");
+		ImGui::End();
+		break;
+	case 1:
+		ImGui::Begin("DockIt User Interface", NULL);
+		ImGui::Text("THIS IS A TEST WINDOW 2 :)");
+		ImGui::End();
+		break;
+	default:
+		ImGui::Begin("Something went wrong :L", NULL);
+		ImGui::Text("Indexing error lol");
+		ImGui::End();
+		break;
+	}
+
 }
