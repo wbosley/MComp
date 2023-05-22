@@ -105,11 +105,19 @@ void renderAll(glm::mat4 ViewMatrix) {
 	vrLoader.renderControllers(controllerShader.getShaderProgram(), ViewMatrix);
 
 	glUseProgram(quad3DShader.getShaderProgram());
+	std::vector<glm::mat4> vrWindowMatrices;
+
 	//quadTest.loadTexture(testBuffer.m_nRenderTextureId, 200, 200);
 	ModelMatrix = glm::mat4(1.0f);
 	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0, 0, 5));
 	ModelMatrix = glm::rotate(ModelMatrix, (float)glfwGetTime() * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
-	guiLoader.renderVRGui(ViewMatrix * ModelMatrix);
+	vrWindowMatrices.push_back(ViewMatrix * ModelMatrix);
+
+	ModelMatrix = glm::mat4(1.0f);
+	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0, 0, 5));
+	ModelMatrix = glm::rotate(ModelMatrix, (float)glfwGetTime() * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
+	vrWindowMatrices.push_back(ViewMatrix * ModelMatrix);
+	guiLoader.renderVRGui(&vrWindowMatrices);
 
 
 	//glUniformMatrix4fv(glGetUniformLocation(quad3DShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * ModelMatrix));
@@ -129,7 +137,8 @@ void renderCompanionWindow() {
 //-----------------------------------------------------------------------------
 	glViewport(0, 0, screenWidth, screenHeight);
 	quad.loadTexture(LeftEyeFrameBuffer.m_nRenderTextureId, vrLoader.renderWidth, vrLoader.renderHeight);
-	quad.render(quadShader.getShaderProgram());
+	glUseProgram(quadShader.getShaderProgram());
+	quad.render();
 }
 
 void display() {

@@ -11,10 +11,8 @@ class ImGui3D
 		int width;
 		int height;
 		Quad3D* quad;
-		
-		GLuint shader;
 	public:
-		ImGui3D(ImGuiContext* context, int width, int height, GLuint shader);
+		ImGui3D(ImGuiContext* context, int width, int height);
 		~ImGui3D();
 		void start();
 		void render();

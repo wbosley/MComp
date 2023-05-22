@@ -23,6 +23,6 @@ class Quad3D
 		~Quad3D();
 		int loadTexture(GLuint textureId, uint16_t texWidth, uint16_t texHeight);
 		int compileQuad();
-		int render(GLuint shader);
+		int render();
 };
 

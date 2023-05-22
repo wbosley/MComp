@@ -47,8 +47,7 @@ int Quad3D::compileQuad() {
 	return 0;
 }
 
-int Quad3D::render(GLuint shader) {
-	glUseProgram(shader);
+int Quad3D::render() {
 	//glUniformMatrix4fv(glGetUniformLocation(shader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(matrix));
 	glBindVertexArray(this->VAO);
 	glBindTexture(GL_TEXTURE_2D, this->texture);

@@ -23,9 +23,8 @@ int GUILoader::initGLFWGui(GLFWwindow* window) {
 
 int GUILoader::initVRGui(GLuint shader) {
 	this->shader = shader;
-	auto vrWindow1 = ImGui3D(ImGui::CreateContext(), 200, 200, shader);
+	auto vrWindow1 = ImGui3D(ImGui::CreateContext(), 200, 200);
 	vr_windows.push_back(vrWindow1);
-
 	return 0;
 }
 
@@ -88,7 +87,7 @@ void GUILoader::renderWindowGui() {
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void GUILoader::renderVRGui(glm::mat4 matrix) {
+void GUILoader::renderVRGui(std::vector<glm::mat4> matrix) {
 	glUseProgram(shader);
 	glUniformMatrix4fv(glGetUniformLocation(shader, "matrix"), 1, GL_FALSE, value_ptr(matrix));
 	vr_windows[0].start();
