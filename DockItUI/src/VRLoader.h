@@ -1,11 +1,14 @@
 #pragma once
+#include <windows.h>
 #include <openvr.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/string_cast.hpp>
 #include <iostream>
 #include <GL/glew.h>
 #include "Model3D.h"
+#include <string>
 
 class VRLoader
 {
@@ -29,6 +32,7 @@ class VRLoader
 		GLuint renderWidth;
 		GLuint renderHeight;
 		glm::mat4 getHeadsetMatrix();
+		glm::mat4 controllerPositions[2];
 		struct ControllerInfo_t
 		{
 			vr::VRInputValueHandle_t m_source = vr::k_ulInvalidInputValueHandle;

@@ -296,6 +296,15 @@ int VRLoader::initVR() {
 
 	//check controller keybinding files loads properly
 	vr::EVRInputError error = vr::VRInputError_None;
+
+
+	TCHAR path_buffer[MAX_PATH];
+	GetModuleFileNameW(NULL, path_buffer, MAX_PATH);
+	std::wstring path(path_buffer);
+	//path.substr(0, path.find_last_of(L"\\/"));
+	std::wcout << path << std::endl;
+
+
 	error = vr::VRInput()->SetActionManifestPath("C:/Users/Eleva/Documents/GitHub/MComp/DockItUI/src/hellovr_actions.json");
 	//error = vr::VRInput()->SetActionManifestPath("C:/Users/Will/Documents/GitHub/MComp/DockItUI/src/hellovr_actions.json");
 	//std::cout << "error: " << error << std::endl;
@@ -362,10 +371,15 @@ void VRLoader::renderControllers(GLuint shader, glm::mat4 ViewMatrix) {
 	{
 		//if controller is not to be shown, dont render it.
 		if (!m_rHand[eHand].m_bShowController || !m_rHand[eHand].m_pRenderModel.isModelCompiled)
+			//controllerPositions[eHand] = glm::mat4(NULL);
 			continue;
 
 		//get thhe controllers matrices, and multiply them by the view matrix to get the MVP matrix, so we can pass it to shader.
 		glm::mat4 matDeviceToTracking = m_rHand[eHand].m_rmat4Pose;
+
+		//std::cout << "Device coordinates:\n " << glm::to_string(glm::vec3(matDeviceToTracking[3])) << std::endl;
+		//controllerPositions[eHand] = matDeviceToTracking;
+
 		glm::mat4 matMVP = ViewMatrix * matDeviceToTracking;
 
 		//pass it to shader.

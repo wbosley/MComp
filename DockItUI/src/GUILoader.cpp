@@ -12,7 +12,6 @@ GUILoader::~GUILoader() {
 int GUILoader::initGLFWGui(GLFWwindow* window) {
 	this->window = window;
 	this->context_glfw = ImGui::CreateContext();
-	std::cout << "context_glfw: " << this->context_glfw << std::endl;
 	ImGui::SetCurrentContext(this->context_glfw);
 	io = &ImGui::GetIO();
 	ImGui::StyleColorsDark();
