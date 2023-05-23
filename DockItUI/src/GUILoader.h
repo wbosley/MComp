@@ -27,6 +27,7 @@ class GUILoader
 		void renderVRGui(std::vector<glm::mat4>* matrices);
 		void vrWindowInfo(int index);
 		CAMERA_MODE getCameraMode();
+		std::vector<ImGui3D>* getVRWindows();
 	private:
 		GLFWwindow* window;
 		ImGuiIO* io;

@@ -8,6 +8,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/intersect.hpp>
 #include "OBJLoader.h"
 #include "Shader.h"
 #include "Model3D.h"
@@ -54,6 +55,7 @@ ProteinLoader proteinLoader;
 Protein3D firstProtein;
 Model3D firstModel;
 Model3D secondModel;
+Model3D controllerAxis[2];
 Sphere firstSphere;
 Camera camera;
 FrameBuffer LeftEyeFrameBuffer;
@@ -119,6 +121,55 @@ void renderAll(glm::mat4 ViewMatrix) {
 	ModelMatrix = glm::rotate(ModelMatrix, (float)glfwGetTime() * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
 	vrWindowMatrices_ptr->push_back(ViewMatrix * ModelMatrix);
 	guiLoader.renderVRGui(vrWindowMatrices_ptr);
+
+	std::vector<ImGui3D> windows = *guiLoader.getVRWindows();
+
+	glUseProgram(vrShader.getShaderProgram());
+	for (int i = 0; i < 2; i++) {
+		if (!vrLoader.m_rHand[i].m_bShowController) {
+			continue;
+		}
+		glm::vec3 position = glm::vec3(vrLoader.controllerPositions[i][3]);
+		glm::vec3 positionEnd = glm::vec3(vrLoader.controllerPositions[i] * glm::vec4(0, 0, -39.f, 1));
+		controllerAxis[i].createLine(position, positionEnd);
+		controllerAxis[i].compileModel();
+		glUniformMatrix4fv(glGetUniformLocation(vrShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix));
+		controllerAxis[i].render(vrShader.getShaderProgram());
+		
+	}
+
+
+	for (int i = 0; i < windows.size(); i++) {
+		//Make mouseposition of window move over time
+		windows.at(i).setMousePosition(i, ImVec2( (float)sin(glfwGetTime()) * 200.0f, (float)sin(glfwGetTime()) * 200.0f));
+		//
+		for (int j = 0; j < 2; j++) {
+			if (!vrLoader.m_rHand[i].m_bShowController) {
+				continue;
+			}
+			std::vector<glm::vec3> windowVerts = *windows.at(i).quad->getVertices();
+			glm::mat4 VRModelMatrix = (vrWindowMatrices_ptr->at(i) / ViewMatrix);
+			for (int k = 0; k < windowVerts.size(); k += 3) {
+				glm::vec3 p1 = glm::vec3(VRModelMatrix * glm::vec4(windowVerts.at(i), 1.0f));
+				glm::vec3 p2 = glm::vec3(VRModelMatrix * glm::vec4(windowVerts.at(i + 1), 1.0f));
+				glm::vec3 p3 = glm::vec3(VRModelMatrix * glm::vec4(windowVerts.at(i + 2), 1.0f));
+				glm::vec3 rayStart = glm::vec3(glm::vec4(0, 0, -0.02f, 1) * vrLoader.controllerPositions[i]);
+				glm::vec3 rayEnd = glm::vec3(glm::vec4(0, 0, -39.f, 1) * vrLoader.controllerPositions[i]);
+				glm::vec3 rayDir = rayEnd - rayStart;
+				glm::vec2 intersectPoint;
+				float distance;
+				for (int k = 0; k < windowVerts.size(); k += 3) {
+					bool intersectDetect = glm::intersectRayTriangle(rayStart, rayDir, p1, p2, p3, intersectPoint, distance);
+					if (intersectDetect) {
+						//std::cout << "intersect" << std::endl;
+						glm::vec3 positionOnQuad = (1.0f - intersectPoint.x - intersectPoint.y) * p1 + intersectPoint.x * p2 + intersectPoint.y * p3;
+						//windows.at(i).setMousePosition(i, ImVec2(positionOnQuad.x, positionOnQuad.y));
+					}
+				}
+			}
+		}
+	}
+	
 
 
 	//glUniformMatrix4fv(glGetUniformLocation(quad3DShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * ModelMatrix));

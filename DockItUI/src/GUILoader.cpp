@@ -125,11 +125,13 @@ void GUILoader::vrWindowInfo(int index) {
 	case 0:
 		ImGui::Begin("DockIt User Interface", NULL);
 		ImGui::Text("THIS IS A TEST WINDOW :)");
+		ImGui::Button("Test Button");
 		ImGui::End();
 		break;
 	case 1:
 		ImGui::Begin("DockIt User Interface", NULL);
 		ImGui::Text("THIS IS A TEST WINDOW 2 :)");
+		ImGui::Button("Test Button");
 		ImGui::End();
 		break;
 	default:
@@ -139,4 +141,8 @@ void GUILoader::vrWindowInfo(int index) {
 		break;
 	}
 
+}
+
+std::vector<ImGui3D>* GUILoader::getVRWindows() {
+	return &vr_windows;
 }

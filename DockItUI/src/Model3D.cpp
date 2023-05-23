@@ -13,6 +13,21 @@ Model3D::~Model3D()
 {
 }
 
+int Model3D::createLine(glm::vec3 start, glm::vec3 end) {
+	//create a line from start to end
+	this->vertices.clear();
+	this->vertices_indices.clear();
+	this->colours.clear();
+	this->vertices.push_back(start);
+	this->vertices.push_back(end);
+	this->vertices_indices.push_back(0);
+	this->vertices_indices.push_back(1);
+	this->colours.push_back(glm::vec3(1.0f, 1.0f, 1.0f));
+	this->colours.push_back(glm::vec3(1.0f, 1.0f, 1.0f));
+	this->render_type = COLOUR;
+	return 0;
+}
+
 int Model3D::loadOpenVRModel(vr::RenderModel_t* vr_model, vr::RenderModel_TextureMap_t* vr_texture) {
 
 	//Convert vr_model vertices into a vector of glm vertices
@@ -184,7 +199,12 @@ int Model3D::render(GLuint shader)
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 	else {
-		glDrawElements(GL_TRIANGLES, this->vertices_indices.size(), GL_UNSIGNED_INT, 0);
+		if (this->vertices.size() <= 2) {
+			glDrawElements(GL_LINES, this->vertices_indices.size(), GL_UNSIGNED_INT, 0);
+		}
+		else {
+			glDrawElements(GL_TRIANGLES, this->vertices_indices.size(), GL_UNSIGNED_INT, 0);
+		}
 	}
 
 	glBindVertexArray(0);

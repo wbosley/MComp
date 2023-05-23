@@ -17,8 +17,10 @@ ImGui3D::~ImGui3D() {
 }
 
 void ImGui3D::start() {
+	
 	ImGui::SetCurrentContext(this->context);
-	ImGui_ImplVR_NewFrame(this->width, this->height);
+	ImGuiIO& io = ImGui::GetIO();
+	ImGui_ImplVR_NewFrame(this->width, this->height, this->mousePos);
 	ImGui::NewFrame();
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
 	ImGui::SetNextWindowCollapsed(false);
@@ -28,6 +30,8 @@ void ImGui3D::render() {
 	GLint last_viewport[4]; glGetIntegerv(GL_VIEWPORT, last_viewport);
 	GLint last_framebuffer; glGetIntegerv(GL_FRAMEBUFFER_BINDING, &last_framebuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, this->frameBuffer.m_nRenderFramebufferId);
+	ImGuiIO& io = ImGui::GetIO();
+	//std::cout<< "mouse position: " << io.MousePos.x << ", " << io.MousePos.y << std::endl;
 	ImGui::Render();
 	glViewport(0, 0, this->width, this->height);
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -36,4 +40,12 @@ void ImGui3D::render() {
 	this->quad->loadTexture(this->frameBuffer.m_nRenderTextureId, this->width, this->height);
 	this->quad->render();
 	//this->quad->render();
+}
+
+void ImGui3D::setMousePosition(int index, ImVec2 position) {
+	//this->mousePos = position;
+	ImGui::SetCurrentContext(this->context);
+	ImGuiIO& io = ImGui::GetIO();
+	io.MousePos = position;
+
 }

@@ -56,3 +56,7 @@ int Quad3D::render() {
 	return 0;
 }
 
+std::vector<glm::vec3>* Quad3D::getVertices() {
+	return &this->vertices;
+}
+

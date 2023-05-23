@@ -200,6 +200,7 @@
 #else
 #define GL_CALL(_CALL)      _CALL   // Call without error check
 #endif
+#include <iostream>
 
 // OpenGL Data
 struct ImGui_ImplOpenGL3_Data
@@ -365,7 +366,7 @@ void    ImGui_ImplOpenGL3_Shutdown()
     IM_DELETE(bd);
 }
 
-void    ImGui_ImplVR_NewFrame(int width, int height)
+void    ImGui_ImplVR_NewFrame(int width, int height, ImVec2 mousePos)
 {
     ImGui_ImplOpenGL3_Data* bd = ImGui_ImplOpenGL3_GetBackendData();
     IM_ASSERT(bd != nullptr && "Did you call ImGui_ImplOpenGL3_Init()?");
@@ -375,6 +376,10 @@ void    ImGui_ImplVR_NewFrame(int width, int height)
     io.DisplaySize = ImVec2(width, height);
     io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
 
+    io.MouseDrawCursor = true;
+    //io.MousePos = mousePos;
+
+    //std::cout << "Mouse position at ImGui: " << mousePos.x << ", " << mousePos.y << std::endl;
 
     if (!bd->ShaderHandle)
         ImGui_ImplOpenGL3_CreateDeviceObjects();

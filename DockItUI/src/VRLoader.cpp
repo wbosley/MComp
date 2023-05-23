@@ -378,7 +378,7 @@ void VRLoader::renderControllers(GLuint shader, glm::mat4 ViewMatrix) {
 		glm::mat4 matDeviceToTracking = m_rHand[eHand].m_rmat4Pose;
 
 		//std::cout << "Device coordinates:\n " << glm::to_string(glm::vec3(matDeviceToTracking[3])) << std::endl;
-		//controllerPositions[eHand] = matDeviceToTracking;
+		controllerPositions[eHand] = matDeviceToTracking;
 
 		glm::mat4 matMVP = ViewMatrix * matDeviceToTracking;
 

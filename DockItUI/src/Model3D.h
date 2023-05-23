@@ -19,6 +19,7 @@ class Model3D
 		};
 
 		//will return 1 or zero depending on failure or success
+		int createLine(glm::vec3 start, glm::vec3 end);
 		int loadOpenVRModel(vr::RenderModel_t* vr_model, vr::RenderModel_TextureMap_t* vr_texture);
 		int loadModelFromObj(OBJLoader obj);
 		int addModelToMesh(Model3D model);
