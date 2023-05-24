@@ -9,6 +9,13 @@ Quad3D::Quad3D()
 	this->vertices.push_back(glm::vec3(1.0f, 1.0f, 0.0f));
 	this->vertices.push_back(glm::vec3(1.0f, -1.0f, 0.0f));
 
+	//this->vertices.push_back(glm::vec3(-0.5f, -0.5f, 0.0f));
+	//this->vertices.push_back(glm::vec3(-0.5f, 0.5f, 0.0f));
+	//this->vertices.push_back(glm::vec3(0.5f, 0.5f, 0.0f));
+	//this->vertices.push_back(glm::vec3(-0.5f, -0.5f, 0.0f));
+	//this->vertices.push_back(glm::vec3(0.5f, 0.5f, 0.0f));
+	//this->vertices.push_back(glm::vec3(0.5f, -0.5f, 0.0f));
+
 	this->uvs.push_back(glm::vec2(0.0f, 0.0f));
 	this->uvs.push_back(glm::vec2(0.0f, 1.0f));
 	this->uvs.push_back(glm::vec2(1.0f, 1.0f));

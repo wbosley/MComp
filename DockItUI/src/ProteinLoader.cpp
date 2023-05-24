@@ -95,7 +95,7 @@ bool ProteinLoader::loadProtein(const char* path) {
 
 std::string ProteinLoader::getAtomNameFromLine(std::string line) {
 	//although we use string streams in most cases where we read from a file in this program, pdb files arent deliminated using anything - the meaning of a character is determined by its index in the line. Therefore, it is more effective to use substrings and remove the whitespace.
-	std::string atomName = line.substr(12, 4);
+	std::string atomName = line.substr(76, 2);
 	atomName.erase(std::remove_if(atomName.begin(), atomName.end(), isspace), atomName.end());
 	return atomName;
 }

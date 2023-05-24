@@ -21,10 +21,10 @@ int GUILoader::initGLFWGui(GLFWwindow* window) {
 }
 
 int GUILoader::initVRGui() {
-	ImGui3D vrWindow = ImGui3D(ImGui::CreateContext(), 200, 200);
+	ImGui3D vrWindow = ImGui3D(ImGui::CreateContext());
 	vr_windows.push_back(vrWindow);
-	vrWindow = ImGui3D(ImGui::CreateContext(), 200, 200);
-	vr_windows.push_back(vrWindow);
+	//vrWindow = ImGui3D(ImGui::CreateContext());
+	//vr_windows.push_back(vrWindow);
 	return 0;
 }
 
@@ -102,43 +102,35 @@ void GUILoader::renderVRGui(std::vector<glm::mat4> *matrices) {
 		vrWindowInfo(i);
 		vr_windows[i].render();
 	}
-		
-	//int index = 0;
-
-
-	//glUniformMatrix4fv(glGetUniformLocation(shader, "matrix"), 1, GL_FALSE, value_ptr(matrices->at(index)));
-	//index++;
-	//vr_windows[0].start();
-	//ImGui::Begin("DockIt User Interface", NULL);
-	//ImGui::Text("THIS IS A TEST WINDOW :)");
-	//ImGui::End();
-	//vr_windows[0].render();
-
-	//glUniformMatrix4fv(glGetUniformLocation(shader, "matrix"), 1, GL_FALSE, value_ptr(matrices->at(index)));
-	//index++;
-	//vr_windows[1].start();
-	//vr_windows[1].render();
 }
 
 void GUILoader::vrWindowInfo(int index) {
 	switch (index) {
-	case 0:
-		ImGui::Begin("DockIt User Interface", NULL);
-		ImGui::Text("THIS IS A TEST WINDOW :)");
-		ImGui::Button("Test Button");
-		ImGui::End();
-		break;
-	case 1:
-		ImGui::Begin("DockIt User Interface", NULL);
-		ImGui::Text("THIS IS A TEST WINDOW 2 :)");
-		ImGui::Button("Test Button");
-		ImGui::End();
-		break;
-	default:
-		ImGui::Begin("Something went wrong :L", NULL);
-		ImGui::Text("Indexing error lol");
-		ImGui::End();
-		break;
+		case 0:{
+			ImGui::Begin("DockIt VR Window", NULL);
+			ImGui::Text("Here are some test buttons.");
+			if (ImGui::Button("Reverse Protein")) {
+				reverseProtein = !reverseProtein;
+			}
+			ImGui::Text("Mouse clicked: %s", ImGui::IsMouseDown(ImGuiMouseButton_Left) ? "Yes" : "No");
+			ImGui::SliderFloat("Slider", &f, 0.0f, 1.0f);
+			ImGui::End();
+			break;
+		}
+		case 1: {
+			ImGui::Begin("DockIt User Interface", NULL);
+			ImGui::Text("WINDOWNUMBER");
+			ImGui::Text("2");
+			ImGui::Button("Reverse Protein");
+			ImGui::End();
+			break;
+		}
+		default: {
+			ImGui::Begin("Something went wrong :L", NULL);
+			ImGui::Text("Indexing error lol");
+			ImGui::End();
+			break;
+		}
 	}
 
 }
@@ -146,3 +138,5 @@ void GUILoader::vrWindowInfo(int index) {
 std::vector<ImGui3D>* GUILoader::getVRWindows() {
 	return &vr_windows;
 }
+
+

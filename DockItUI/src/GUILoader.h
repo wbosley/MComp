@@ -11,6 +11,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
+
 class GUILoader
 {
 	enum CAMERA_MODE
@@ -28,11 +29,14 @@ class GUILoader
 		void vrWindowInfo(int index);
 		CAMERA_MODE getCameraMode();
 		std::vector<ImGui3D>* getVRWindows();
-	private:
+		bool reverseProtein = false;
+		bool pickUpWindow = false;
+		private:
 		GLFWwindow* window;
 		ImGuiIO* io;
 		CAMERA_MODE camera_mode = MONITOR_VIEW;
 		ImGuiContext* context_glfw;
 		std::vector<ImGui3D> vr_windows;
+		float f = 0.0f;
 };
 

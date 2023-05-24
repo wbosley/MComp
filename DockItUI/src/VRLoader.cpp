@@ -196,6 +196,28 @@ void VRLoader::ProcessVREvent(const vr::VREvent_t& event)
 	}
 }
 
+//---------------------------------------------------------------------------------------------------------------------
+// Purpose: Returns true if the action is active and its state is true
+//---------------------------------------------------------------------------------------------------------------------
+bool VRLoader::GetDigitalActionState(vr::VRActionHandle_t action, vr::VRInputValueHandle_t* pDevicePath = nullptr)
+{
+	vr::InputDigitalActionData_t actionData;
+	vr::VRInput()->GetDigitalActionData(action, &actionData, sizeof(actionData), vr::k_ulInvalidInputValueHandle);
+	if (pDevicePath)
+	{
+		*pDevicePath = vr::k_ulInvalidInputValueHandle;
+		if (actionData.bActive)
+		{
+			vr::InputOriginInfo_t originInfo;
+			if (vr::VRInputError_None == vr::VRInput()->GetOriginTrackedDeviceInfo(actionData.activeOrigin, &originInfo, sizeof(originInfo)))
+			{
+				*pDevicePath = originInfo.devicePath;
+			}
+		}
+	}
+	return actionData.bActive && actionData.bState;
+}
+
 void VRLoader::handleInput() {
 //-----------------------------------------------------------------------------
 // Purpose: Updates the model data for the controllers based on what the user 
@@ -217,6 +239,9 @@ void VRLoader::handleInput() {
 	vr::VRActiveActionSet_t actionSet = { 0 };//We think this is something to do with the inoput bindings. Code leftover from the sample code to get controllers working.
 	actionSet.ulActionSet = m_actionsetDemo;
 	vr::VRInput()->UpdateActionState(&actionSet, sizeof(actionSet), 1);
+
+	interactButton = GetDigitalActionState(m_actionsInteract);
+	//std::cout << "interactButton: " << interactButton << std::endl;
 
 	//loops through each hand, casts the hand enum to an int, and loops through both enums. This is used to get the pose of each hand, and if it's active or not.
 	for (EHand eHand = Left; eHand <= Right; ((int&)eHand)++)
@@ -310,8 +335,7 @@ int VRLoader::initVR() {
 	//std::cout << "error: " << error << std::endl;
 
 	//get the keybindings, and store them in the action handles. Mainly used for bug fixing at the moment - we are still working on figuring out this codes exact use, but our program works when its here.
-	vr::VRInput()->GetActionHandle("/actions/demo/in/HideCubes", &m_actionHideCubes);
-	vr::VRInput()->GetActionHandle("/actions/demo/in/HideThisController", &m_actionHideThisController);
+	vr::VRInput()->GetActionHandle("/actions/demo/in/Interact", &m_actionsInteract);
 	vr::VRInput()->GetActionHandle("/actions/demo/in/TriggerHaptic", &m_actionTriggerHaptic);
 	vr::VRInput()->GetActionHandle("/actions/demo/in/AnalogInput", &m_actionAnalongInput);
 
@@ -341,6 +365,10 @@ int VRLoader::initVR() {
 	this->mat4HMDPose = glm::mat4(1.0f);
 
 	return 0;
+}
+
+void VRLoader::parseGuiLoader(GUILoader* guiLoader) {
+	this->guiLoader = guiLoader;
 }
 
 void VRLoader::refresh() {

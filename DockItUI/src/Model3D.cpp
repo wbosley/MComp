@@ -6,6 +6,7 @@
 Model3D::Model3D()
 {
 	isModelCompiled = false;
+	ModelMatrix = glm::mat4(1.0f);
 }
 
 //destructor
@@ -200,6 +201,7 @@ int Model3D::render(GLuint shader)
 	}
 	else {
 		if (this->vertices.size() <= 2) {
+			glLineWidth(3.0f);
 			glDrawElements(GL_LINES, this->vertices_indices.size(), GL_UNSIGNED_INT, 0);
 		}
 		else {

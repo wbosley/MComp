@@ -10,15 +10,14 @@ class Protein3D
 		int loadProteinFromProteinLoader(ProteinLoader proteinLoader);
 		int render(GLuint shader);
 		int compileModel();
+		Model3D protein;
 
 	private:
 		std::vector<std::string> atomNames;
 		std::vector<glm::vec3> atomCoordinates;
 		std::vector<glm::vec3> atomColours;
 		std::vector<float> atomRadius;
-
 		std::vector<Sphere> spheres;
-		Model3D protein;
 		int constructSpheres();
 
 };

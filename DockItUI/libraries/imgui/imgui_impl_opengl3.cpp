@@ -376,7 +376,7 @@ void    ImGui_ImplVR_NewFrame(int width, int height, ImVec2 mousePos)
     io.DisplaySize = ImVec2(width, height);
     io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
 
-    io.MouseDrawCursor = true;
+    //io.MouseDrawCursor = true;
     //io.MousePos = mousePos;
 
     //std::cout << "Mouse position at ImGui: " << mousePos.x << ", " << mousePos.y << std::endl;

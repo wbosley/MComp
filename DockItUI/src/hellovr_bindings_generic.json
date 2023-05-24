@@ -25,7 +25,7 @@
             {
                "inputs" : {
                   "click" : {
-                     "output" : "/actions/demo/in/hidecubes"
+                     "output" : "/actions/demo/in/Interact"
                   }
                },
                "mode" : "button",
@@ -52,7 +52,7 @@
             {
                "inputs" : {
                   "click" : {
-                     "output" : "/actions/demo/in/hidecubes"
+                     "output" : "/actions/demo/in/Interact"
                   }
                },
                "mode" : "button",
@@ -66,29 +66,11 @@
                },
                "mode" : "button",
                "path" : "/user/hand/left/input/grip"
-            },
-            {
-               "inputs" : {
-                  "click" : {
-                     "output" : "/actions/demo/in/hidethiscontroller"
-                  }
-               },
-               "mode" : "button",
-               "path" : "/user/hand/left/input/application_menu"
-            },
-            {
-               "inputs" : {
-                  "click" : {
-                     "output" : "/actions/demo/in/hidethiscontroller"
-                  }
-               },
-               "mode" : "button",
-               "path" : "/user/hand/right/input/application_menu"
             }
          ]
       }
    },
    "controller_type" : "generic",
-   "description" : "Bindings for the OpenVR SDK \"hellovr_opengl\" demo for a generic controller",
+   "description" : "Bindings for the DockItUI OpenVR demo for a generic controller",
    "name" : "HelloVR bindings for a generic controller"
 }

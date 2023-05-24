@@ -11,11 +11,7 @@
       ], 
   "actions": [
     {
-      "name": "/actions/demo/in/HideCubes",
-      "type": "boolean"
-    },
-    {
-      "name": "/actions/demo/in/HideThisController",
+      "name": "/actions/demo/in/Interact",
       "type": "boolean"
     },
     {
@@ -47,7 +43,6 @@
         {
             "language_tag": "en_US",
             "/actions/demo/in/HideCubes" : "Hide Cubes",
-            "/actions/demo/in/HideThisController" : "Hide this Controller",
             "/actions/demo/in/triggerhaptic" : "Trigger Haptic Pulse",
             "/actions/demo/in/AnalogInput" : "Analog Input",
             "/actions/demo/in/Hand_Right" : "Right Hand Pose",

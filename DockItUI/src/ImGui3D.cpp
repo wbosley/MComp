@@ -1,10 +1,10 @@
 #include "ImGui3D.h"
 
 
-ImGui3D::ImGui3D(ImGuiContext* context, int width, int height) {
+ImGui3D::ImGui3D(ImGuiContext* context) {
 	this->context = context;
-	this->width = width;
-	this->height = height;
+	this->width = 200;
+	this->height = 200;
 	this->quad = new Quad3D();
 	this->quad->compileQuad();
 	this->frameBuffer.createFrameBuffer(width, height);
@@ -31,7 +31,6 @@ void ImGui3D::render() {
 	GLint last_framebuffer; glGetIntegerv(GL_FRAMEBUFFER_BINDING, &last_framebuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, this->frameBuffer.m_nRenderFramebufferId);
 	ImGuiIO& io = ImGui::GetIO();
-	//std::cout<< "mouse position: " << io.MousePos.x << ", " << io.MousePos.y << std::endl;
 	ImGui::Render();
 	glViewport(0, 0, this->width, this->height);
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -42,10 +41,15 @@ void ImGui3D::render() {
 	//this->quad->render();
 }
 
-void ImGui3D::setMousePosition(int index, ImVec2 position) {
+void ImGui3D::setMousePosition(ImVec2 position) {
 	//this->mousePos = position;
 	ImGui::SetCurrentContext(this->context);
 	ImGuiIO& io = ImGui::GetIO();
 	io.MousePos = position;
+}
 
+void ImGui3D::setClicked(bool clicked) {
+	ImGui::SetCurrentContext(this->context);
+	ImGuiIO& io = ImGui::GetIO();
+	io.MouseDown[0] = clicked;
 }

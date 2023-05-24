@@ -25,6 +25,7 @@ class Model3D
 		int addModelToMesh(Model3D model);
 		int compileModel();
 		int render(GLuint myShader);
+		glm::mat4 ModelMatrix;
 
 		bool isModelCompiled;
 		

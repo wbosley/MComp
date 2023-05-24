@@ -13,11 +13,12 @@ class ImGui3D
 		ImVec2 mousePos;
 		
 	public:
-		ImGui3D(ImGuiContext* context, int width, int height);
+		ImGui3D(ImGuiContext* context);
 		~ImGui3D();
 		void start();
 		void render();
-		void setMousePosition(int index, ImVec2 position);
+		void setMousePosition(ImVec2 position);
+		void setClicked(bool clicked);
 		FrameBuffer frameBuffer;
 		Quad3D* quad;
 
