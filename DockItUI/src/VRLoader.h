@@ -10,6 +10,7 @@
 #include "Model3D.h"
 #include <string>
 #include "GUILoader.h"
+#include <algorithm>
 
 class VRLoader
 {

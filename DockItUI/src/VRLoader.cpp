@@ -329,8 +329,26 @@ int VRLoader::initVR() {
 	//path.substr(0, path.find_last_of(L"\\/"));
 	std::wcout << path << std::endl;
 
+	//remove the last part of the path, so we can add the keybindings file to the end of it.
+	std::wstring path2 = path.substr(0, path.find_last_of(L"\\/"));
+	std::wcout << path2 << std::endl;
+	//flip the slashes in the path, so it works with the keybindings file.
+	for (int i = 0; i < path2.size(); ++i) {
+		if (path2[i] == '\\') {
+			path2[i] = '/';
+		}
+	}
+	std::wcout << path2 << std::endl;
 
-	error = vr::VRInput()->SetActionManifestPath("C:/Users/Eleva/Documents/GitHub/MComp/DockItUI/src/hellovr_actions.json");
+	//convert the path to a string, so we can add the keybindings file to the end of it.
+	std::string path3(path2.begin(), path2.end());
+
+	//add the keybindings file to the end of the path.
+	std::string path4 = path3 + "/hellovr_actions.json";
+
+	error = vr::VRInput()->SetActionManifestPath(path4.c_str());
+
+	//error = vr::VRInput()->SetActionManifestPath("C:/Users/Eleva/Documents/GitHub/MComp/DockItUI/src/hellovr_actions.json");
 	//error = vr::VRInput()->SetActionManifestPath("C:/Users/Will/Documents/GitHub/MComp/DockItUI/src/hellovr_actions.json");
 	//std::cout << "error: " << error << std::endl;
 
