@@ -15,16 +15,18 @@ class Model3D
 
 		enum RENDER_TYPE
 		{
-			NO_TEXTURES, TEXTURES, COLOUR
+			NO_TEXTURES, TEXTURES, COLOUR, TEXTURES_PRECOMPILED
 		};
 
 		//will return 1 or zero depending on failure or success
+		int createQuad(GLuint textureId);
 		int createLine(glm::vec3 start, glm::vec3 end);
 		int loadOpenVRModel(vr::RenderModel_t* vr_model, vr::RenderModel_TextureMap_t* vr_texture);
 		int loadModelFromObj(OBJLoader obj);
 		int addModelToMesh(Model3D model);
 		int compileModel();
 		int render(GLuint myShader);
+		std::vector<glm::vec3>* getVertices();
 		glm::mat4 ModelMatrix;
 
 		bool isModelCompiled;

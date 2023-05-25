@@ -22,7 +22,6 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "GUILoader.h"
-#include "Quad3D.h"
 #include "FrameBuffer.h"
 
 #define FORWARD 0
@@ -57,6 +56,7 @@ Protein3D firstProtein;
 Model3D firstModel;
 Model3D secondModel;
 Model3D controllerAxis[2];
+Model3D vrViewQuad;
 Sphere firstSphere;
 Camera camera;
 FrameBuffer LeftEyeFrameBuffer;
@@ -69,13 +69,15 @@ glm::mat4 ViewMatrixRightEye;
 VRLoader vrLoader;
 GUILoader guiLoader;
 GLuint VAOwad;
-Quad3D quad;
-Quad3D quadTest;
 
 enum CAMERA_MODE
 {
 	VR_VIEW, MONITOR_VIEW
 };
+
+void checkCollisions() {
+	
+}
 
 void renderAll(glm::mat4 ViewMatrix) {
 //-----------------------------------------------------------------------------
@@ -183,15 +185,24 @@ void renderAll(glm::mat4 ViewMatrix) {
 				bool intersectDetect = glm::intersectRayTriangle(rayStart, rayDir, p1, p2, p3, intersectPoint, distance);
 				if (intersectDetect) {
 					//Calculate intersection point to ImGui coordinates made by https://github.com/temcgraw/ImguiVR
+					//int width, height;
+					//width = 200;
+					//height = 200;
+					//glm::vec3 pt = rayStart + distance * rayDir;
+					//pt = glm::vec3(VRModelMatrix * glm::vec4(pt, 1.0f));
+					//float t = 200;
+					//float g = 0.005;
+					//float x = t*(((width * (0.5f * pt.x + 0.5f)) * g)- std::floor((width * (0.5f * pt.x + 0.5f))*g));
+					//float y = t * (((height - width * (0.5f * pt.y + 0.5f)) * g) - std::floor((height - width * (0.5f * pt.y + 0.5f)) * g));
 					int width, height;
 					width = 200;
 					height = 200;
 					glm::vec3 pt = rayStart + distance * rayDir;
-					pt = glm::vec3(VRModelMatrix * glm::vec4(pt, 1.0f));
+					pt = glm::vec3(glm::inverse(VRModelMatrix) * glm::vec4(pt, 1.0f));
 					float t = 200;
 					float g = 0.005;
-					float x = t*(((width * (0.5f * pt.x + 0.5f)) * g)- std::floor((width * (0.5f * pt.x + 0.5f))*g));
-					float y = t * (((height - width * (0.5f * pt.y + 0.5f)) * g) - std::floor((height - width * (0.5f * pt.y + 0.5f)) * g));
+					float x = width * (0.5f + pt.x * 0.5f);
+					float y = (height - width * (0.5f * pt.y + 0.5f));
 					windows.at(j).setMousePosition(ImVec2(x, y));
 					if (vrLoader.interactButton) {
 						windows.at(j).setClicked(true);
@@ -214,9 +225,10 @@ void renderCompanionWindow() {
 // Returns: N/A
 //-----------------------------------------------------------------------------
 	glViewport(0, 0, screenWidth, screenHeight);
-	quad.loadTexture(LeftEyeFrameBuffer.m_nRenderTextureId, vrLoader.renderWidth, vrLoader.renderHeight);
+	//quad.loadTexture(LeftEyeFrameBuffer.m_nRenderTextureId, vrLoader.renderWidth, vrLoader.renderHeight);
 	glUseProgram(quadShader.getShaderProgram());
-	quad.render();
+	//quad.render();
+	vrViewQuad.render(quadShader.getShaderProgram());
 }
 
 void display() {
@@ -279,6 +291,7 @@ void display() {
 
 	//Render the texture to the headset.
 	vrLoader.render(leftEyeTexture, rightEyeTexture);
+	checkCollisions();
 	guiLoader.renderWindowGui();
 
 	//Clear all buffers.
@@ -401,8 +414,8 @@ int initModels() {
 	firstProtein.loadProteinFromProteinLoader(proteinLoader);
 	firstProtein.compileModel();
 
-	quad.compileQuad();
-	quadTest.compileQuad();
+	vrViewQuad.createQuad(LeftEyeFrameBuffer.m_nRenderTextureId);
+	vrViewQuad.compileModel();
 
 	return 0;
 }

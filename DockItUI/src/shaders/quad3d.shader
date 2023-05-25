@@ -4,7 +4,7 @@
 uniform mat4 matrix;
 
 layout(location = 0) in vec4 position;
-layout(location = 1) in vec2 texCordin;
+layout(location = 2) in vec2 texCordin;
 out vec2 texCord;
 void main()
 {

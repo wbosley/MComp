@@ -100,7 +100,7 @@ void GUILoader::renderVRGui(std::vector<glm::mat4> *matrices) {
 		glUniformMatrix4fv(glGetUniformLocation(shader, "matrix"), 1, GL_FALSE, value_ptr(matrices->at(i)));
 		vr_windows[i].start();
 		vrWindowInfo(i);
-		vr_windows[i].render();
+		vr_windows[i].render(shader);
 	}
 }
 

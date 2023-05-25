@@ -2,7 +2,7 @@
 #version 410
 
 layout(location = 0) in vec3 position;
-layout(location = 1) in vec2 texCordin;
+layout(location = 2) in vec2 texCordin;
 out vec2 texCord;
 void main()
 {

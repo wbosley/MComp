@@ -327,18 +327,18 @@ int VRLoader::initVR() {
 	GetModuleFileNameW(NULL, path_buffer, MAX_PATH);
 	std::wstring path(path_buffer);
 	//path.substr(0, path.find_last_of(L"\\/"));
-	std::wcout << path << std::endl;
+
 
 	//remove the last part of the path, so we can add the keybindings file to the end of it.
 	std::wstring path2 = path.substr(0, path.find_last_of(L"\\/"));
-	std::wcout << path2 << std::endl;
+
 	//flip the slashes in the path, so it works with the keybindings file.
 	for (int i = 0; i < path2.size(); ++i) {
 		if (path2[i] == '\\') {
 			path2[i] = '/';
 		}
 	}
-	std::wcout << path2 << std::endl;
+
 
 	//convert the path to a string, so we can add the keybindings file to the end of it.
 	std::string path3(path2.begin(), path2.end());

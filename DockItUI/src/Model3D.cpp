@@ -14,6 +14,53 @@ Model3D::~Model3D()
 {
 }
 
+int Model3D::createQuad(GLuint textureId) {
+	int textureWidth, textureHeight;
+
+	glBindTexture(GL_TEXTURE_2D, textureId);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &textureWidth);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &textureHeight);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	float quadWidth = textureWidth / 200.0f;
+	float quadHeight = textureHeight / 200.0f;
+
+	this->vertices.push_back(glm::vec3( -quadWidth, -quadHeight, 0.0f));
+	this->vertices.push_back(glm::vec3(-quadWidth, quadHeight, 0.0f));
+	this->vertices.push_back(glm::vec3(quadWidth, quadHeight, 0.0f));
+	this->vertices.push_back(glm::vec3(-quadWidth, -quadHeight, 0.0f));
+	this->vertices.push_back(glm::vec3(quadWidth, quadHeight, 0.0f));
+	this->vertices.push_back(glm::vec3(quadWidth, -quadHeight, 0.0f));
+
+	//this->vertices.push_back(glm::vec3(-1.0f, -1.0f, 0.0f));
+	//this->vertices.push_back(glm::vec3(-1.0f, 1.0f, 0.0f));
+	//this->vertices.push_back(glm::vec3(1.0f, 1.0f, 0.0f));
+	//this->vertices.push_back(glm::vec3(-1.0f, -1.0f, 0.0f));
+	//this->vertices.push_back(glm::vec3(1.0f, 1.0f, 0.0f));
+	//this->vertices.push_back(glm::vec3(1.0f, -1.0f, 0.0f));
+
+	//create the indices
+	this->vertices_indices.push_back(0);
+	this->vertices_indices.push_back(1);
+	this->vertices_indices.push_back(2);
+	this->vertices_indices.push_back(3);
+	this->vertices_indices.push_back(4);
+	this->vertices_indices.push_back(5);
+
+
+	this->uvs.push_back(glm::vec2(0.0f, 0.0f));
+	this->uvs.push_back(glm::vec2(0.0f, 1.0f));
+	this->uvs.push_back(glm::vec2(1.0f, 1.0f));
+	this->uvs.push_back(glm::vec2(0.0f, 0.0f));
+	this->uvs.push_back(glm::vec2(1.0f, 1.0f));
+	this->uvs.push_back(glm::vec2(1.0f, 0.0f));
+
+	this->texture = textureId;
+
+	this->render_type = TEXTURES_PRECOMPILED;
+	return 0;
+}
+
 int Model3D::createLine(glm::vec3 start, glm::vec3 end) {
 	//create a line from start to end
 	this->vertices.clear();
@@ -87,6 +134,11 @@ int Model3D::compileModel()
 		VBOs = new GLuint[3 + isThereNormals];
 		glGenBuffers(4, this->VBOs);
 	}
+	else if (this->texture != NULL) {
+		render_type = TEXTURES_PRECOMPILED;
+		VBOs = new GLuint[3 + isThereNormals];
+		glGenBuffers(4, this->VBOs);
+	}
 	else if (!this->colours.empty()) {
 		render_type = COLOUR;
 		VBOs = new GLuint[3 + isThereNormals];
@@ -154,6 +206,15 @@ int Model3D::compileModel()
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 	}
+	else if (this->render_type == TEXTURES_PRECOMPILED) {
+		//put texture coordinates in vbo
+		glBindBuffer(GL_ARRAY_BUFFER, this->VBOs[2 + isThereNormals]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * this->uvs.size(), &this->uvs[0], GL_STATIC_DRAW);
+
+		//put this VBO in the VAO, saying thawt we want it in the 2nd location in the shader.
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(2);
+	}
 	else if (render_type == COLOUR) {
 		glBindBuffer(GL_ARRAY_BUFFER, this->VBOs[2 + isThereNormals]);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * this->colours.size(), &this->colours[0], GL_STATIC_DRAW);
@@ -194,7 +255,7 @@ int Model3D::render(GLuint shader)
 	//bind the VAO
 	glBindVertexArray(this->VAO);
 
-	if (textureData != NULL) {
+	if (this->render_type == TEXTURES || this->render_type == TEXTURES_PRECOMPILED) {
 		glBindTexture(GL_TEXTURE_2D, this->texture);
 		glDrawElements(GL_TRIANGLES, this->vertices_indices.size(), GL_UNSIGNED_INT, 0);
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -221,4 +282,8 @@ void Model3D::updateBufferData() //need to expand on this for batch rendering an
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->VBOs[1]);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * this->vertices_indices.size(), &this->vertices_indices[0], GL_STATIC_DRAW);
+}
+
+std::vector<glm::vec3>* Model3D::getVertices() {
+	return &this->vertices;
 }

@@ -135,7 +135,6 @@
   <ItemGroup>
     <ClCompile Include="src\FrameBuffer.cpp" />
     <ClCompile Include="src\ImGui3D.cpp" />
-    <ClCompile Include="src\Quad3D.cpp" />
     <ClCompile Include="src\GUILoader.cpp" />
     <ClCompile Include="libraries\imgui\imgui.cpp" />
     <ClCompile Include="libraries\imgui\imgui_demo.cpp" />
@@ -158,7 +157,6 @@
   <ItemGroup>
     <ClInclude Include="src\FrameBuffer.h" />
     <ClInclude Include="src\ImGui3D.h" />
-    <ClInclude Include="src\Quad3D.h" />
     <ClInclude Include="src\GUILoader.h" />
     <ClInclude Include="libraries\imgui\imconfig.h" />
     <ClInclude Include="libraries\imgui\imgui.h" />
