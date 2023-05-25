@@ -14,7 +14,7 @@ Model3D::~Model3D()
 {
 }
 
-int Model3D::createQuad(GLuint textureId) {
+int Model3D::createQuad(GLuint textureId, bool is3D) {
 	int textureWidth, textureHeight;
 
 	glBindTexture(GL_TEXTURE_2D, textureId);
@@ -22,22 +22,25 @@ int Model3D::createQuad(GLuint textureId) {
 	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &textureHeight);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	float quadWidth = textureWidth / 200.0f;
-	float quadHeight = textureHeight / 200.0f;
+	if (is3D) {
+		float quadWidth = textureWidth / 200.0f;
+		float quadHeight = textureHeight / 200.0f;
 
-	this->vertices.push_back(glm::vec3( -quadWidth, -quadHeight, 0.0f));
-	this->vertices.push_back(glm::vec3(-quadWidth, quadHeight, 0.0f));
-	this->vertices.push_back(glm::vec3(quadWidth, quadHeight, 0.0f));
-	this->vertices.push_back(glm::vec3(-quadWidth, -quadHeight, 0.0f));
-	this->vertices.push_back(glm::vec3(quadWidth, quadHeight, 0.0f));
-	this->vertices.push_back(glm::vec3(quadWidth, -quadHeight, 0.0f));
-
-	//this->vertices.push_back(glm::vec3(-1.0f, -1.0f, 0.0f));
-	//this->vertices.push_back(glm::vec3(-1.0f, 1.0f, 0.0f));
-	//this->vertices.push_back(glm::vec3(1.0f, 1.0f, 0.0f));
-	//this->vertices.push_back(glm::vec3(-1.0f, -1.0f, 0.0f));
-	//this->vertices.push_back(glm::vec3(1.0f, 1.0f, 0.0f));
-	//this->vertices.push_back(glm::vec3(1.0f, -1.0f, 0.0f));
+		this->vertices.push_back(glm::vec3(-quadWidth, -quadHeight, 0.0f));
+		this->vertices.push_back(glm::vec3(-quadWidth, quadHeight, 0.0f));
+		this->vertices.push_back(glm::vec3(quadWidth, quadHeight, 0.0f));
+		this->vertices.push_back(glm::vec3(-quadWidth, -quadHeight, 0.0f));
+		this->vertices.push_back(glm::vec3(quadWidth, quadHeight, 0.0f));
+		this->vertices.push_back(glm::vec3(quadWidth, -quadHeight, 0.0f));
+	}
+	else {
+		this->vertices.push_back(glm::vec3(-1.0f, -1.0f, 0.0f));
+		this->vertices.push_back(glm::vec3(-1.0f, 1.0f, 0.0f));
+		this->vertices.push_back(glm::vec3(1.0f, 1.0f, 0.0f));
+		this->vertices.push_back(glm::vec3(-1.0f, -1.0f, 0.0f));
+		this->vertices.push_back(glm::vec3(1.0f, 1.0f, 0.0f));
+		this->vertices.push_back(glm::vec3(1.0f, -1.0f, 0.0f));
+	}
 
 	//create the indices
 	this->vertices_indices.push_back(0);
@@ -251,6 +254,8 @@ int Model3D::addModelToMesh(Model3D model) {
 int Model3D::render(GLuint shader) 
 {
 	glUseProgram(shader);
+
+
 
 	//bind the VAO
 	glBindVertexArray(this->VAO);

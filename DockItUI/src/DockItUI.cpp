@@ -106,17 +106,14 @@ void renderAll(glm::mat4 ViewMatrix) {
 	ModelMatrix = glm::mat4(1.0f);
 	//make model matrix smaller
 
-	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-5, 0, -15));
 	if (guiLoader.reverseProtein) {
-		ModelMatrix = glm::rotate(ModelMatrix, (float)glfwGetTime() * -0.2f, glm::vec3(0.0f, 1.0f, 0.0f));
+		firstProtein.protein.ModelMatrix = glm::rotate(firstProtein.protein.ModelMatrix, (float)glfwGetTime() * -0.0002f, glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 	else {
-		ModelMatrix = glm::rotate(ModelMatrix, (float)glfwGetTime() * 0.2f, glm::vec3(0.0f, 1.0f, 0.0f));
+		firstProtein.protein.ModelMatrix = glm::rotate(firstProtein.protein.ModelMatrix, (float)glfwGetTime() * 0.0002f, glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 
-	ModelMatrix = glm::scale(ModelMatrix, glm::vec3(0.1f, 0.1f, 0.1f));
-	glUniformMatrix4fv(glGetUniformLocation(proteinShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * ModelMatrix));
-	firstProtein.protein.ModelMatrix = ModelMatrix;
+	glUniformMatrix4fv(glGetUniformLocation(proteinShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * firstProtein.protein.ModelMatrix));
 	firstProtein.render(proteinShader.getShaderProgram());
 	
 	
@@ -412,9 +409,13 @@ int initModels() {
 
 	proteinLoader.loadProtein("src/proteins/1ADG7046.pdb");
 	firstProtein.loadProteinFromProteinLoader(proteinLoader);
+	ModelMatrix = glm::mat4(1.0f);
+	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-5, 0, -15));
+	ModelMatrix = glm::scale(ModelMatrix, glm::vec3(0.1f, 0.1f, 0.1f));
+	firstProtein.protein.ModelMatrix = ModelMatrix;
 	firstProtein.compileModel();
 
-	vrViewQuad.createQuad(LeftEyeFrameBuffer.m_nRenderTextureId);
+	vrViewQuad.createQuad(LeftEyeFrameBuffer.m_nRenderTextureId, false);
 	vrViewQuad.compileModel();
 
 	return 0;

@@ -9,7 +9,7 @@ ImGui3D::ImGui3D(ImGuiContext* context) {
 	this->frameBuffer.createFrameBuffer(width, height);
 	//this->quad->loadTexture(frameBuffer.m_nRenderTextureId, width, height);
 	this->quad = new Model3D();
-	this->quad->createQuad(this->frameBuffer.m_nRenderTextureId);
+	this->quad->createQuad(this->frameBuffer.m_nRenderTextureId, true);
 	std::cout << "texture id: " << this->frameBuffer.m_nRenderTextureId << "\n";
 	this->quad->compileModel();
 	ImGui::SetCurrentContext(this->context);
