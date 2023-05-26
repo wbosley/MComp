@@ -28,6 +28,7 @@ void ImGui3D::start() {
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
 	ImGui::SetNextWindowCollapsed(false);
 	ImGui::SetNextWindowSize(ImVec2(this->width, this->height));
+
 }
 void ImGui3D::render(GLuint shader) {
 	GLint last_viewport[4]; glGetIntegerv(GL_VIEWPORT, last_viewport);
@@ -55,4 +56,10 @@ void ImGui3D::setClicked(bool clicked) {
 	ImGui::SetCurrentContext(this->context);
 	ImGuiIO& io = ImGui::GetIO();
 	io.MouseDown[0] = clicked;
+}
+
+void ImGui3D::setBeingMoved(bool moved) {
+	ImGui::SetCurrentContext(this->context);
+	//ImGuiIO& io = ImGui::GetIO();
+	//io.MouseDragMaxDistanceSqr = moved ? FLT_MAX : 0.0f;
 }

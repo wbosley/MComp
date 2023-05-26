@@ -11,6 +11,7 @@ class ImGui3D
 		int width;
 		int height;
 		ImVec2 mousePos;
+
 		
 	public:
 		ImGui3D(ImGuiContext* context);
@@ -19,9 +20,11 @@ class ImGui3D
 		void render(GLuint shader);
 		void setMousePosition(ImVec2 position);
 		void setClicked(bool clicked);
+		void setBeingMoved(bool moved);
 		FrameBuffer frameBuffer;
 		//Quad3D* quad;
 		Model3D* quad;
+		bool attached = false;
 
 };
 

@@ -93,18 +93,12 @@ void renderAll(glm::mat4 ViewMatrix) {
 	if (vrLoader.interactButton == false) {
 		for (int i = 0; i < guiLoader.getVRWindows()->size(); i++) {
 			guiLoader.getVRWindows()->at(i).setClicked(false);
+			guiLoader.getVRWindows()->at(i).setBeingMoved(false);
 		}
 	}
 
-	//glUseProgram(vrShader.getShaderProgram());
-	//ModelMatrix = glm::mat4(1.0f);
-	//ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-5, 0, 7));
-	//glUniformMatrix4fv(glGetUniformLocation(vrShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * ModelMatrix));
-	//firstModel.render(vrShader.getShaderProgram());
-
 	glUseProgram(proteinShader.getShaderProgram());
 	ModelMatrix = glm::mat4(1.0f);
-	//make model matrix smaller
 
 	if (guiLoader.reverseProtein) {
 		firstProtein.protein.ModelMatrix = glm::rotate(firstProtein.protein.ModelMatrix, (float)glfwGetTime() * -0.0002f, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -117,35 +111,20 @@ void renderAll(glm::mat4 ViewMatrix) {
 	firstProtein.render(proteinShader.getShaderProgram());
 	
 	
-	glUseProgram(controllerShader.getShaderProgram());
+	//glUseProgram(controllerShader.getShaderProgram());
 	vrLoader.renderControllers(controllerShader.getShaderProgram(), ViewMatrix);
 
 	glUseProgram(quad3DShader.getShaderProgram());
-	std::vector<glm::mat4> vrWindowMatrices = std::vector<glm::mat4>();
-	std::vector<glm::mat4> *vrWindowMatrices_ptr = &vrWindowMatrices;
 
-	//quadTest.loadTexture(testBuffer.m_nRenderTextureId, 200, 200);
 	ModelMatrix = glm::mat4(1.0f);
-	if (guiLoader.pickUpWindow) {
-		ModelMatrix = vrLoader.controllerPositions[1] * 
-		glm::mat4(0.0, 0.0, 0.0, 0.0,
-				  0.0, 0.0, 0.0, 0.0,
-			      0.0, 0.0, -39.f, 0.0,
-				  0.0, 0.0, 0.0, 1.0);
-	}
-	else {
-		ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0, 0, -5));
-	}
-	//ModelMatrix = glm::rotate(ModelMatrix, (float)glfwGetTime() * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
-	vrWindowMatrices_ptr->push_back(ViewMatrix * ModelMatrix);
-	//std::cout << "ModelMatrix 1: " << glm::to_string(ModelMatrix) << std::endl;
+	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0, 0, -5));
+	guiLoader.getVRWindows()->at(0).quad->ModelMatrix = ModelMatrix;
 
-	//ModelMatrix = glm::mat4(1.0f);
-	//ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-3, 0, -5));
-	////ModelMatrix = glm::rotate(ModelMatrix, (float)glfwGetTime() * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
-	//vrWindowMatrices_ptr->push_back(ViewMatrix * ModelMatrix);
-	guiLoader.renderVRGui(vrWindowMatrices_ptr);
-	//std::cout << "ModelMatrix 2: " << glm::to_string(ModelMatrix) << std::endl;
+	ModelMatrix = glm::mat4(1.0f);
+	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-3, 0, -5));
+	ModelMatrix = glm::rotate(ModelMatrix, (float)glfwGetTime() * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
+	guiLoader.getVRWindows()->at(1).quad->ModelMatrix = ModelMatrix;
+	guiLoader.renderVRGui(ViewMatrix);
 
 	std::vector<ImGui3D> windows = *guiLoader.getVRWindows();
 
@@ -169,7 +148,7 @@ void renderAll(glm::mat4 ViewMatrix) {
 		}
 		for (int j = 0; j < windows.size(); j++) {
 			std::vector<glm::vec3> windowVerts = *windows.at(j).quad->getVertices();
-			glm::mat4 VRModelMatrix = (glm::inverse(ViewMatrix) * vrWindowMatrices_ptr->at(j));
+			glm::mat4 VRModelMatrix = windows.at(j).quad->ModelMatrix;
 			for (int k = 0; k < windowVerts.size(); k += 3) {
 				glm::vec3 p1 = glm::vec3(VRModelMatrix * glm::vec4(windowVerts.at(k), 1.0f));
 				glm::vec3 p2 = glm::vec3(VRModelMatrix * glm::vec4(windowVerts.at(k + 1), 1.0f));
@@ -181,16 +160,6 @@ void renderAll(glm::mat4 ViewMatrix) {
 				float distance;
 				bool intersectDetect = glm::intersectRayTriangle(rayStart, rayDir, p1, p2, p3, intersectPoint, distance);
 				if (intersectDetect) {
-					//Calculate intersection point to ImGui coordinates made by https://github.com/temcgraw/ImguiVR
-					//int width, height;
-					//width = 200;
-					//height = 200;
-					//glm::vec3 pt = rayStart + distance * rayDir;
-					//pt = glm::vec3(VRModelMatrix * glm::vec4(pt, 1.0f));
-					//float t = 200;
-					//float g = 0.005;
-					//float x = t*(((width * (0.5f * pt.x + 0.5f)) * g)- std::floor((width * (0.5f * pt.x + 0.5f))*g));
-					//float y = t * (((height - width * (0.5f * pt.y + 0.5f)) * g) - std::floor((height - width * (0.5f * pt.y + 0.5f)) * g));
 					int width, height;
 					width = 200;
 					height = 200;
@@ -201,8 +170,15 @@ void renderAll(glm::mat4 ViewMatrix) {
 					float x = width * (0.5f + pt.x * 0.5f);
 					float y = (height - width * (0.5f * pt.y + 0.5f));
 					windows.at(j).setMousePosition(ImVec2(x, y));
+					//std::cout << "Mouse position: " << x << ", " << y << " ";
 					if (vrLoader.interactButton) {
-						windows.at(j).setClicked(true);
+						if (y > 20) {
+							windows.at(j).setClicked(true);
+						}
+						else {
+							//windows.at(j).setBeingMoved(true);
+						}
+
 					}
 					break;
 				}
@@ -212,7 +188,9 @@ void renderAll(glm::mat4 ViewMatrix) {
 	}
 }
 
+void modelScene() {
 
+}
 
 void renderCompanionWindow() {
 //-----------------------------------------------------------------------------
@@ -236,16 +214,6 @@ void display() {
 //-----------------------------------------------------------------------------
 	vrLoader.refresh(); //updates positions of the openVR devices.
 
-	//Projection Matrix for screen.
-	//glUniformMatrix4fv(glGetUniformLocation(vrShader.getShaderProgram(), "ProjectionMatrix"), 1, GL_FALSE, &ProjectionMatrix[0][0]);
-
-	//glDisable(GL_DEPTH_TEST);
-	//glBindFramebuffer(GL_FRAMEBUFFER, testBuffer.m_nRenderFramebufferId);
-	//glViewport(0, 0, 200, 200);
-	//guiLoader.renderWindowGui();
-	////renderAll(ProjectionMatrix * camera.getMatrix());
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
 	glEnable(GL_MULTISAMPLE);//enables anti ailiasing
 	glEnable(GL_DEPTH_TEST);
 
@@ -262,14 +230,6 @@ void display() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	glDisable(GL_MULTISAMPLE);
-	
-
-	//glViewport(0, 0, screenWidth, screenHeight);
-	//so we can use the same shader for the VR headset and the companion window, we multiply the projection matrix by the view matrix here rather than in the shader.
-	//renderAll(ProjectionMatrix * camera.getMatrix());
-
-	//Code to make the companion window display view from headset location - George
-	//renderAll(ProjectionMatrix * vrLoader.getHeadsetMatrix());
 	
 	//Render to the companion window. (Used for if we were putting the headset's eyes quad onto the screen as a texture. Not implemented yet) 
 	if (guiLoader.getCameraMode() == MONITOR_VIEW) {
