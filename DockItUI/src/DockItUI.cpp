@@ -159,9 +159,6 @@ void checkIntersections() {
 			guiLoader.getVRWindows()->at(i).setClicked(false);
 			guiLoader.getVRWindows()->at(i).setBeingMoved(false, 0);
 		}
-		for (int i = 0; i < 2; i++) {
-			vrLoader.m_rHand[i].windowAttached = false;
-		}
 	}
 
 	std::vector<ImGui3D>  *windows = guiLoader.getVRWindows();
@@ -169,19 +166,14 @@ void checkIntersections() {
 		if (!vrLoader.m_rHand[i].m_bShowController) {
 			continue;
 		}
-		if (vrLoader.m_rHand[i].windowAttached) {
-			for (int g = 0; g < windows->size(); g++) {
-				if (windows->at(g).attached == true) {
-					glm::mat4 matrix = glm::mat4(1.0f);
-					matrix[3] = glm::vec4(0, -1.0f, -5.0f, 1);
-					std::cout << "moving window" << std::endl;
-					windows->at(g).quad->ModelMatrix = vrLoader.getControllerMatrix(VRLoader::EHand(i)) * matrix;
-				}
-
-			}
-			continue;
-		}
 		for (int j = 0; j < windows->size(); j++) {
+			if (windows->at(j).attached == true) {
+				glm::mat4 matrix = glm::mat4(1.0f);
+				matrix[3] = glm::vec4(0, -1.0f, -4.6f, 1);
+				std::cout << "moving window" << std::endl;
+				windows->at(j).quad->ModelMatrix = vrLoader.getControllerMatrix(VRLoader::EHand(i)) * matrix;
+				continue;
+			}
 			std::vector<glm::vec3> windowVerts = *windows->at(j).quad->getVertices();
 			glm::mat4 VRModelMatrix = windows->at(j).quad->ModelMatrix;
 			for (int k = 0; k < windowVerts.size(); k += 3) {
@@ -214,7 +206,6 @@ void checkIntersections() {
 							else {
 								std::cout<< "window being moved" << std::endl;
 								windows->at(j).setBeingMoved(true, i);
-								vrLoader.m_rHand[i].windowAttached = true;
 							}
 						}
 						break;

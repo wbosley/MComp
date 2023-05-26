@@ -47,7 +47,6 @@ class VRLoader
 			Model3D m_pRenderModel;
 			std::string m_sRenderModelName;
 			bool m_bShowController;
-			bool windowAttached = false;
 		};
 		ControllerInfo_t m_rHand[2];
 		bool interactButton = false;
