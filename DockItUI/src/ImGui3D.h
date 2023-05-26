@@ -20,11 +20,12 @@ class ImGui3D
 		void render(GLuint shader);
 		void setMousePosition(ImVec2 position);
 		void setClicked(bool clicked);
-		void setBeingMoved(bool moved);
+		void setBeingMoved(bool moved, int hand);
 		FrameBuffer frameBuffer;
 		//Quad3D* quad;
 		Model3D* quad;
 		bool attached = false;
+		int hand;
 
 };
 

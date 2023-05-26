@@ -23,7 +23,7 @@ int Protein3D::loadProteinFromProteinLoader(ProteinLoader proteinLoader) {
 int Protein3D::constructSpheres() {
 	for (int i = 0; i < atomNames.size(); i++) {
 		Sphere sphere;
-		sphere.setRadius(atomRadius[i] / 7.0f);
+		sphere.setRadius(atomRadius[i] / 11.0f);
 		sphere.constructGeometry(15);
 		sphere.setCentre(atomCoordinates[i]);
 		sphere.setColour(atomColours[i]);

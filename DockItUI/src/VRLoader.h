@@ -27,6 +27,7 @@ class VRLoader
 		void shutdownVR();
 		void updateVR();
 		glm::mat4 getEyeViewProjectionMatrix(vr::Hmd_Eye eye);
+		glm::mat4 getControllerMatrix(EHand hand);
 		void refresh();
 		void render(vr::Texture_t Left, vr::Texture_t Right);
 		void renderControllers(GLuint shader, glm::mat4);
@@ -42,12 +43,16 @@ class VRLoader
 			vr::VRActionHandle_t m_actionPose = vr::k_ulInvalidActionHandle;
 			vr::VRActionHandle_t m_actionHaptic = vr::k_ulInvalidActionHandle;
 			glm::mat4 m_rmat4Pose;
+			glm::vec3 headsetDisplacement;
 			Model3D m_pRenderModel;
 			std::string m_sRenderModelName;
 			bool m_bShowController;
+			bool windowAttached = false;
 		};
 		ControllerInfo_t m_rHand[2];
 		bool interactButton = false;
+		bool hapticButton = false;
+		glm::vec2 analogInput = glm::vec2(0.0f,0.0f);
 	private:
 		vr::TrackedDevicePose_t trackedDevicePose[vr::k_unMaxTrackedDeviceCount];
 		glm::mat4 mat4DevicePose[vr::k_unMaxTrackedDeviceCount];

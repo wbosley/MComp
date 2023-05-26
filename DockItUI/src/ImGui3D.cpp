@@ -58,8 +58,7 @@ void ImGui3D::setClicked(bool clicked) {
 	io.MouseDown[0] = clicked;
 }
 
-void ImGui3D::setBeingMoved(bool moved) {
-	ImGui::SetCurrentContext(this->context);
-	//ImGuiIO& io = ImGui::GetIO();
-	//io.MouseDragMaxDistanceSqr = moved ? FLT_MAX : 0.0f;
+void ImGui3D::setBeingMoved(bool moved, int hand) {
+	this->attached = moved;
+	this->hand = hand;
 }

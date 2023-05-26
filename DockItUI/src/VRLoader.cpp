@@ -100,6 +100,17 @@ glm::mat4 VRLoader::convertSteamVRMatrix(const vr::HmdMatrix34_t& pose) {
 	return matrix;
 }
 
+glm::mat4 VRLoader::getControllerMatrix(EHand hand) {
+	glm::mat4 matDeviceToTracking = m_rHand[hand].m_rmat4Pose;
+
+	//matDeviceToTracking = glm::translate(matDeviceToTracking, -m_rHand[eHand].headsetDisplacement);
+	matDeviceToTracking[3] = glm::vec4(matDeviceToTracking[3][0] - m_rHand[hand].headsetDisplacement[0], matDeviceToTracking[3][1], matDeviceToTracking[3][2] - m_rHand[hand].headsetDisplacement[2], 1.0f);
+
+	//std::cout << "Device coordinates:\n " << glm::to_string(glm::vec3(matDeviceToTracking[3])) << std::endl;
+	return matDeviceToTracking;
+
+}
+
 Model3D VRLoader::FindOrLoadRenderModel(const char * renderModelName) {
 //-----------------------------------------------------------------------------
 // Purpose: Finds a render model using the render model's name (renderModelname).
@@ -240,7 +251,19 @@ void VRLoader::handleInput() {
 	actionSet.ulActionSet = m_actionsetDemo;
 	vr::VRInput()->UpdateActionState(&actionSet, sizeof(actionSet), 1);
 
+	
+
 	interactButton = GetDigitalActionState(m_actionsInteract);
+
+	hapticButton = GetDigitalActionState(m_actionTriggerHaptic);
+
+	vr::InputAnalogActionData_t analogData;
+	if (vr::VRInput()->GetAnalogActionData(m_actionAnalongInput, &analogData, sizeof(analogData), vr::k_ulInvalidInputValueHandle) == vr::VRInputError_None && analogData.bActive)
+	{
+		analogInput[0] = analogData.x;
+		analogInput[1] = analogData.y;
+	}
+
 	//std::cout << "interactButton: " << interactButton << std::endl;
 
 	//loops through each hand, casts the hand enum to an int, and loops through both enums. This is used to get the pose of each hand, and if it's active or not.
@@ -258,6 +281,7 @@ void VRLoader::handleInput() {
 		{
 			//get the transform of the controller - where the controller is compared to the headset (we think)
 			m_rHand[eHand].m_rmat4Pose = convertSteamVRMatrix(poseData.pose.mDeviceToAbsoluteTracking);
+
 
 			//get info about the device based off the pose data. poseData includes info about the current state of the controller, and we use this to see if its being tracked by the headset / base station - if its being tracxked its in view (we think)
 			vr::InputOriginInfo_t originInfo;
@@ -421,10 +445,13 @@ void VRLoader::renderControllers(GLuint shader, glm::mat4 ViewMatrix) {
 			continue;
 
 		//get thhe controllers matrices, and multiply them by the view matrix to get the MVP matrix, so we can pass it to shader.
-		glm::mat4 matDeviceToTracking = m_rHand[eHand].m_rmat4Pose;
+		glm::mat4 matDeviceToTracking = getControllerMatrix(eHand);
 
-		//std::cout << "Device coordinates:\n " << glm::to_string(glm::vec3(matDeviceToTracking[3])) << std::endl;
-		controllerPositions[eHand] = matDeviceToTracking;
+		////matDeviceToTracking = glm::translate(matDeviceToTracking, -m_rHand[eHand].headsetDisplacement);
+		//matDeviceToTracking[3] = glm::vec4(matDeviceToTracking[3][0] - m_rHand[eHand].headsetDisplacement[0], matDeviceToTracking[3][1], matDeviceToTracking[3][2] -m_rHand[eHand].headsetDisplacement[2], 1.0f);
+
+		////std::cout << "Device coordinates:\n " << glm::to_string(glm::vec3(matDeviceToTracking[3])) << std::endl;
+		//controllerPositions[eHand] = matDeviceToTracking;
 
 		glm::mat4 matMVP = ViewMatrix * matDeviceToTracking;
 
