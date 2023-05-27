@@ -193,8 +193,8 @@ void checkIntersections() {
 						height = 200;
 						glm::vec3 pt = rayStart + distance * rayDir;
 						pt = glm::vec3(glm::inverse(VRModelMatrix) * glm::vec4(pt, 1.0f));
-						float t = 200;
-						float g = 0.005;
+						float t = 200.0f;
+						float g = 0.005f;
 						float x = width * (0.5f + pt.x * 0.5f);
 						float y = (height - width * (0.5f * pt.y + 0.5f));
 						windows->at(j).setMousePosition(ImVec2(x, y));
@@ -301,29 +301,29 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GL_TRUE);
 	if (key == GLFW_KEY_W && action == GLFW_REPEAT || action == GLFW_PRESS) {
-		camera.move(0.1, FORWARD);
+		camera.move(0.1f, FORWARD);
 	}
 	if (key == GLFW_KEY_S && action == GLFW_REPEAT || action == GLFW_PRESS) {
-		camera.move(0.1, BACKWARD);
+		camera.move(0.1f, BACKWARD);
 	}
 	if (key == GLFW_KEY_A && action == GLFW_REPEAT || action == GLFW_PRESS) {
-		camera.move(0.1, LEFT);
+		camera.move(0.1f, LEFT);
 	}
 	if (key == GLFW_KEY_D && action == GLFW_REPEAT || action == GLFW_PRESS) {
-		camera.move(0.1, RIGHT);
+		camera.move(0.1f, RIGHT);
 	}
 	if (key == GLFW_KEY_UP && action == GLFW_REPEAT || action == GLFW_PRESS) {
-		camera.rotate(0.1, UP);
+		camera.rotate(0.1f, UP);
 	}
 	if (key == GLFW_KEY_DOWN && action == GLFW_REPEAT || action == GLFW_PRESS) {
-		camera.rotate(0.1, DOWN);
+		camera.rotate(0.1f, DOWN);
 	}
 	if (key == GLFW_KEY_LEFT && action == GLFW_REPEAT || action == GLFW_PRESS) {
-		camera.rotate(0.1, LEFT);
+		camera.rotate(0.1f, LEFT);
 		std::cout << "camera rotation: " << glm::to_string(camera.getDirection()) << std::endl;
 	}
 	if (key == GLFW_KEY_RIGHT && action == GLFW_REPEAT || action == GLFW_PRESS) {
-		camera.rotate(0.1, RIGHT);
+		camera.rotate(0.1f, RIGHT);
 		std::cout << "camera rotation: " << glm::to_string(camera.getDirection()) << std::endl;
 	}
 }
@@ -494,6 +494,8 @@ int init() {
 		std::cout << "Failed to load models." << std::endl;
 		return -1;
 	}
+
+	return 0;
 }
 
 int main()
