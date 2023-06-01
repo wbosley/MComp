@@ -95,9 +95,9 @@ void GUILoader::renderVRGui(glm::mat4 ViewMatrix) {
 	glUseProgram(shader);
 	for (int i = 0; i < vr_windows.size(); i++) {
 		glUniformMatrix4fv(glGetUniformLocation(shader, "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * vr_windows[i].quad->ModelMatrix));
-		vr_windows[i].start();
-		vrWindowInfo(i);
-		vr_windows[i].render(shader);
+		vr_windows[i].start(); //sets the context to this windows's context, make an imgui frame the size of the texture of the imgui3d, create a newimgui frame
+		vrWindowInfo(i); //populate the window's frame with whatever imgui widgets need to be in it.
+		vr_windows[i].render(shader); //bind the framebuffer for thisImgui windows quad,, call imgui::render, to set up the framebuffer, then use ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData()); to render it to the quad.
 	}
 }
 
