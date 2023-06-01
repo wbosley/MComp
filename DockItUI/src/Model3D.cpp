@@ -151,6 +151,7 @@ int Model3D::compileModel()
 {
 	//puts everything into the VAOS and VBOs for rendering.
 
+	//number used for indexing the VBOs. IF normals have been provided with the model, then this number is 1, otherwise it is 0. This means that we can specifify whether to 3 or 4 VBOs by setting the number of vbos as 3 + isThereNormals. We can also use this to correctly acces indexs of specific vbos. for example, the index of the VBO containing textures is 2, but if there is normals, then it is 3. This means the index of the texture VBO is 2 + isThereNormals, which will be 2 if there are no normals, and 3 if there are normals.
 	int isThereNormals = 1;
 	if (this->normals.empty()) {
 		isThereNormals = 0;
