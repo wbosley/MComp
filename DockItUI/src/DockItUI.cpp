@@ -57,6 +57,7 @@ Model3D firstModel;
 Model3D secondModel;
 Model3D controllerAxis[2];
 Model3D vrViewQuad;
+Model3D floorModel;
 Sphere firstSphere;
 Camera camera;
 Camera vrCamera;
@@ -95,6 +96,11 @@ void renderAll(glm::mat4 ViewMatrix) {
 	//Render Controllers
 	vrLoader.renderControllers(controllerShader.getShaderProgram(), ViewMatrix);
 
+	//Render floor
+	glUseProgram(proteinShader.getShaderProgram());
+	glUniformMatrix4fv(glGetUniformLocation(proteinShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * floorModel.ModelMatrix));
+	floorModel.render(proteinShader.getShaderProgram());
+
 	//Render VR GUI
 	glUseProgram(quad3DShader.getShaderProgram());
 	guiLoader.renderVRGui(ViewMatrix);
@@ -121,18 +127,11 @@ void modelScene() {
 		firstProtein.protein.ModelMatrix = glm::rotate(firstProtein.protein.ModelMatrix, (float)glfwGetTime() * 0.0002f, glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 
+	
 
 	ModelMatrix = guiLoader.getVRWindows()->at(1).quad->ModelMatrix;
 	ModelMatrix = glm::rotate(ModelMatrix, (float)glfwGetTime() * 0.0005f, glm::vec3(0.0f, 1.0f, 0.0f));
 	guiLoader.getVRWindows()->at(1).quad->ModelMatrix = ModelMatrix;
-
-
-	/*vrLoader.m_rHand[0].m_rmat4Pose = glm::translate(vrLoader.m_rHand[0].m_rmat4Pose, glm::vec3(vrPosition.x + vrLoader.analogInput[0] / 20.0f, 0, vrPosition.z + vrLoader.analogInput[1] / 20.0f));
-	vrLoader.m_rHand[1].m_rmat4Pose = glm::translate(vrLoader.m_rHand[1].m_rmat4Pose, glm::vec3(vrPosition.x + vrLoader.analogInput[0] / 20.0f, 0, vrPosition.z + vrLoader.analogInput[1] / 20.0f));*/
-	//vrLoader.m_rHand[1].m_rmat4Pose[3][0] = vrLoader.m_rHand[1].m_rmat4Pose[3][0] + (vrLoader.analogInput[0] / 20.0f);
-	//vrLoader.m_rHand[1].m_rmat4Pose[3][2] = vrLoader.m_rHand[1].m_rmat4Pose[3][2] - (vrLoader.analogInput[1] / 20.0f);
-	//vrLoader.m_rHand[0].m_rmat4Pose[3][0] = vrLoader.m_rHand[0].m_rmat4Pose[3][0] + (vrLoader.analogInput[0] / 20.0f);
-	//vrLoader.m_rHand[0].m_rmat4Pose[3][2] = vrLoader.m_rHand[0].m_rmat4Pose[3][2] - (vrLoader.analogInput[1] / 20.0f);
 
 	glm::vec3 vrPosition = vrCamera.getPosition();
 	vrPosition = glm::vec3(vrPosition.x - vrLoader.analogInput[0] / 20.0f, 0, vrPosition.z + vrLoader.analogInput[1] / 20.0f);
@@ -147,9 +146,6 @@ void modelScene() {
 		controllerAxis[i].createLine(position, positionEnd);
 		controllerAxis[i].compileModel();
 	}
-
-
-
 }
 
 void checkIntersections() {
@@ -405,6 +401,15 @@ int initModels() {
 
 	vrViewQuad.createQuad(LeftEyeFrameBuffer.m_nRenderTextureId, false);
 	vrViewQuad.compileModel();
+
+	floorModel.createQuadColour(glm::vec3(0.3,0.5,0.5));
+	floorModel.compileModel();
+	ModelMatrix = glm::mat4(1.0f);
+	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0.0f, -1.2f, 0.0f));
+	ModelMatrix = glm::rotate(ModelMatrix, (float)PI/2, glm::vec3(1.0f, 0.0f, 0.0f));
+	ModelMatrix = glm::scale(ModelMatrix, glm::vec3(50.0f, 50.0f, 50.0f));
+
+	floorModel.ModelMatrix = ModelMatrix;
 
 	ModelMatrix = glm::mat4(1.0f);
 	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0, 0, -5));

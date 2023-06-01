@@ -21,10 +21,12 @@ int GUILoader::initGLFWGui(GLFWwindow* window) {
 }
 
 int GUILoader::initVRGui() {
-	ImGui3D vrWindow = ImGui3D(ImGui::CreateContext());
-	vr_windows.push_back(vrWindow);
-	vrWindow = ImGui3D(ImGui::CreateContext());
-	vr_windows.push_back(vrWindow);
+	int VR_WINDOW_COUNT = 2;
+
+	for (int i = 0; i < VR_WINDOW_COUNT; i++) {
+		ImGui3D vrWindow = ImGui3D(ImGui::CreateContext());
+		vr_windows.push_back(vrWindow);
+	}
 	return 0;
 }
 
@@ -91,17 +93,6 @@ void GUILoader::renderVRGui(glm::mat4 ViewMatrix) {
 	GLuint shader;
 	glGetIntegerv(GL_CURRENT_PROGRAM, reinterpret_cast<GLint*>(&shader));
 	glUseProgram(shader);
-	//if (matrices->size() != vr_windows.size()) {
-	//	std::cout << "ERROR: Matrices and VR windows are not the same size!" << std::endl;
-	//	return;
-	//}
-	//for (int i = 0; i < matrices->size(); i++) {
-	//	glUniformMatrix4fv(glGetUniformLocation(shader, "matrix"), 1, GL_FALSE, value_ptr(matrices->at(i) * vr_windows[i].quad->ModelMatrix));
-	//	vr_windows[i].start();
-	//	vrWindowInfo(i);
-	//	vr_windows[i].render(shader);
-	//}
-
 	for (int i = 0; i < vr_windows.size(); i++) {
 		glUniformMatrix4fv(glGetUniformLocation(shader, "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * vr_windows[i].quad->ModelMatrix));
 		vr_windows[i].start();
@@ -137,6 +128,9 @@ void GUILoader::vrWindowInfo(int index) {
 	if (no_bring_to_front)  window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
 	if (unsaved_document)   window_flags |= ImGuiWindowFlags_UnsavedDocument;
 	if (no_close)           p_open = NULL; // Don't pass our bool* to Begin
+
+
+
 	switch (index) {
 		case 0:{
 			ImGui::Begin("DockIt VR Window", NULL, window_flags);

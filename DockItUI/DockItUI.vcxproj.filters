@@ -184,15 +184,6 @@
     <None Include="src\shaders\basicvr.shader">
       <Filter>Resource Files\Shaders</Filter>
     </None>
-    <None Include="src\hellovr_actions.json">
-      <Filter>Resource Files\Controller Bindings</Filter>
-    </None>
-    <None Include="src\hellovr_bindings_generic.json">
-      <Filter>Resource Files\Controller Bindings</Filter>
-    </None>
-    <None Include="src\hellovr_bindings_vive_controller.json">
-      <Filter>Resource Files\Controller Bindings</Filter>
-    </None>
     <None Include="src\shaders\basicvr_colour.shader">
       <Filter>Resource Files\Shaders</Filter>
     </None>
@@ -204,6 +195,15 @@
     </None>
     <None Include="src\shaders\quad3d.shader">
       <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="x64\Debug\hellovr_actions.json">
+      <Filter>Resource Files\Controller Bindings</Filter>
+    </None>
+    <None Include="x64\Debug\hellovr_bindings_generic.json">
+      <Filter>Resource Files\Controller Bindings</Filter>
+    </None>
+    <None Include="x64\Debug\hellovr_bindings_vive_controller.json">
+      <Filter>Resource Files\Controller Bindings</Filter>
     </None>
   </ItemGroup>
 </Project>

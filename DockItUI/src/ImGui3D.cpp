@@ -10,7 +10,6 @@ ImGui3D::ImGui3D(ImGuiContext* context) {
 	//this->quad->loadTexture(frameBuffer.m_nRenderTextureId, width, height);
 	this->quad = new Model3D();
 	this->quad->createQuad(this->frameBuffer.m_nRenderTextureId, true);
-	std::cout << "texture id: " << this->frameBuffer.m_nRenderTextureId << "\n";
 	this->quad->compileModel();
 	ImGui::SetCurrentContext(this->context);
 	ImGui::StyleColorsDark();
@@ -20,7 +19,6 @@ ImGui3D::~ImGui3D() {
 }
 
 void ImGui3D::start() {
-	
 	ImGui::SetCurrentContext(this->context);
 	ImGuiIO& io = ImGui::GetIO();
 	ImGui_ImplVR_NewFrame(this->width, this->height, this->mousePos);
@@ -28,6 +26,11 @@ void ImGui3D::start() {
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
 	ImGui::SetNextWindowCollapsed(false);
 	ImGui::SetNextWindowSize(ImVec2(this->width, this->height));
+
+	if (this->parent != nullptr) {
+		//std::cout << this->parent->quad->ModelMatrix[3][1] << std::endl;
+		//this->quad->ModelMatrix = glm::translate(this->parent->quad->ModelMatrix, glm::vec3(-1, 0 ,0));
+	}
 
 }
 void ImGui3D::render(GLuint shader) {
@@ -61,4 +64,11 @@ void ImGui3D::setClicked(bool clicked) {
 void ImGui3D::setBeingMoved(bool moved, int hand) {
 	this->attached = moved;
 	this->hand = hand;
+}
+
+void ImGui3D::makeChildOfWindow(ImGui3D* parent) {
+	//std::cout << "made parent" << std::endl;
+	this->parent = parent;
+
+	//std::cout << glm::to_string(this->parent->quad->ModelMatrix) << std::endl;
 }

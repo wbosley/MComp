@@ -6,12 +6,38 @@
 Model3D::Model3D()
 {
 	isModelCompiled = false;
-	ModelMatrix = glm::mat4(1.0f);
+	this->ModelMatrix = glm::mat4(1.0f);
 }
 
 //destructor
 Model3D::~Model3D()
 {
+}
+
+int Model3D::createQuadColour(glm::vec3 colour) {
+	this->vertices.push_back(glm::vec3(-1.0f, -1.0f, 0.0f));
+	this->vertices.push_back(glm::vec3(-1.0f, 1.0f, 0.0f));
+	this->vertices.push_back(glm::vec3(1.0f, 1.0f, 0.0f));
+	this->vertices.push_back(glm::vec3(-1.0f, -1.0f, 0.0f));
+	this->vertices.push_back(glm::vec3(1.0f, 1.0f, 0.0f));
+	this->vertices.push_back(glm::vec3(1.0f, -1.0f, 0.0f));
+
+	this->colours.push_back(colour);
+	this->colours.push_back(colour);
+	this->colours.push_back(colour);
+	this->colours.push_back(colour);
+	this->colours.push_back(colour);
+	this->colours.push_back(colour);
+
+	this->vertices_indices.push_back(0);
+	this->vertices_indices.push_back(1);
+	this->vertices_indices.push_back(2);
+	this->vertices_indices.push_back(3);
+	this->vertices_indices.push_back(4);
+	this->vertices_indices.push_back(5);
+
+	this->render_type = COLOUR;
+	return 0;
 }
 
 int Model3D::createQuad(GLuint textureId, bool is3D) {
