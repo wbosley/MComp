@@ -81,6 +81,8 @@ int Shader::createShaderFromFile(const char* filePath) {
 	glDeleteShader(vs);
 	glDeleteShader(fs);
 
+	std::cout << "Shader compiled successfully!" << std::endl;
+
 	return 0;
 }
 

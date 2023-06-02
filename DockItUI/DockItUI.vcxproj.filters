@@ -19,9 +19,6 @@
     <Filter Include="Header Files\Shader">
       <UniqueIdentifier>{ac94801a-d499-4955-8ecb-03c0a84559c4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Model3D">
-      <UniqueIdentifier>{f8590259-ca67-4b29-918b-9361d31852af}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Files\Shaders">
       <UniqueIdentifier>{7675a4c7-7d35-438d-9ac9-b5a6aaff0224}</UniqueIdentifier>
     </Filter>
@@ -37,8 +34,20 @@
     <Filter Include="Header Files\Protein3D">
       <UniqueIdentifier>{0fd4f97f-c6d6-40ed-bac4-97413e084a06}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Sphere">
-      <UniqueIdentifier>{e1563fe0-4360-46cd-adf8-b6a47e994c9b}</UniqueIdentifier>
+    <Filter Include="Header Files\ImGui">
+      <UniqueIdentifier>{5057d284-5aa6-4099-81e0-456cc6be4025}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Controller Bindings">
+      <UniqueIdentifier>{7fea50fe-b186-428c-a289-dca982085585}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\GUILoader">
+      <UniqueIdentifier>{23edb035-d2d4-4944-8407-626e8138bf8e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\3D">
+      <UniqueIdentifier>{f8590259-ca67-4b29-918b-9361d31852af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\FrameBuffer">
+      <UniqueIdentifier>{4aff3b1c-ddc9-4c64-85be-f62b7033019d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -52,7 +61,7 @@
       <Filter>Header Files\Shader</Filter>
     </ClCompile>
     <ClCompile Include="src\Model3D.cpp">
-      <Filter>Header Files\Model3D</Filter>
+      <Filter>Header Files\3D</Filter>
     </ClCompile>
     <ClCompile Include="src\Camera.cpp">
       <Filter>Header Files\Camera</Filter>
@@ -69,8 +78,38 @@
     <ClCompile Include="src\Protein3D.cpp">
       <Filter>Header Files\Protein3D</Filter>
     </ClCompile>
+    <ClCompile Include="libraries\imgui\imgui.cpp">
+      <Filter>Header Files\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="libraries\imgui\imgui_demo.cpp">
+      <Filter>Header Files\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="libraries\imgui\imgui_draw.cpp">
+      <Filter>Header Files\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="libraries\imgui\imgui_impl_glfw.cpp">
+      <Filter>Header Files\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="libraries\imgui\imgui_impl_opengl3.cpp">
+      <Filter>Header Files\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="libraries\imgui\imgui_tables.cpp">
+      <Filter>Header Files\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="libraries\imgui\imgui_widgets.cpp">
+      <Filter>Header Files\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GUILoader.cpp">
+      <Filter>Header Files\GUILoader</Filter>
+    </ClCompile>
     <ClCompile Include="src\Sphere.cpp">
-      <Filter>Header Files\Sphere</Filter>
+      <Filter>Header Files\3D</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ImGui3D.cpp">
+      <Filter>Header Files\3D</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FrameBuffer.cpp">
+      <Filter>Header Files\FrameBuffer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -81,7 +120,7 @@
       <Filter>Header Files\Shader</Filter>
     </ClInclude>
     <ClInclude Include="src\Model3D.h">
-      <Filter>Header Files\Model3D</Filter>
+      <Filter>Header Files\3D</Filter>
     </ClInclude>
     <ClInclude Include="src\Camera.h">
       <Filter>Header Files\Camera</Filter>
@@ -98,8 +137,44 @@
     <ClInclude Include="src\Protein3D.h">
       <Filter>Header Files\Protein3D</Filter>
     </ClInclude>
+    <ClInclude Include="libraries\imgui\imconfig.h">
+      <Filter>Header Files\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="libraries\imgui\imgui.h">
+      <Filter>Header Files\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="libraries\imgui\imgui_impl_glfw.h">
+      <Filter>Header Files\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="libraries\imgui\imgui_impl_opengl3.h">
+      <Filter>Header Files\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="libraries\imgui\imgui_impl_opengl3_loader.h">
+      <Filter>Header Files\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="libraries\imgui\imgui_internal.h">
+      <Filter>Header Files\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="libraries\imgui\imstb_rectpack.h">
+      <Filter>Header Files\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="libraries\imgui\imstb_textedit.h">
+      <Filter>Header Files\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="libraries\imgui\imstb_truetype.h">
+      <Filter>Header Files\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GUILoader.h">
+      <Filter>Header Files\GUILoader</Filter>
+    </ClInclude>
     <ClInclude Include="src\Sphere.h">
-      <Filter>Header Files\Sphere</Filter>
+      <Filter>Header Files\3D</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ImGui3D.h">
+      <Filter>Header Files\3D</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FrameBuffer.h">
+      <Filter>Header Files\FrameBuffer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -109,8 +184,29 @@
     <None Include="src\shaders\basicvr.shader">
       <Filter>Resource Files\Shaders</Filter>
     </None>
-    <None Include="src\shaders\textures.shader">
+    <None Include="src\shaders\basicvr_colour.shader">
       <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="src\shaders\basicvr_texture.shader">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="src\shaders\quad.shader">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="src\shaders\quad3d.shader">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="x64\Debug\hellovr_actions.json">
+      <Filter>Resource Files\Controller Bindings</Filter>
+    </None>
+    <None Include="x64\Debug\hellovr_bindings_generic.json">
+      <Filter>Resource Files\Controller Bindings</Filter>
+    </None>
+    <None Include="x64\Debug\hellovr_bindings_vive_controller.json">
+      <Filter>Resource Files\Controller Bindings</Filter>
+    </None>
+    <None Include="x64\Debug\hellovr_bindings_vive_oculus.json">
+      <Filter>Resource Files\Controller Bindings</Filter>
     </None>
   </ItemGroup>
 </Project>

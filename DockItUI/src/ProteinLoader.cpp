@@ -86,7 +86,7 @@ bool ProteinLoader::loadProtein(const char* path) {
 
 			//et the radius of the atom
 			float radius = getRadiusFromAtomName(atomName);
-			atomRadii.push_back(radius);;
+			atomRadius.push_back(radius);;
 			//std::cout << "Radius: " << radius << std::endl;
 		}
 	}
@@ -95,7 +95,7 @@ bool ProteinLoader::loadProtein(const char* path) {
 
 std::string ProteinLoader::getAtomNameFromLine(std::string line) {
 	//although we use string streams in most cases where we read from a file in this program, pdb files arent deliminated using anything - the meaning of a character is determined by its index in the line. Therefore, it is more effective to use substrings and remove the whitespace.
-	std::string atomName = line.substr(12, 4);
+	std::string atomName = line.substr(76, 2);
 	atomName.erase(std::remove_if(atomName.begin(), atomName.end(), isspace), atomName.end());
 	return atomName;
 }
@@ -119,7 +119,7 @@ glm::vec3 ProteinLoader::getAtomCoordinatesFromLine(std::string line) {
 	return coordinate;
 }
 
-//this is basically the same as S.Ls code
+//ALmost the same as code from stephen. need to get who to credit for this and datatable.
 glm::vec3 ProteinLoader::getColorFromAtomName(std::string atomName){
 
 	glm::vec3 colourVector;
@@ -145,7 +145,7 @@ glm::vec3 ProteinLoader::getColorFromAtomName(std::string atomName){
 	return colourVector;
 }
 
-//this is basically the same as S.Ls code
+//ALmost the same as code from stephen. need to get who to credit for this and datatable.
 float ProteinLoader::getRadiusFromAtomName(std::string atomName) {
 	float radius;
 

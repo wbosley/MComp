@@ -8,19 +8,22 @@ class Protein3D
 		Protein3D();
 		~Protein3D();
 		int loadProteinFromProteinLoader(ProteinLoader proteinLoader);
-		int render(Shader myShader);
+		int render(GLuint shader);
+		int compileModel();
+		std::string getAtomName(int index);
+		Model3D protein;
+
+		std::vector<glm::vec3> boundBoxVerts;
 
 	private:
 		std::vector<std::string> atomNames;
 		std::vector<glm::vec3> atomCoordinates;
 		std::vector<glm::vec3> atomColours;
-		std::vector<float> atomRadii;
-
+		std::vector<float> atomRadius;
 		std::vector<Sphere> spheres;
+		std::vector<glm::vec3> boundBoxFaces;
 		int constructSpheres();
-	//constructspheres
-
-	//render- loop through spheres and use their render function from model3d
+		int sphereVertSize = 0;
 
 };
 

@@ -2,12 +2,14 @@
 //
 
 #include <iostream>
+#include <map>
 #include <openvr.h>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/intersect.hpp>
 #include "OBJLoader.h"
 #include "Shader.h"
 #include "Model3D.h"
@@ -17,6 +19,11 @@
 #include "ProteinLoader.h"
 #include "Sphere.h"
 #include "Protein3D.h"
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+#include "GUILoader.h"
+#include "FrameBuffer.h"
 
 #define FORWARD 0
 #define BACKWARD 1
@@ -24,13 +31,18 @@
 #define RIGHT 3
 #define UP 0
 #define DOWN 1
+# define PI           3.14159265358979323846
 
 GLFWwindow* window;
 GLenum err;
 int screenWidth = 800;
 int screenHeight = 600;
+double lastX = screenWidth / 2.0f;
+double lastY = screenHeight / 2.0f;
+bool firstMouse = true;
 float nearClip = 0.1f;
 float farClip = 30.0f;
+bool keys[1024];
 GLuint renderWidth;
 GLuint renderHeight;
 glm::mat4 ProjectionMatrix;
@@ -39,27 +51,38 @@ glm::mat4 ViewMatrix;
 glm::mat4 ModelMatrix;
 Shader vrShader;
 Shader controllerShader;
+Shader quadShader;
+Shader quad3DShader;
+Shader proteinShader;
 vr::IVRSystem* pHMD;
 OBJLoader objLoader;
 ProteinLoader proteinLoader;
 Protein3D firstProtein;
 Model3D firstModel;
 Model3D secondModel;
+Model3D controllerAxis[2];
+Model3D vrViewQuad;
+Model3D floorModel;
 Sphere firstSphere;
 Camera camera;
-struct FrameBuffer {
-	GLuint m_nDepthBufferId;
-	GLuint m_nRenderTextureId;
-	GLuint m_nRenderFramebufferId;
-};
+Camera vrCamera;
 FrameBuffer LeftEyeFrameBuffer;
 FrameBuffer RightEyeFrameBuffer;
+FrameBuffer testBuffer;
 glm::mat4 ProjectionMatrixLeftEye;
 glm::mat4 ProjectionMatrixRightEye;
 glm::mat4 ViewMatrixLeftEye;
 glm::mat4 ViewMatrixRightEye;
 VRLoader vrLoader;
+GUILoader guiLoader;
 GLuint VAOwad;
+std::vector<ImGui3D*>* vr_windows;
+bool rightButtonPressed = false;
+
+enum CAMERA_MODE
+{
+	VR_VIEW, MONITOR_VIEW
+};
 
 
 void renderAll(glm::mat4 ViewMatrix) {
@@ -69,29 +92,220 @@ void renderAll(glm::mat4 ViewMatrix) {
 //
 // Returns: N/A
 //-----------------------------------------------------------------------------
-	glUseProgram(vrShader.getShaderProgram());
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.3f, 0.2f, 0.5f, 1.0f);
 
+	//Render Protein
+	glUseProgram(proteinShader.getShaderProgram());
+	glUniformMatrix4fv(glGetUniformLocation(proteinShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * firstProtein.protein.ModelMatrix));
+	firstProtein.render(proteinShader.getShaderProgram());
+	
+	//Render Controllers
+	vrLoader.renderControllers(controllerShader.getShaderProgram(), ViewMatrix);
+
+	//Render Teapot
+	glUseProgram(proteinShader.getShaderProgram());
+	glUniformMatrix4fv(glGetUniformLocation(proteinShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * firstModel.ModelMatrix));
+	firstModel.render(proteinShader.getShaderProgram());
+
+	//Render floor
+	glUseProgram(proteinShader.getShaderProgram());
+	glUniformMatrix4fv(glGetUniformLocation(proteinShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * floorModel.ModelMatrix));
+	floorModel.render(proteinShader.getShaderProgram());
+
+	//Render VR GUI
+	glUseProgram(quad3DShader.getShaderProgram());
+	guiLoader.renderVRGui(ViewMatrix);//create frames for, populate the frames, and render all of the gui windows
+
+	//Render Controller Axis
+	glUseProgram(vrShader.getShaderProgram());
+	for (int i = 0; i < 2; i++) {
+		if (!vrLoader.m_rHand[i].m_bShowController) {
+			continue;
+		}
+		glUniformMatrix4fv(glGetUniformLocation(vrShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix));
+		controllerAxis[i].render(vrShader.getShaderProgram());
+	}
+
+
+}
+
+void modelScene() {
 	ModelMatrix = glm::mat4(1.0f);
-	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-5, 0, 7));
+	if (guiLoader.reverseProtein) {
+		firstProtein.protein.ModelMatrix = glm::rotate(firstProtein.protein.ModelMatrix, (float)glfwGetTime() * -0.0002f, glm::vec3(0.0f, 1.0f, 0.0f));
+	}
+	else {
+		firstProtein.protein.ModelMatrix = glm::rotate(firstProtein.protein.ModelMatrix, (float)glfwGetTime() * 0.0002f, glm::vec3(0.0f, 1.0f, 0.0f));
+	}
 
-	glUniformMatrix4fv(glGetUniformLocation(vrShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * ModelMatrix));
-	firstModel.render(vrShader);
+	firstModel.changeColour(glm::vec3(guiLoader.colour.x, guiLoader.colour.y, guiLoader.colour.z));
+	firstModel.compileModel();
 
-	//ModelMatrix = glm::mat4(1.0f);
-	//ModelMatrix = vrLoader.getHeadsetMatrix();
-	//ModelMatrix = glm::translate(ModelMatrix, glm::vec3(3, 0, 7));
-	//glUniformMatrix4fv(glGetUniformLocation(vrShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * ModelMatrix));
-	//firstProtein.render(vrShader);
-	
-	
-	glUseProgram(controllerShader.getShaderProgram());
-	vrLoader.renderControllers(controllerShader, ViewMatrix);
+	//ModelMatrix = guiLoader.getVRWindows()->at(1)->quad->ModelMatrix;
+	//ModelMatrix = glm::rotate(ModelMatrix, (float)glfwGetTime() * 0.0005f, glm::vec3(0.0f, 1.0f, 0.0f));
+	////guiLoader.getVRWindows()->at(1).quad->ModelMatrix = ModelMatrix;
+	//vr_windows->at(1)->quad->ModelMatrix = ModelMatrix;
+
+	glm::vec3 vrPosition = vrCamera.getPosition();
+	vrPosition = glm::vec3(vrPosition.x - vrLoader.analogInput[0] / 20.0f, 0, vrPosition.z + vrLoader.analogInput[1] / 20.0f);
+	vrCamera.setPosition(vrPosition);
+	for (int i = 0; i < 2; i++) {
+		vrLoader.m_rHand[i].headsetDisplacement = vrPosition;
+		if (!vrLoader.m_rHand[i].m_bShowController) {
+			continue;
+		}
+		glm::vec3 position = glm::vec3(vrLoader.getControllerMatrix(VRLoader::EHand(i))[3]);
+		glm::vec3 positionEnd = glm::vec3(vrLoader.getControllerMatrix(VRLoader::EHand(i)) * glm::vec4(0, 0, -5.0f, 1));
+		controllerAxis[i].createLine(position, positionEnd);
+		controllerAxis[i].compileModel();
+	}
+}
+
+void checkIntersections() {
+	//Go through all the vr windows and disable mouse left click down
+	if (vrLoader.interactButton == false) {
+		for (int i = 0; i < guiLoader.getVRWindows()->size(); i++) {
+			//guiLoader.getVRWindows()->at(i).setClicked(false);
+			vr_windows->at(i)->setClicked(false);
+			//guiLoader.getVRWindows()->at(i).setBeingMoved(false, 0);
+			vr_windows->at(i)->setBeingMoved(false, 0);
+		}
+	}
+
+	//check intersections for all proteins
+	for (int i = 0; i < 2; i++) {
+		if (!vrLoader.m_rHand[i].m_bShowController) {
+			continue;
+		}
+
+		if (vrLoader.interactButton) {
+			std::vector<glm::vec3> proteinBoundingBox = firstProtein.boundBoxVerts;
+			glm::mat4 ProteinModelMatrix = firstProtein.protein.ModelMatrix;
+			for (int j = 0; j < proteinBoundingBox.size(); j+=3) {
+				//p1, p2 and p3 are the three points representing the vertices of a triangle in the bounding box.
+				glm::vec3 p1 = glm::vec3(ProteinModelMatrix * glm::vec4(proteinBoundingBox.at(j), 1.0f));
+				glm::vec3 p2 = glm::vec3(ProteinModelMatrix * glm::vec4(proteinBoundingBox.at(j + 1), 1.0f));
+				glm::vec3 p3 = glm::vec3(ProteinModelMatrix * glm::vec4(proteinBoundingBox.at(j + 2), 1.0f));
+				glm::vec3 rayStart = glm::vec3(vrLoader.getControllerMatrix(VRLoader::EHand(i)) * glm::vec4(0, 0, -0.02f, 1));
+				glm::vec3 rayEnd = glm::vec3(vrLoader.getControllerMatrix(VRLoader::EHand(i)) * glm::vec4(0, 0, -5.0f, 1));
+				glm::vec3 rayDir = rayEnd - rayStart;
+				glm::vec2 intersectPoint;
+				float distance;
+				if (glm::intersectRayTriangle(rayStart, rayDir, p1, p2, p3, intersectPoint, distance)) {
+					if (distance < 0.95f) {
+						std::vector<glm::vec3> proteinVerts = *firstProtein.protein.getVertices();
+						std::map<std::string, float> atomMap;
+						atomMap.clear();
+						for (int j = 0; j < proteinVerts.size() - 3; j += 3) {
+							glm::vec3 p1 = glm::vec3(ProteinModelMatrix * glm::vec4(proteinVerts.at(j), 1.0f));
+							glm::vec3 p2 = glm::vec3(ProteinModelMatrix * glm::vec4(proteinVerts.at(j + 1), 1.0f));
+							glm::vec3 p3 = glm::vec3(ProteinModelMatrix * glm::vec4(proteinVerts.at(j + 2), 1.0f));
+							glm::vec3 rayStart = glm::vec3(vrLoader.getControllerMatrix(VRLoader::EHand(i)) * glm::vec4(0, 0, -0.02f, 1));
+							glm::vec3 rayEnd = glm::vec3(vrLoader.getControllerMatrix(VRLoader::EHand(i)) * glm::vec4(0, 0, -5.0f, 1));
+							glm::vec3 rayDir = rayEnd - rayStart;
+							glm::vec2 intersectPoint;
+							float distance;
+							if (glm::intersectRayTriangle(rayStart, rayDir, p1, p2, p3, intersectPoint, distance)) {
+								if (distance < 0.95f) {
+									atomMap[firstProtein.getAtomName(j)] = distance;
+								}
+							}
+						}
+						if (!atomMap.empty()) {
+							float min = 10000.0f;
+							std::string min_atom;
+							for (const auto& atom : atomMap) {
+								if (atom.second < min) {
+									min = atom.second;
+									min_atom = atom.first;
+								}
+							}
+							guiLoader.ASW_atomName = min_atom;
+							vr_windows->at(1)->quad->ModelMatrix = glm::rotate(glm::translate(glm::inverse(vrCamera.getMatrix()), glm::vec3(2.0f, 0.0f, -2.0f)), (float)((2 * PI) - 0.8), glm::vec3(0.0f, 1.0f, 0.0f));
+							vr_windows->at(1)->showWindow = true;
+						}
+					}
+				}
+
+			}
+
+
+
+			
+
+		}
+	}
+
+	//check intersections for all vr windows
+	for (int i = 0; i < 2; i++) {
+		if (!vrLoader.m_rHand[i].m_bShowController) {
+			continue;
+		}
+		for (int j = 0; j < vr_windows->size(); j++) {
+			if (vr_windows->at(j)->attached == true) {
+				glm::mat4 matrix = glm::mat4(1.0f);
+				matrix[3] = glm::vec4(0, -1.0f, -4.6f, 1);
+				std::cout << "moving window" << std::endl;
+				vr_windows->at(j)->quad->ModelMatrix = vrLoader.getControllerMatrix(VRLoader::EHand(i)) * matrix;
+				continue;
+			}
+			std::vector<glm::vec3> windowVerts = *vr_windows->at(j)->quad->getVertices();
+			glm::mat4 VRModelMatrix = vr_windows->at(j)->quad->ModelMatrix;
+			for (int k = 0; k < windowVerts.size(); k += 3) {
+				glm::vec3 p1 = glm::vec3(VRModelMatrix * glm::vec4(windowVerts.at(k), 1.0f));
+				glm::vec3 p2 = glm::vec3(VRModelMatrix * glm::vec4(windowVerts.at(k + 1), 1.0f));
+				glm::vec3 p3 = glm::vec3(VRModelMatrix * glm::vec4(windowVerts.at(k + 2), 1.0f));
+				glm::vec3 rayStart = glm::vec3(vrLoader.getControllerMatrix(VRLoader::EHand(i)) * glm::vec4(0, 0, -0.02f, 1));
+				glm::vec3 rayEnd = glm::vec3(vrLoader.getControllerMatrix(VRLoader::EHand(i)) * glm::vec4(0, 0, -5.0f, 1));
+				glm::vec3 rayDir = rayEnd - rayStart;
+				glm::vec2 intersectPoint;
+				float distance;
+				bool intersectDetect = glm::intersectRayTriangle(rayStart, rayDir, p1, p2, p3, intersectPoint, distance);
+				if (intersectDetect) {
+					if (distance < 0.95f) {
+						int width, height;
+						width = 400;
+						height = 400;
+						glm::vec3 pt = rayStart + distance * rayDir;
+						pt = glm::vec3(glm::inverse(VRModelMatrix) * glm::vec4(pt, 1.0f));
+						float t = 200.0f;
+						float g = 0.005f;
+						float x = width * (0.5f + pt.x * 0.5f);
+						float y = (height - width * (0.5f * pt.y + 0.5f));
+						vr_windows->at(j)->setMousePosition(ImVec2(x, y));
+						//std::cout << "Mouse position: " << x << ", " << y << " ";
+						if (vrLoader.interactButton) {
+							if (y > 20) {
+								vr_windows->at(j)->setClicked(true);
+							}
+							else {
+								std::cout<< "window being moved" << std::endl;
+								vr_windows->at(j)->setBeingMoved(true, i);
+							}
+						}
+						break;
+					}
+				}
+				vr_windows->at(j)->setMousePosition(ImVec2(-1, -1));
+			}
+
+		}
+	}
 }
 
 void renderCompanionWindow() {
-
+//-----------------------------------------------------------------------------
+// Purpose: Renders the Companion window (on the monitor) with the left eye's
+// 		rendered texture.
+//
+// Returns: N/A
+//-----------------------------------------------------------------------------
+	glViewport(0, 0, screenWidth, screenHeight);
+	//quad.loadTexture(LeftEyeFrameBuffer.m_nRenderTextureId, vrLoader.renderWidth, vrLoader.renderHeight);
+	glUseProgram(quadShader.getShaderProgram());
+	//quad.render();
+	vrViewQuad.render(quadShader.getShaderProgram());
 }
 
 void display() {
@@ -100,39 +314,38 @@ void display() {
 //
 // Returns: N/A
 //-----------------------------------------------------------------------------
-	glUseProgram(vrShader.getShaderProgram());
-	vrLoader.refresh();
+	vrLoader.refresh();//updates positions of the openVR devices.
+	vrLoader.handleInput();
+	modelScene();
+	checkIntersections();
 
-	//Projection Matrix for screen.
-	//glUniformMatrix4fv(glGetUniformLocation(vrShader.getShaderProgram(), "ProjectionMatrix"), 1, GL_FALSE, &ProjectionMatrix[0][0]);
-
-	glEnable(GL_MULTISAMPLE);
+	glEnable(GL_MULTISAMPLE);//enables anti ailiasing
+	glEnable(GL_DEPTH_TEST);
 
 	// Left eye
 	glBindFramebuffer(GL_FRAMEBUFFER, LeftEyeFrameBuffer.m_nRenderFramebufferId);
 	glViewport(0, 0, vrLoader.renderWidth, vrLoader.renderHeight);
-	renderAll(vrLoader.getEyeViewProjectionMatrix(vr::Eye_Left));
+	renderAll(vrLoader.getEyeViewProjectionMatrix(vr::Eye_Left) * vrCamera.getMatrix());
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 
 	// Right eye
 	glBindFramebuffer(GL_FRAMEBUFFER, RightEyeFrameBuffer.m_nRenderFramebufferId);
 	glViewport(0, 0, vrLoader.renderWidth, vrLoader.renderHeight);
-	renderAll(vrLoader.getEyeViewProjectionMatrix(vr::Eye_Right));
+	renderAll(vrLoader.getEyeViewProjectionMatrix(vr::Eye_Right) * vrCamera.getMatrix());
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	glDisable(GL_MULTISAMPLE);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, screenWidth, screenHeight);
-	//so we can use the same shader for the VR headset and the companion window, we multiply the projection matrix by the view matrix here rather than in the shader.
-	renderAll(ProjectionMatrix * camera.getMatrix());
-
-	//Code to make the companion window display view from headset location - George
-	//renderAll(ProjectionMatrix * vrLoader.getHeadsetMatrix());
 	
-	//Render to the companion window.
-	renderCompanionWindow();
-
+	//Render to the companion window. (Used for if we were putting the headset's eyes quad onto the screen as a texture. Not implemented yet) 
+	if (guiLoader.getCameraMode() == MONITOR_VIEW) {
+		glViewport(0, 0, screenWidth, screenHeight);
+		renderAll(ProjectionMatrix * camera.getMatrix());
+		glDisable(GL_DEPTH_TEST);
+	}
+	else {
+		glDisable(GL_DEPTH_TEST);
+		renderCompanionWindow();
+	}
 
 	// Turn framebuffer texture into an OpenVR texture.
 	vr::Texture_t leftEyeTexture = { (void*)(uintptr_t)LeftEyeFrameBuffer.m_nRenderTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
@@ -140,13 +353,36 @@ void display() {
 
 	//Render the texture to the headset.
 	vrLoader.render(leftEyeTexture, rightEyeTexture);
+	guiLoader.renderWindowGui();
 
 	//Clear all buffers.
 	glFlush();
 
 }
 
+void handleMovement() {
+
+	if (keys[GLFW_KEY_W]) {
+		camera.move(0.1f, FORWARD);
+	}
+	if (keys[GLFW_KEY_S]) {
+		camera.move(0.1f, BACKWARD);
+	}
+	if (keys[GLFW_KEY_A]) {
+		camera.move(0.1f, LEFT);
+	}
+	if (keys[GLFW_KEY_D]) {
+		camera.move(0.1f, RIGHT);
+	}
+}
+
 void reshape(GLFWwindow* window, int width, int height) {
+//-----------------------------------------------------------------------------
+// Purpose: Explains to openGL what size window we are rendering to. 
+//			Creates a projection matrix based off of the window size.
+// 
+// Returns: n/a
+//-----------------------------------------------------------------------------
 	screenWidth = width;
 	screenHeight = height;
 	glViewport(0, 0, screenWidth, screenHeight);
@@ -156,29 +392,47 @@ void reshape(GLFWwindow* window, int width, int height) {
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GL_TRUE);
-	if (key == GLFW_KEY_W && action == GLFW_REPEAT || action == GLFW_PRESS) {
-		camera.move(0.1, FORWARD);
+	if (action == GLFW_PRESS) {
+		keys[key] = true;
 	}
-	if (key == GLFW_KEY_S && action == GLFW_REPEAT || action == GLFW_PRESS) {
-		camera.move(0.1, BACKWARD);
+	else if (action == GLFW_RELEASE) {
+		keys[key] = false;
 	}
-	if (key == GLFW_KEY_A && action == GLFW_REPEAT || action == GLFW_PRESS) {
-		camera.move(0.1, LEFT);
+}
+
+void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
+
+	if (rightButtonPressed) {
+		if (firstMouse)
+		{
+			lastX = xpos;
+			lastY = ypos;
+			firstMouse = false;
+		}
+
+		double xoffset = xpos - lastX;
+		double yoffset = lastY - ypos;
+		lastX = xpos;
+		lastY = ypos;
+
+		float sensitivity = 0.001f;
+		xoffset *= sensitivity;
+		yoffset *= sensitivity;
+
+		camera.rotate(xoffset, RIGHT);
+		camera.rotate(yoffset, UP);
 	}
-	if (key == GLFW_KEY_D && action == GLFW_REPEAT || action == GLFW_PRESS) {
-		camera.move(0.1, RIGHT);
+
+}
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		rightButtonPressed = true;
 	}
-	if (key == GLFW_KEY_UP && action == GLFW_REPEAT || action == GLFW_PRESS) {
-		camera.rotate(0.1, UP);
-	}
-	if (key == GLFW_KEY_DOWN && action == GLFW_REPEAT || action == GLFW_PRESS) {
-		camera.rotate(0.1, DOWN);
-	}
-	if (key == GLFW_KEY_LEFT && action == GLFW_REPEAT || action == GLFW_PRESS) {
-		camera.rotate(0.1, LEFT);
-	}
-	if (key == GLFW_KEY_RIGHT && action == GLFW_REPEAT || action == GLFW_PRESS) {
-		camera.rotate(0.1, RIGHT);
+	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		rightButtonPressed = false;
 	}
 }
 
@@ -191,6 +445,15 @@ messageCallback(GLenum source,
 	const char* message,
 	const void* userParam)
 {
+//-----------------------------------------------------------------------------
+// Purpose: Debugging function we found on web to help us resolve errors.
+//			it wont be in the final product. Prints errors in human readable format.
+//		
+// Author: https://learnopengl.com/In-Practice/Debugging	
+// 
+// Returns: n/a
+//-----------------------------------------------------------------------------
+	
 	// ignore non-significant error/warning codes
 	if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
 
@@ -230,64 +493,70 @@ messageCallback(GLenum source,
 	std::cout << std::endl;
 }
 
-void createFrameBuffer(int width, int height, FrameBuffer& framebuffer) {
-	//Frame buffers allow us to render to multiple viewports such as the left and right eye and companion window.
-	//Basically we are rendering to a texture instead of the screen.
-	//This allows us to render to multiple viewports without having to render the same scene multiple times.
-	//This is a very useful technique for VR. - george
-
-	//Generate a frame buffer and bind it.
-	glGenFramebuffers(1, &framebuffer.m_nRenderFramebufferId);
-	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.m_nRenderFramebufferId);
-
-	//Generate a render buffer, bind it and specify details about the buffer.
-	glGenRenderbuffers(1, &framebuffer.m_nDepthBufferId);
-	glBindRenderbuffer(GL_RENDERBUFFER, framebuffer.m_nDepthBufferId);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width , height);
-	//Unbind the render buffer.
-	glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
-	//Attach the render buffer to the frame buffer.
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, framebuffer.m_nDepthBufferId);
-
-	//Generate a texture, bind it and specify details about the texture.
-	glGenTextures(1, &framebuffer.m_nRenderTextureId);
-	glBindTexture(GL_TEXTURE_2D, framebuffer.m_nRenderTextureId);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-
-	//Set texture parameters.
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	
-	//Attach the texture to the frame buffer.
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, framebuffer.m_nRenderTextureId, 0);
-
-	//Unbind the texture.
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE) {
-		std::cout << "Framebuffer creation successful." << std::endl;
-	}
-	else {
-		std::cout << "Framebuffer creation FAILED." << std::endl;
-	}
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	
-}
-
 int initModels() {
+//-----------------------------------------------------------------------------
+// Purpose: Loads and compiles models/proteins.
+// 
+// Returns: (In future) 1 or 0 depending on whether the program ran successfully or not. 
+//-----------------------------------------------------------------------------
 	objLoader.loadOBJ("src/models/teapot.obj");
 	firstModel.loadModelFromObj(objLoader);
+	firstModel.compileModel();
+	ModelMatrix = glm::mat4(1.0f);
+	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(15, 0, -15));
+	firstModel.ModelMatrix = ModelMatrix;
 
 	proteinLoader.loadProtein("src/proteins/1ADG7046.pdb");
 	firstProtein.loadProteinFromProteinLoader(proteinLoader);
+	ModelMatrix = glm::mat4(1.0f);
+	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-5, 0, -15));
+	ModelMatrix = glm::scale(ModelMatrix, glm::vec3(0.1f, 0.1f, 0.1f));
+	firstProtein.protein.ModelMatrix = ModelMatrix;
+	firstProtein.compileModel();
+
+	vrViewQuad.createQuad(LeftEyeFrameBuffer.m_nRenderTextureId, false);
+	vrViewQuad.compileModel();
+
+	floorModel.createQuadColour(glm::vec3(0.3,0.5,0.5));
+	floorModel.compileModel();
+	ModelMatrix = glm::mat4(1.0f);
+	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0.0f, -1.2f, 0.0f));
+	ModelMatrix = glm::rotate(ModelMatrix, (float)PI/2, glm::vec3(1.0f, 0.0f, 0.0f));
+	ModelMatrix = glm::scale(ModelMatrix, glm::vec3(50.0f, 50.0f, 50.0f));
+
+	floorModel.ModelMatrix = ModelMatrix;
+
+	vr_windows = guiLoader.getVRWindows();
+
+	ModelMatrix = glm::mat4(1.0f);
+	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(5, 0, -5));
+
+	vr_windows->at(0)->quad->ModelMatrix = ModelMatrix;
+	ModelMatrix = glm::mat4(1.0f);
+	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0, 0, -3));
+	vr_windows->at(3)->quad->ModelMatrix = ModelMatrix;
+	vr_windows->at(3)->info = 4;
+	//ModelMatrix = glm::mat4(1.0f);
+	//ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-3, 0, -5));
+	////guiLoader.getVRWindows()->at(1).quad->ModelMatrix = ModelMatrix;
+	//vr_windows->at(1)->quad->ModelMatrix = ModelMatrix;
+	//ModelMatrix = glm::mat4(1.0f);
+	//ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-3, 0, -5));
+	////guiLoader.getVRWindows()->at(2).quad->ModelMatrix = ModelMatrix;
+	//vr_windows->at(2)->quad->ModelMatrix = ModelMatrix;
+
 
 	return 0;
 }
 
-int init() {
 
+int init() {
+//-----------------------------------------------------------------------------
+// Purpose: Initialise all the libraries, models, shaders.
+// 
+// Returns: 1 or 0 depending on whether the initialisation was successful.
+//-----------------------------------------------------------------------------
+	
 	//Initialise GLFW.
 	if (!glfwInit())
 	{
@@ -303,7 +572,7 @@ int init() {
 	}
 	glfwMakeContextCurrent(window);
 
-	//Initialise GLEW and check for errors.
+	//Initialise GLEW and check for errors. (GLEW is a library allowing use of opengl with languages other than c)
 	glewExperimental = GL_TRUE;
 	err = glewInit();
 	if (GLEW_OK != err)
@@ -313,21 +582,47 @@ int init() {
 	}
 
 	reshape(window, screenWidth, screenHeight);
-	glfwSetFramebufferSizeCallback(window, reshape);
+	glfwSetFramebufferSizeCallback(window, reshape); //if window size changes, reshape the viewport et.c using "reshape()", 
 	glfwSetKeyCallback(window, key_callback);
+	glfwSetCursorPosCallback(window, cursor_position_callback);
+	glfwSetMouseButtonCallback(window, mouse_button_callback);
+	glfwSwapInterval(0);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
-	glEnable(GL_DEPTH_TEST);
 
 	vrShader.createShaderFromFile("src/shaders/basicvr.shader");
-	controllerShader.createShaderFromFile("src/shaders/textures.shader");
+	controllerShader.createShaderFromFile("src/shaders/basicvr_texture.shader");
+	proteinShader.createShaderFromFile("src/shaders/basicvr_colour.shader");
+	quadShader.createShaderFromFile("src/shaders/quad.shader");
+	quad3DShader.createShaderFromFile("src/shaders/quad3d.shader");
 
 	if (vrLoader.initVR() != 0) {
 		std::cout << "Failed to setup VR." << std::endl;
 		return -1;
 	}
 
-	createFrameBuffer(vrLoader.renderWidth, vrLoader.renderHeight, LeftEyeFrameBuffer);
-	createFrameBuffer(vrLoader.renderWidth, vrLoader.renderHeight, RightEyeFrameBuffer);
+	//create frame buffers. these are used to store the images/textures that display to the left and right eyes.
+	LeftEyeFrameBuffer.createFrameBuffer(vrLoader.renderWidth, vrLoader.renderHeight);
+	RightEyeFrameBuffer.createFrameBuffer(vrLoader.renderWidth, vrLoader.renderHeight);
+
+
+	//set up the keyboard controlled camera and set its initial position.
+	camera.setPosition(glm::vec3(0.0, -0.5, -0.8));
+	camera.setDirection(glm::vec3(0.0, 2*PI, 0.0));
+	//vrCamera.setPosition(glm::vec3(0.0, -0.5, -0.8));
+	//vrCamera.setDirection(glm::vec3(0.0, 2 * PI, 0.0));
+
+	glEnable(GL_DEBUG_OUTPUT);//enables a debugging mode. if theres an error in any opengl code it will run the message callback function.
+	glDebugMessageCallback(messageCallback, 0);
+
+	if (guiLoader.initGLFWGui(window) != 0) {
+		std::cout << "Failed to initialise GUI." << std::endl;
+			return -1;
+	}
+	if (guiLoader.initVRGui() != 0) {
+		std::cout << "Failed to initialise VR GUI." << std::endl;
+		return -1;
+	}
+	vrLoader.parseGuiLoader(&guiLoader);
 
 
 	if (initModels() != 0) {
@@ -335,36 +630,45 @@ int init() {
 		return -1;
 	}
 
-	camera = Camera();
-	camera.setPosition(glm::vec3(0.0, -2.5, -15.0));
-	
+	//Set all keys to false by default.
+	for (int i = 0; i < 1024; i++) {
+		keys[i] = false;
+	}
 
-	glEnable(GL_DEBUG_OUTPUT);
-	glDebugMessageCallback(messageCallback, 0);
-
+	return 0;
 }
 
 int main()
 {
+//-----------------------------------------------------------------------------
+// Purpose: First function which runs in the program. 
+// 
+// Returns: 1 or 0 depending on whether the program ran successfully or not.
+//-----------------------------------------------------------------------------
+
 	//Initialisation function.
 	init();
+
 
 
 	// Loop until the user closes the window
 	while (!glfwWindowShouldClose(window))
 	{
+		handleMovement();
 		// Main render loop.
 		display();
 
-
-		vrLoader.handleInput();
-		// Swap front and back buffers
+		// Swap front and back buffers. Puts the complete frame on screen once its completed rendering.
 		glfwSwapBuffers(window);
 
-		// Poll for and process events
+		// Poll for and process events (keyboard + mouse input stuff)
 		glfwPollEvents();
 
 	}
+
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
 
 	glfwTerminate();
 	return 0;

@@ -6,17 +6,22 @@ VRLoader::VRLoader() {
 //-----------------------------------------------------------------------------
 
 	this->nearClip = 0.1f;
-	this->farClip = 30.0f;
+	this->farClip = 200.0f;
 }
 
 VRLoader::~VRLoader() {
-	//-----------------------------------------------------------------------------
-	// Purpose: Destructor.
-	//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+// Purpose: Destructor.
+//-----------------------------------------------------------------------------
 }
 
 std::string VRLoader::GetTrackedDeviceString(vr::TrackedDeviceIndex_t unDevice, vr::TrackedDeviceProperty prop, vr::TrackedPropertyError* peError = NULL)
 {
+//-----------------------------------------------------------------------------
+// Purpose: Converts a device index to a device name in string format.
+// 
+// Returns: The string denoting this device's name (for loading the correct model)
+//-----------------------------------------------------------------------------
 	uint32_t unRequiredBufferLen = vr::VRSystem()->GetStringTrackedDeviceProperty(unDevice, prop, NULL, 0, peError);
 	if (unRequiredBufferLen == 0)
 		return "";
@@ -95,10 +100,27 @@ glm::mat4 VRLoader::convertSteamVRMatrix(const vr::HmdMatrix34_t& pose) {
 	return matrix;
 }
 
+glm::mat4 VRLoader::getControllerMatrix(EHand hand) {
+	glm::mat4 matDeviceToTracking = m_rHand[hand].m_rmat4Pose;
+
+	//matDeviceToTracking = glm::translate(matDeviceToTracking, -m_rHand[eHand].headsetDisplacement);
+	matDeviceToTracking[3] = glm::vec4(matDeviceToTracking[3][0] - m_rHand[hand].headsetDisplacement[0], matDeviceToTracking[3][1], matDeviceToTracking[3][2] - m_rHand[hand].headsetDisplacement[2], 1.0f);
+
+	//std::cout << "Device coordinates:\n " << glm::to_string(glm::vec3(matDeviceToTracking[3])) << std::endl;
+	return matDeviceToTracking;
+
+}
+
 Model3D VRLoader::FindOrLoadRenderModel(const char * renderModelName) {
-	vr::RenderModel_t* pModel;
-	vr::RenderModel_TextureMap_t * pTexture;
+//-----------------------------------------------------------------------------
+// Purpose: Finds a render model using the render model's name (renderModelname).
+//
+// Returns: The render model.
+//-----------------------------------------------------------------------------
+	vr::RenderModel_t* pModel;//holds information about the model
+	vr::RenderModel_TextureMap_t * pTexture;//holds texture info of model
 	vr::EVRRenderModelError error;
+	//this is an async function, so we need to wait for it to finish loading (hence the while loop). The same goes for the textures.
 	while (1) {
 		error = vr::VRRenderModels()->LoadRenderModel_Async(renderModelName, &pModel);
 		if (error != vr::VRRenderModelError_Loading) {
@@ -114,7 +136,8 @@ Model3D VRLoader::FindOrLoadRenderModel(const char * renderModelName) {
 	}
 
 	Model3D controller;
-	controller.loadOpenVRModel(pModel, pTexture);
+	controller.loadOpenVRModel(pModel, pTexture); // make a Model3D of the controller
+	controller.compileModel(); //compile the model
 
 
 	return controller;
@@ -139,6 +162,7 @@ void VRLoader::updateHMDPose() {
 	int validPoseCount = 0;
 	std::string poseClasses = "";
 
+	//prints the strings of all connected devices, and updates their poses.
 	for (int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice) {
 		if (trackedDevicePose[nDevice].bPoseIsValid) {
 			validPoseCount++;
@@ -158,6 +182,7 @@ void VRLoader::updateHMDPose() {
 		}
 	}
 
+	//get the pose of the HMD, and turns it to a GLM matrix. We can get the pose of the controllers in a similar way (Which is done elsewhere).
 	this->mat4DevicePose[vr::k_unTrackedDeviceIndex_Hmd] = convertSteamVRMatrix(trackedDevicePose[vr::k_unTrackedDeviceIndex_Hmd].mDeviceToAbsoluteTracking);
 	if (trackedDevicePose[vr::k_unTrackedDeviceIndex_Hmd].bPoseIsValid) {
 		this->mat4HMDPose = mat4DevicePose[vr::k_unTrackedDeviceIndex_Hmd];
@@ -182,42 +207,96 @@ void VRLoader::ProcessVREvent(const vr::VREvent_t& event)
 	}
 }
 
+//---------------------------------------------------------------------------------------------------------------------
+// Purpose: Returns true if the action is active and its state is true
+//---------------------------------------------------------------------------------------------------------------------
+bool VRLoader::GetDigitalActionState(vr::VRActionHandle_t action, vr::VRInputValueHandle_t* pDevicePath = nullptr)
+{
+	vr::InputDigitalActionData_t actionData;
+	vr::VRInput()->GetDigitalActionData(action, &actionData, sizeof(actionData), vr::k_ulInvalidInputValueHandle);
+	if (pDevicePath)
+	{
+		*pDevicePath = vr::k_ulInvalidInputValueHandle;
+		if (actionData.bActive)
+		{
+			vr::InputOriginInfo_t originInfo;
+			if (vr::VRInputError_None == vr::VRInput()->GetOriginTrackedDeviceInfo(actionData.activeOrigin, &originInfo, sizeof(originInfo)))
+			{
+				*pDevicePath = originInfo.devicePath;
+			}
+		}
+	}
+	return actionData.bActive && actionData.bState;
+}
+
 void VRLoader::handleInput() {
+//-----------------------------------------------------------------------------
+// Purpose: Updates the model data for the controllers based on what the user 
+//			is inputting, and loads the model if they are not already loaded.
+// 
+// Returns: N/A
+//-----------------------------------------------------------------------------
 	m_rHand[Left].m_bShowController = true;
 	m_rHand[Right].m_bShowController = true;
 
+	//a vr event happens when a vr device is attached or detached
+
+	//this creates a VREvent_t object, and stores whatever event happens in the "event" object. This loops through every event that happens, and prints them using ProcessVREvent. (For our own benefit)
 	vr::VREvent_t event;
 	while (pHMD->PollNextEvent(&event, sizeof(event)))
 	{
 		ProcessVREvent(event);
 	}
-	vr::VRActiveActionSet_t actionSet = { 0 };
+	vr::VRActiveActionSet_t actionSet = { 0 };//We think this is something to do with the inoput bindings. Code leftover from the sample code to get controllers working.
 	actionSet.ulActionSet = m_actionsetDemo;
 	vr::VRInput()->UpdateActionState(&actionSet, sizeof(actionSet), 1);
 
+	
+
+	interactButton = GetDigitalActionState(m_actionsInteract);
+
+	hapticButton = GetDigitalActionState(m_actionTriggerHaptic);
+
+	vr::InputAnalogActionData_t analogData;
+	if (vr::VRInput()->GetAnalogActionData(m_actionAnalongInput, &analogData, sizeof(analogData), vr::k_ulInvalidInputValueHandle) == vr::VRInputError_None && analogData.bActive)
+	{
+		analogInput[0] = analogData.x;
+		analogInput[1] = analogData.y;
+	}
+
+	//std::cout << "interactButton: " << interactButton << std::endl;
+
+	//loops through each hand, casts the hand enum to an int, and loops through both enums. This is used to get the pose of each hand, and if it's active or not.
 	for (EHand eHand = Left; eHand <= Right; ((int&)eHand)++)
 	{
 		vr::InputPoseActionData_t poseData;
 
+		//we pass this the controllers pose data, and we get a filled pose data struct which holds info about the controller
 		if (vr::VRInput()->GetPoseActionDataForNextFrame(m_rHand[eHand].m_actionPose, vr::TrackingUniverseStanding, &poseData, sizeof(poseData), vr::k_ulInvalidInputValueHandle) != vr::VRInputError_None
-			|| !poseData.bActive || !poseData.pose.bPoseIsValid)
+			|| !poseData.bActive || !poseData.pose.bPoseIsValid)//if this pose data returns an error, or the controller isnt on, dont show the controller
 		{
 			m_rHand[eHand].m_bShowController = false;
 		}
-		else
+		else //If we have no errors:
 		{
+			//get the transform of the controller - where the controller is compared to the headset (we think)
 			m_rHand[eHand].m_rmat4Pose = convertSteamVRMatrix(poseData.pose.mDeviceToAbsoluteTracking);
 
+
+			//get info about the device based off the pose data. poseData includes info about the current state of the controller, and we use this to see if its being tracked by the headset / base station - if its being tracxked its in view (we think)
 			vr::InputOriginInfo_t originInfo;
 			if (vr::VRInput()->GetOriginTrackedDeviceInfo(poseData.activeOrigin, &originInfo, sizeof(originInfo)) == vr::VRInputError_None
 				&& originInfo.trackedDeviceIndex != vr::k_unTrackedDeviceIndexInvalid)
 			{
+				//There is a list of all devices which are connected. trackeddevice index is the index of THIS device in that list. We use this to get the name of the device, and if it's different to the last time we checked, we load a new model for it.
 				std::string sRenderModelName = GetTrackedDeviceString(originInfo.trackedDeviceIndex, vr::Prop_RenderModelName_String);
+				//Once we load a model name for the hand, we store the model name in the hand. once this changes, we need to update the model. this is so we dont reload the model every frame.
 				if (sRenderModelName != m_rHand[eHand].m_sRenderModelName)
 				{
+					//set the render model in the hand
 					m_rHand[eHand].m_pRenderModel = FindOrLoadRenderModel(sRenderModelName.c_str());
 					std::cout << "Loaded: " << sRenderModelName << std::endl;
-					m_rHand[eHand].m_sRenderModelName = sRenderModelName;
+					m_rHand[eHand].m_sRenderModelName = sRenderModelName; //set the render name also. this is so the thing where we check the render model every frame so we dont have to re-load it works.
 				}
 			}
 		}
@@ -225,6 +304,11 @@ void VRLoader::handleInput() {
 }
 
 int VRLoader::initVR() {
+//-----------------------------------------------------------------------------
+// Purpose: Initialise OpenVR.
+// 
+// Returns: 1 or 0 depending on whether OpenVr started successfully or not.
+//-----------------------------------------------------------------------------
 	if (vr::VR_IsHmdPresent()) {
 		std::cout << "HMD is present." << std::endl;
 		if (vr::VR_IsRuntimeInstalled()) {
@@ -243,6 +327,7 @@ int VRLoader::initVR() {
 	//Load SteamVR Runtime
 
 	vr::EVRInitError evrError = vr::VRInitError_None;
+	//pHMD is our object for storing information about + doing commands the headset. Its basically as if the headset was an object in code.
 	pHMD = vr::VR_Init(&evrError, vr::VRApplication_Scene);
 
 	if (evrError != vr::VRInitError_None) {
@@ -252,19 +337,47 @@ int VRLoader::initVR() {
 
 	vr::EVRInitError cError = vr::VRInitError_None;
 
+	//compistor is used to render to the headsets screens.
 	if (!vr::VRCompositor()) {
 		std::cout << "Could not load Compositor." << std::endl;
 		return -1;
 	}
 
+	//check controller keybinding files loads properly
 	vr::EVRInputError error = vr::VRInputError_None;
 
-	error = vr::VRInput()->SetActionManifestPath("C:/Users/Eleva/Documents/GitHub/MComp/DockItUI/src/hellovr_actions.json");
 
+	TCHAR path_buffer[MAX_PATH];
+	GetModuleFileNameW(NULL, path_buffer, MAX_PATH);
+	std::wstring path(path_buffer);
+	//path.substr(0, path.find_last_of(L"\\/"));
+
+
+	//remove the last part of the path, so we can add the keybindings file to the end of it.
+	std::wstring path2 = path.substr(0, path.find_last_of(L"\\/"));
+
+	//flip the slashes in the path, so it works with the keybindings file.
+	for (int i = 0; i < path2.size(); ++i) {
+		if (path2[i] == '\\') {
+			path2[i] = '/';
+		}
+	}
+
+
+	//convert the path to a string, so we can add the keybindings file to the end of it.
+	std::string path3(path2.begin(), path2.end());
+
+	//add the keybindings file to the end of the path.
+	std::string path4 = path3 + "/hellovr_actions.json";
+
+	error = vr::VRInput()->SetActionManifestPath(path4.c_str());
+
+	//error = vr::VRInput()->SetActionManifestPath("C:/Users/Eleva/Documents/GitHub/MComp/DockItUI/src/hellovr_actions.json");
+	//error = vr::VRInput()->SetActionManifestPath("C:/Users/Will/Documents/GitHub/MComp/DockItUI/src/hellovr_actions.json");
 	//std::cout << "error: " << error << std::endl;
 
-	vr::VRInput()->GetActionHandle("/actions/demo/in/HideCubes", &m_actionHideCubes);
-	vr::VRInput()->GetActionHandle("/actions/demo/in/HideThisController", &m_actionHideThisController);
+	//get the keybindings, and store them in the action handles. Mainly used for bug fixing at the moment - we are still working on figuring out this codes exact use, but our program works when its here.
+	vr::VRInput()->GetActionHandle("/actions/demo/in/Interact", &m_actionsInteract);
 	vr::VRInput()->GetActionHandle("/actions/demo/in/TriggerHaptic", &m_actionTriggerHaptic);
 	vr::VRInput()->GetActionHandle("/actions/demo/in/AnalogInput", &m_actionAnalongInput);
 
@@ -280,24 +393,24 @@ int VRLoader::initVR() {
 
 
 
-	//I assume this is getting the render size of headset's eyes.
+	//getting the render size of headset's eyes.
 	this->pHMD->GetRecommendedRenderTargetSize(&renderWidth, &renderHeight);
 
-	//Create frame buffer for left and right eye using the render size.
-	//createFrameBuffer(renderWidth, renderHeight, LeftEyeFrameBuffer);
-	//createFrameBuffer(renderWidth, renderHeight, RightEyeFrameBuffer);
-
 	//Setup eye matrices.
-
 	this->ProjectionMatrixLeftEye = getEyeProjectionMatrix(vr::Eye_Left);
 	this->ProjectionMatrixRightEye = getEyeProjectionMatrix(vr::Eye_Right);
 
 	this->ViewMatrixLeftEye = getEyeViewMatrix(vr::Eye_Left);
 	this->ViewMatrixRightEye = getEyeViewMatrix(vr::Eye_Right);
 
+	//sets the default position of the headset to 0,0,0.
 	this->mat4HMDPose = glm::mat4(1.0f);
 
 	return 0;
+}
+
+void VRLoader::parseGuiLoader(GUILoader* guiLoader) {
+	this->guiLoader = guiLoader;
 }
 
 void VRLoader::refresh() {
@@ -311,6 +424,7 @@ void VRLoader::refresh() {
 }
 
 void VRLoader::render(vr::Texture_t Left, vr::Texture_t Right) {
+	//puts the textures into the eyes
 	vr::VRCompositor()->Submit(vr::Eye_Left, &Left);
 	vr::VRCompositor()->Submit(vr::Eye_Right, &Right);
 }
@@ -320,18 +434,31 @@ glm::mat4 VRLoader::getHeadsetMatrix() {
 }
 
 
-void VRLoader::renderControllers(Shader shader, glm::mat4 ViewMatrix) {
+void VRLoader::renderControllers(GLuint shader, glm::mat4 ViewMatrix) {
+	glUseProgram(shader); //use the shader we passed in.
+	//loop through hands
 	for (EHand eHand = Left; eHand <= Right; ((int&)eHand)++)
 	{
-		if (!m_rHand[eHand].m_bShowController || !m_rHand[eHand].m_pRenderModel.isModelValid)
+		//if controller is not to be shown, dont render it.
+		if (!m_rHand[eHand].m_bShowController || !m_rHand[eHand].m_pRenderModel.isModelCompiled)
+			//controllerPositions[eHand] = glm::mat4(NULL);
 			continue;
 
-		glm::mat4 matDeviceToTracking = m_rHand[eHand].m_rmat4Pose;
+		//get thhe controllers matrices, and multiply them by the view matrix to get the MVP matrix, so we can pass it to shader.
+		glm::mat4 matDeviceToTracking = getControllerMatrix(eHand);
+
+		////matDeviceToTracking = glm::translate(matDeviceToTracking, -m_rHand[eHand].headsetDisplacement);
+		//matDeviceToTracking[3] = glm::vec4(matDeviceToTracking[3][0] - m_rHand[eHand].headsetDisplacement[0], matDeviceToTracking[3][1], matDeviceToTracking[3][2] -m_rHand[eHand].headsetDisplacement[2], 1.0f);
+
+		////std::cout << "Device coordinates:\n " << glm::to_string(glm::vec3(matDeviceToTracking[3])) << std::endl;
+		//controllerPositions[eHand] = matDeviceToTracking;
+
 		glm::mat4 matMVP = ViewMatrix * matDeviceToTracking;
 
-		glUniformMatrix4fv(glGetUniformLocation(shader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(matMVP));
+		//pass it to shader.
+		glUniformMatrix4fv(glGetUniformLocation(shader, "matrix"), 1, GL_FALSE, value_ptr(matMVP));
 
-
+		//render it! ^_^ (we pass the shader so we can have different shaders for different things.)
 		m_rHand[eHand].m_pRenderModel.render(shader);
 	}
 }
