@@ -183,6 +183,7 @@ void checkIntersections() {
 			std::vector<glm::vec3> proteinBoundingBox = firstProtein.boundBoxVerts;
 			glm::mat4 ProteinModelMatrix = firstProtein.protein.ModelMatrix;
 			for (int j = 0; j < proteinBoundingBox.size(); j+=3) {
+				//p1, p2 and p3 are the three points representing the vertices of a triangle in the bounding box.
 				glm::vec3 p1 = glm::vec3(ProteinModelMatrix * glm::vec4(proteinBoundingBox.at(j), 1.0f));
 				glm::vec3 p2 = glm::vec3(ProteinModelMatrix * glm::vec4(proteinBoundingBox.at(j + 1), 1.0f));
 				glm::vec3 p3 = glm::vec3(ProteinModelMatrix * glm::vec4(proteinBoundingBox.at(j + 2), 1.0f));
