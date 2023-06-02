@@ -21,12 +21,29 @@ int GUILoader::initGLFWGui(GLFWwindow* window) {
 }
 
 int GUILoader::initVRGui() {
-	int VR_WINDOW_COUNT = 2;
+	int VR_WINDOW_COUNT = 3;
 
 	for (int i = 0; i < VR_WINDOW_COUNT; i++) {
-		ImGui3D vrWindow = ImGui3D(ImGui::CreateContext());
-		vr_windows.push_back(vrWindow);
+		vr_windows.push_back(new ImGui3D(ImGui::CreateContext()));
+		vr_windows.at(i)->info = i;
+		if (i == 1) {
+			vr_windows.at(i)->showWindow = false;
+		}
+		if (i == 2) {
+			vr_windows.at(i)->makeChildOfWindow(vr_windows.at(0));
+		}
 	}
+
+	//for (int i = 0; i < VR_WINDOW_COUNT; i++) {
+	//	ImGui3D vrWindow = ImGui3D(ImGui::CreateContext());
+
+	//	std::cout << "creation of vr window: " <<&vrWindow << std::endl;
+	//	
+	//	if (i == 2) {
+	//		vrWindow.makeChildOfWindow(&vr_windows.at(1));
+	//	}
+	//	vr_windows.push_back(vrWindow);
+	//}
 	return 0;
 }
 
@@ -94,10 +111,13 @@ void GUILoader::renderVRGui(glm::mat4 ViewMatrix) {
 	glGetIntegerv(GL_CURRENT_PROGRAM, reinterpret_cast<GLint*>(&shader));
 	glUseProgram(shader);
 	for (int i = 0; i < vr_windows.size(); i++) {
-		glUniformMatrix4fv(glGetUniformLocation(shader, "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * vr_windows[i].quad->ModelMatrix));
-		vr_windows[i].start();
-		vrWindowInfo(i);
-		vr_windows[i].render(shader);
+		if (!vr_windows[i]->showWindow) {
+			continue;
+		}
+		glUniformMatrix4fv(glGetUniformLocation(shader, "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * vr_windows[i]->quad->ModelMatrix));
+		vr_windows[i]->start();
+		vrWindowInfo(vr_windows[i]->info);
+		vr_windows[i]->render(shader);
 	}
 }
 
@@ -133,21 +153,55 @@ void GUILoader::vrWindowInfo(int index) {
 
 	switch (index) {
 		case 0:{
-			ImGui::Begin("DockIt VR Window", NULL, window_flags);
-			ImGui::Text("Here are some test buttons.");
-			if (ImGui::Button("Reverse Protein")) {
-				reverseProtein = !reverseProtein;
+			ImGui::Begin("DockIt VR Multi-Window", NULL, window_flags);
+			ImGui::Text("This window can show\npreviews of the next\nwindow when hovering\nover buttons.");
+			if (ImGui::Button("Movement settings")) {
+				//multiWindow[0] = 2;
+				//multiWindow[1] = 0;
+				vr_windows.at(0)->info = 2;
+				vr_windows.at(2)->info = 0;
 			}
-			ImGui::Text("Mouse clicked: %s", ImGui::IsMouseDown(ImGuiMouseButton_Left) ? "Yes" : "No");
-			ImGui::SliderFloat("Slider", &f, 0.0f, 1.0f);
+			if (ImGui::IsItemHovered() && vr_windows.at(2)->info != 0) {
+				vr_windows.at(2)->info = 2;
+			}
+			ImGui::Text("\n");
+			if (ImGui::Button("Colour settings")) {
+				vr_windows.at(0)->info = 3;
+				vr_windows.at(2)->info = 0;
+			}
+			if (ImGui::IsItemHovered() && vr_windows.at(2)->info != 0) {
+				vr_windows.at(2)->info = 3;
+			}
+			//ImGui::Text("Mouse clicked: %s", ImGui::IsMouseDown(ImGuiMouseButton_Left) ? "Yes" : "No");
 			ImGui::End();
 			break;
 		}
 		case 1: {
-			ImGui::Begin("DockIt User Interface", NULL, window_flags);
-			ImGui::Text("WINDOWNUMBER");
-			ImGui::Text("2");
-			ImGui::Button("Reverse Protein");
+			ImGui::Begin("Interaction Window", NULL, window_flags);
+			ImGui::Text("This window will\nshow information about\nwhat you are\ncurrently selecting.");
+			ImGui::Text(("Atom: " + ASW_atomName).c_str());
+			ImGui::End();
+			break;
+		}
+		case 2: {
+			ImGui::Begin("Protein Movement settings", NULL, window_flags);
+			ImGui::Text("Movement settings:\n");
+			if (ImGui::Button("Reverse Protein")) {
+				reverseProtein = !reverseProtein;
+			}
+			ImGui::Text("\n\n");
+			if (ImGui::Button("Back")) {
+				vr_windows.at(0)->info = 0;
+				vr_windows.at(2)->info = 2;
+			}
+			ImGui::End();
+			break;
+		}
+		case 3: {
+			ImGui::Begin("Protein Colour settings", NULL, window_flags);
+			ImGui::Text("Colour settings:\n");
+			float color;
+			ImGui::ColorPicker3("##picker", (float*)&color);
 			ImGui::End();
 			break;
 		}
@@ -161,7 +215,7 @@ void GUILoader::vrWindowInfo(int index) {
 
 }
 
-std::vector<ImGui3D>* GUILoader::getVRWindows() {
+std::vector<ImGui3D*>* GUILoader::getVRWindows() {
 	return &vr_windows;
 }
 

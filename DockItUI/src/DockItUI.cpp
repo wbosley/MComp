@@ -2,6 +2,7 @@
 //
 
 #include <iostream>
+#include <map>
 #include <openvr.h>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -36,8 +37,12 @@ GLFWwindow* window;
 GLenum err;
 int screenWidth = 800;
 int screenHeight = 600;
+double lastX = screenWidth / 2.0f;
+double lastY = screenHeight / 2.0f;
+bool firstMouse = true;
 float nearClip = 0.1f;
 float farClip = 30.0f;
+bool keys[1024];
 GLuint renderWidth;
 GLuint renderHeight;
 glm::mat4 ProjectionMatrix;
@@ -71,6 +76,8 @@ glm::mat4 ViewMatrixRightEye;
 VRLoader vrLoader;
 GUILoader guiLoader;
 GLuint VAOwad;
+std::vector<ImGui3D*>* vr_windows;
+bool rightButtonPressed = false;
 
 enum CAMERA_MODE
 {
@@ -121,17 +128,18 @@ void renderAll(glm::mat4 ViewMatrix) {
 void modelScene() {
 	ModelMatrix = glm::mat4(1.0f);
 	if (guiLoader.reverseProtein) {
-		firstProtein.protein.ModelMatrix = glm::rotate(firstProtein.protein.ModelMatrix, (float)glfwGetTime() * -0.0002f, glm::vec3(0.0f, 1.0f, 0.0f));
+		//firstProtein.protein.ModelMatrix = glm::rotate(firstProtein.protein.ModelMatrix, (float)glfwGetTime() * -0.0002f, glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 	else {
-		firstProtein.protein.ModelMatrix = glm::rotate(firstProtein.protein.ModelMatrix, (float)glfwGetTime() * 0.0002f, glm::vec3(0.0f, 1.0f, 0.0f));
+		//firstProtein.protein.ModelMatrix = glm::rotate(firstProtein.protein.ModelMatrix, (float)glfwGetTime() * 0.0002f, glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 
 	
 
-	ModelMatrix = guiLoader.getVRWindows()->at(1).quad->ModelMatrix;
-	ModelMatrix = glm::rotate(ModelMatrix, (float)glfwGetTime() * 0.0005f, glm::vec3(0.0f, 1.0f, 0.0f));
-	guiLoader.getVRWindows()->at(1).quad->ModelMatrix = ModelMatrix;
+	//ModelMatrix = guiLoader.getVRWindows()->at(1)->quad->ModelMatrix;
+	//ModelMatrix = glm::rotate(ModelMatrix, (float)glfwGetTime() * 0.0005f, glm::vec3(0.0f, 1.0f, 0.0f));
+	////guiLoader.getVRWindows()->at(1).quad->ModelMatrix = ModelMatrix;
+	//vr_windows->at(1)->quad->ModelMatrix = ModelMatrix;
 
 	glm::vec3 vrPosition = vrCamera.getPosition();
 	vrPosition = glm::vec3(vrPosition.x - vrLoader.analogInput[0] / 20.0f, 0, vrPosition.z + vrLoader.analogInput[1] / 20.0f);
@@ -152,26 +160,91 @@ void checkIntersections() {
 	//Go through all the vr windows and disable mouse left click down
 	if (vrLoader.interactButton == false) {
 		for (int i = 0; i < guiLoader.getVRWindows()->size(); i++) {
-			guiLoader.getVRWindows()->at(i).setClicked(false);
-			guiLoader.getVRWindows()->at(i).setBeingMoved(false, 0);
+			//guiLoader.getVRWindows()->at(i).setClicked(false);
+			vr_windows->at(i)->setClicked(false);
+			//guiLoader.getVRWindows()->at(i).setBeingMoved(false, 0);
+			vr_windows->at(i)->setBeingMoved(false, 0);
 		}
 	}
 
-	std::vector<ImGui3D>  *windows = guiLoader.getVRWindows();
+	//check intersections for all proteins
 	for (int i = 0; i < 2; i++) {
 		if (!vrLoader.m_rHand[i].m_bShowController) {
 			continue;
 		}
-		for (int j = 0; j < windows->size(); j++) {
-			if (windows->at(j).attached == true) {
+
+		if (vrLoader.interactButton) {
+			std::vector<glm::vec3> proteinBoundingBox = firstProtein.boundBoxVerts;
+			glm::mat4 ProteinModelMatrix = firstProtein.protein.ModelMatrix;
+			for (int j = 0; j < proteinBoundingBox.size(); j+=3) {
+				glm::vec3 p1 = glm::vec3(ProteinModelMatrix * glm::vec4(proteinBoundingBox.at(j), 1.0f));
+				glm::vec3 p2 = glm::vec3(ProteinModelMatrix * glm::vec4(proteinBoundingBox.at(j + 1), 1.0f));
+				glm::vec3 p3 = glm::vec3(ProteinModelMatrix * glm::vec4(proteinBoundingBox.at(j + 2), 1.0f));
+				glm::vec3 rayStart = glm::vec3(vrLoader.getControllerMatrix(VRLoader::EHand(i)) * glm::vec4(0, 0, -0.02f, 1));
+				glm::vec3 rayEnd = glm::vec3(vrLoader.getControllerMatrix(VRLoader::EHand(i)) * glm::vec4(0, 0, -5.0f, 1));
+				glm::vec3 rayDir = rayEnd - rayStart;
+				glm::vec2 intersectPoint;
+				float distance;
+				if (glm::intersectRayTriangle(rayStart, rayDir, p1, p2, p3, intersectPoint, distance)) {
+					if (distance < 0.95f) {
+						std::vector<glm::vec3> proteinVerts = *firstProtein.protein.getVertices();
+						std::map<std::string, float> atomMap;
+						atomMap.clear();
+						for (int j = 0; j < proteinVerts.size() - 3; j += 3) {
+							glm::vec3 p1 = glm::vec3(ProteinModelMatrix * glm::vec4(proteinVerts.at(j), 1.0f));
+							glm::vec3 p2 = glm::vec3(ProteinModelMatrix * glm::vec4(proteinVerts.at(j + 1), 1.0f));
+							glm::vec3 p3 = glm::vec3(ProteinModelMatrix * glm::vec4(proteinVerts.at(j + 2), 1.0f));
+							glm::vec3 rayStart = glm::vec3(vrLoader.getControllerMatrix(VRLoader::EHand(i)) * glm::vec4(0, 0, -0.02f, 1));
+							glm::vec3 rayEnd = glm::vec3(vrLoader.getControllerMatrix(VRLoader::EHand(i)) * glm::vec4(0, 0, -5.0f, 1));
+							glm::vec3 rayDir = rayEnd - rayStart;
+							glm::vec2 intersectPoint;
+							float distance;
+							if (glm::intersectRayTriangle(rayStart, rayDir, p1, p2, p3, intersectPoint, distance)) {
+								if (distance < 0.95f) {
+									atomMap[firstProtein.getAtomName(j)] = distance;
+								}
+							}
+						}
+						if (!atomMap.empty()) {
+							float min = 10000.0f;
+							std::string min_atom;
+							for (const auto& atom : atomMap) {
+								if (atom.second < min) {
+									min = atom.second;
+									min_atom = atom.first;
+								}
+							}
+							guiLoader.ASW_atomName = min_atom;
+							vr_windows->at(1)->quad->ModelMatrix = glm::rotate(glm::translate(glm::inverse(vrCamera.getMatrix()), glm::vec3(2.0f, 0.0f, -2.0f)), (float)((2 * PI) - 0.8), glm::vec3(0.0f, 1.0f, 0.0f));
+							vr_windows->at(1)->showWindow = true;
+						}
+					}
+				}
+
+			}
+
+
+
+			
+
+		}
+	}
+
+	//check intersections for all vr windows
+	for (int i = 0; i < 2; i++) {
+		if (!vrLoader.m_rHand[i].m_bShowController) {
+			continue;
+		}
+		for (int j = 0; j < vr_windows->size(); j++) {
+			if (vr_windows->at(j)->attached == true) {
 				glm::mat4 matrix = glm::mat4(1.0f);
 				matrix[3] = glm::vec4(0, -1.0f, -4.6f, 1);
 				std::cout << "moving window" << std::endl;
-				windows->at(j).quad->ModelMatrix = vrLoader.getControllerMatrix(VRLoader::EHand(i)) * matrix;
+				vr_windows->at(j)->quad->ModelMatrix = vrLoader.getControllerMatrix(VRLoader::EHand(i)) * matrix;
 				continue;
 			}
-			std::vector<glm::vec3> windowVerts = *windows->at(j).quad->getVertices();
-			glm::mat4 VRModelMatrix = windows->at(j).quad->ModelMatrix;
+			std::vector<glm::vec3> windowVerts = *vr_windows->at(j)->quad->getVertices();
+			glm::mat4 VRModelMatrix = vr_windows->at(j)->quad->ModelMatrix;
 			for (int k = 0; k < windowVerts.size(); k += 3) {
 				glm::vec3 p1 = glm::vec3(VRModelMatrix * glm::vec4(windowVerts.at(k), 1.0f));
 				glm::vec3 p2 = glm::vec3(VRModelMatrix * glm::vec4(windowVerts.at(k + 1), 1.0f));
@@ -193,21 +266,21 @@ void checkIntersections() {
 						float g = 0.005f;
 						float x = width * (0.5f + pt.x * 0.5f);
 						float y = (height - width * (0.5f * pt.y + 0.5f));
-						windows->at(j).setMousePosition(ImVec2(x, y));
+						vr_windows->at(j)->setMousePosition(ImVec2(x, y));
 						//std::cout << "Mouse position: " << x << ", " << y << " ";
 						if (vrLoader.interactButton) {
 							if (y > 20) {
-								windows->at(j).setClicked(true);
+								vr_windows->at(j)->setClicked(true);
 							}
 							else {
 								std::cout<< "window being moved" << std::endl;
-								windows->at(j).setBeingMoved(true, i);
+								vr_windows->at(j)->setBeingMoved(true, i);
 							}
 						}
 						break;
 					}
 				}
-				windows->at(j).setMousePosition(ImVec2(-1, -1));
+				vr_windows->at(j)->setMousePosition(ImVec2(-1, -1));
 			}
 
 		}
@@ -280,6 +353,22 @@ void display() {
 
 }
 
+void handleMovement() {
+
+	if (keys[GLFW_KEY_W]) {
+		camera.move(0.1f, FORWARD);
+	}
+	if (keys[GLFW_KEY_S]) {
+		camera.move(0.1f, BACKWARD);
+	}
+	if (keys[GLFW_KEY_A]) {
+		camera.move(0.1f, LEFT);
+	}
+	if (keys[GLFW_KEY_D]) {
+		camera.move(0.1f, RIGHT);
+	}
+}
+
 void reshape(GLFWwindow* window, int width, int height) {
 //-----------------------------------------------------------------------------
 // Purpose: Explains to openGL what size window we are rendering to. 
@@ -296,31 +385,47 @@ void reshape(GLFWwindow* window, int width, int height) {
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GL_TRUE);
-	if (key == GLFW_KEY_W && action == GLFW_REPEAT || action == GLFW_PRESS) {
-		camera.move(0.1f, FORWARD);
+	if (action == GLFW_PRESS) {
+		keys[key] = true;
 	}
-	if (key == GLFW_KEY_S && action == GLFW_REPEAT || action == GLFW_PRESS) {
-		camera.move(0.1f, BACKWARD);
+	else if (action == GLFW_RELEASE) {
+		keys[key] = false;
 	}
-	if (key == GLFW_KEY_A && action == GLFW_REPEAT || action == GLFW_PRESS) {
-		camera.move(0.1f, LEFT);
+}
+
+void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
+
+	if (rightButtonPressed) {
+		if (firstMouse)
+		{
+			lastX = xpos;
+			lastY = ypos;
+			firstMouse = false;
+		}
+
+		double xoffset = xpos - lastX;
+		double yoffset = lastY - ypos;
+		lastX = xpos;
+		lastY = ypos;
+
+		float sensitivity = 0.001f;
+		xoffset *= sensitivity;
+		yoffset *= sensitivity;
+
+		camera.rotate(xoffset, RIGHT);
+		camera.rotate(yoffset, UP);
 	}
-	if (key == GLFW_KEY_D && action == GLFW_REPEAT || action == GLFW_PRESS) {
-		camera.move(0.1f, RIGHT);
+
+}
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		rightButtonPressed = true;
 	}
-	if (key == GLFW_KEY_UP && action == GLFW_REPEAT || action == GLFW_PRESS) {
-		camera.rotate(0.1f, UP);
-	}
-	if (key == GLFW_KEY_DOWN && action == GLFW_REPEAT || action == GLFW_PRESS) {
-		camera.rotate(0.1f, DOWN);
-	}
-	if (key == GLFW_KEY_LEFT && action == GLFW_REPEAT || action == GLFW_PRESS) {
-		camera.rotate(0.1f, LEFT);
-		std::cout << "camera rotation: " << glm::to_string(camera.getDirection()) << std::endl;
-	}
-	if (key == GLFW_KEY_RIGHT && action == GLFW_REPEAT || action == GLFW_PRESS) {
-		camera.rotate(0.1f, RIGHT);
-		std::cout << "camera rotation: " << glm::to_string(camera.getDirection()) << std::endl;
+	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		rightButtonPressed = false;
 	}
 }
 
@@ -411,12 +516,21 @@ int initModels() {
 
 	floorModel.ModelMatrix = ModelMatrix;
 
+	vr_windows = guiLoader.getVRWindows();
+
 	ModelMatrix = glm::mat4(1.0f);
 	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0, 0, -5));
-	guiLoader.getVRWindows()->at(0).quad->ModelMatrix = ModelMatrix;
-	ModelMatrix = glm::mat4(1.0f);
-	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-3, 0, -5));
-	guiLoader.getVRWindows()->at(1).quad->ModelMatrix = ModelMatrix;
+	//guiLoader.getVRWindows()->at(0).quad->ModelMatrix = ModelMatrix;
+	vr_windows->at(0)->quad->ModelMatrix = ModelMatrix;
+	//ModelMatrix = glm::mat4(1.0f);
+	//ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-3, 0, -5));
+	////guiLoader.getVRWindows()->at(1).quad->ModelMatrix = ModelMatrix;
+	//vr_windows->at(1)->quad->ModelMatrix = ModelMatrix;
+	//ModelMatrix = glm::mat4(1.0f);
+	//ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-3, 0, -5));
+	////guiLoader.getVRWindows()->at(2).quad->ModelMatrix = ModelMatrix;
+	//vr_windows->at(2)->quad->ModelMatrix = ModelMatrix;
+
 
 	return 0;
 }
@@ -456,6 +570,8 @@ int init() {
 	reshape(window, screenWidth, screenHeight);
 	glfwSetFramebufferSizeCallback(window, reshape); //if window size changes, reshape the viewport et.c using "reshape()", 
 	glfwSetKeyCallback(window, key_callback);
+	glfwSetCursorPosCallback(window, cursor_position_callback);
+	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	glfwSwapInterval(0);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 
@@ -500,6 +616,11 @@ int init() {
 		return -1;
 	}
 
+	//Set all keys to false by default.
+	for (int i = 0; i < 1024; i++) {
+		keys[i] = false;
+	}
+
 	return 0;
 }
 
@@ -519,7 +640,7 @@ int main()
 	// Loop until the user closes the window
 	while (!glfwWindowShouldClose(window))
 	{
-
+		handleMovement();
 		// Main render loop.
 		display();
 

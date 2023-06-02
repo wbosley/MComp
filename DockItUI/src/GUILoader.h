@@ -19,7 +19,8 @@ class GUILoader
 		VR_VIEW, MONITOR_VIEW
 	};
 	public:
-
+		//ASW = Atom Selection Window
+		std::string ASW_atomName = "";
 		GUILoader();
 		~GUILoader();
 		int initGLFWGui(GLFWwindow* window);
@@ -28,7 +29,7 @@ class GUILoader
 		void renderVRGui(glm::mat4 ViewMatrix);
 		void vrWindowInfo(int index);
 		CAMERA_MODE getCameraMode();
-		std::vector<ImGui3D>* getVRWindows();
+		std::vector<ImGui3D*>* getVRWindows();
 		bool reverseProtein = false;
 		bool pickUpWindow = false;
 		private:
@@ -36,7 +37,12 @@ class GUILoader
 		ImGuiIO* io;
 		CAMERA_MODE camera_mode = MONITOR_VIEW;
 		ImGuiContext* context_glfw;
-		std::vector<ImGui3D> vr_windows;
+		std::vector<ImGui3D*> vr_windows;
 		float f = 0.0f;
+
+
+
+	private:
+
 };
 

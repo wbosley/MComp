@@ -25,8 +25,9 @@ class ImGui3D
 		void setBeingMoved(bool moved, int hand);
 		void makeChildOfWindow(ImGui3D* parent);
 		FrameBuffer frameBuffer;
-		//Quad3D* quad;
 		Model3D* quad;
+		int info;
+		bool showWindow = true;
 		bool attached = false;
 		int hand;
 

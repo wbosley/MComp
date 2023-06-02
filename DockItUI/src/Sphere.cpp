@@ -127,5 +127,5 @@ int Sphere::constructGeometry(int level)
 	{
 		this->vertices_indices.push_back(tInds[i]);
 	}
-	return 0;
+	return this->vertices.size();
 }

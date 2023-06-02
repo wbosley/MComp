@@ -5,15 +5,14 @@ ImGui3D::ImGui3D(ImGuiContext* context) {
 	this->context = context;
 	this->width = 200;
 	this->height = 200;
-	//this->quad = new Quad3D();
 	this->frameBuffer.createFrameBuffer(width, height);
-	//this->quad->loadTexture(frameBuffer.m_nRenderTextureId, width, height);
 	this->quad = new Model3D();
 	this->quad->createQuad(this->frameBuffer.m_nRenderTextureId, true);
 	this->quad->compileModel();
 	ImGui::SetCurrentContext(this->context);
 	ImGui::StyleColorsDark();
 	ImGui_ImplOpenGL3_Init("#version 460");
+	//std::cout << "ImGui3D created" << this << std::endl;
 }
 ImGui3D::~ImGui3D() {
 }
@@ -27,9 +26,17 @@ void ImGui3D::start() {
 	ImGui::SetNextWindowCollapsed(false);
 	ImGui::SetNextWindowSize(ImVec2(this->width, this->height));
 
+	//std::cout << this->parent << std::endl;
+
 	if (this->parent != nullptr) {
 		//std::cout << this->parent->quad->ModelMatrix[3][1] << std::endl;
-		//this->quad->ModelMatrix = glm::translate(this->parent->quad->ModelMatrix, glm::vec3(-1, 0 ,0));
+		if (this->parent->info == 0) {
+			this->quad->ModelMatrix = glm::translate(this->parent->quad->ModelMatrix, glm::vec3(2.3, 0, -2));
+		}
+		else {
+			this->quad->ModelMatrix = glm::translate(this->parent->quad->ModelMatrix, glm::vec3(-2.3, 0, -2));
+		}
+		
 	}
 
 }
@@ -43,32 +50,32 @@ void ImGui3D::render(GLuint shader) {
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	glBindFramebuffer(GL_FRAMEBUFFER, last_framebuffer);
 	glViewport(last_viewport[0], last_viewport[1], (GLsizei)last_viewport[2], (GLsizei)last_viewport[3]);
-	//this->quad->loadTexture(this->frameBuffer.m_nRenderTextureId, this->width, this->height);
 	this->quad->render(shader);
-	//this->quad->render();
 }
 
 void ImGui3D::setMousePosition(ImVec2 position) {
-	//this->mousePos = position;
-	ImGui::SetCurrentContext(this->context);
-	ImGuiIO& io = ImGui::GetIO();
-	io.MousePos = position;
+	if (this->parent == nullptr) {	//this->mousePos = position;
+		ImGui::SetCurrentContext(this->context);
+		ImGuiIO& io = ImGui::GetIO();
+		io.MousePos = position;
+	}
 }
 
 void ImGui3D::setClicked(bool clicked) {
-	ImGui::SetCurrentContext(this->context);
-	ImGuiIO& io = ImGui::GetIO();
-	io.MouseDown[0] = clicked;
+	if (this->parent == nullptr) {
+		ImGui::SetCurrentContext(this->context);
+		ImGuiIO& io = ImGui::GetIO();
+		io.MouseDown[0] = clicked;
+	}
 }
 
 void ImGui3D::setBeingMoved(bool moved, int hand) {
-	this->attached = moved;
-	this->hand = hand;
+	if (this->parent == nullptr) {
+		this->attached = moved;
+		this->hand = hand;
+	}
 }
 
 void ImGui3D::makeChildOfWindow(ImGui3D* parent) {
-	//std::cout << "made parent" << std::endl;
 	this->parent = parent;
-
-	//std::cout << glm::to_string(this->parent->quad->ModelMatrix) << std::endl;
 }
