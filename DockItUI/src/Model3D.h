@@ -27,6 +27,7 @@ class Model3D
 		int addModelToMesh(Model3D model);
 		int compileModel();
 		int render(GLuint myShader);
+		int changeColour(glm::vec3 colour);
 		std::vector<glm::vec3>* getVertices();
 		glm::mat4 ModelMatrix;
 

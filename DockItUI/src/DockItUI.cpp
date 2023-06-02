@@ -103,6 +103,11 @@ void renderAll(glm::mat4 ViewMatrix) {
 	//Render Controllers
 	vrLoader.renderControllers(controllerShader.getShaderProgram(), ViewMatrix);
 
+	//Render Teapot
+	glUseProgram(proteinShader.getShaderProgram());
+	glUniformMatrix4fv(glGetUniformLocation(proteinShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * firstModel.ModelMatrix));
+	firstModel.render(proteinShader.getShaderProgram());
+
 	//Render floor
 	glUseProgram(proteinShader.getShaderProgram());
 	glUniformMatrix4fv(glGetUniformLocation(proteinShader.getShaderProgram(), "matrix"), 1, GL_FALSE, value_ptr(ViewMatrix * floorModel.ModelMatrix));
@@ -128,13 +133,14 @@ void renderAll(glm::mat4 ViewMatrix) {
 void modelScene() {
 	ModelMatrix = glm::mat4(1.0f);
 	if (guiLoader.reverseProtein) {
-		//firstProtein.protein.ModelMatrix = glm::rotate(firstProtein.protein.ModelMatrix, (float)glfwGetTime() * -0.0002f, glm::vec3(0.0f, 1.0f, 0.0f));
+		firstProtein.protein.ModelMatrix = glm::rotate(firstProtein.protein.ModelMatrix, (float)glfwGetTime() * -0.0002f, glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 	else {
-		//firstProtein.protein.ModelMatrix = glm::rotate(firstProtein.protein.ModelMatrix, (float)glfwGetTime() * 0.0002f, glm::vec3(0.0f, 1.0f, 0.0f));
+		firstProtein.protein.ModelMatrix = glm::rotate(firstProtein.protein.ModelMatrix, (float)glfwGetTime() * 0.0002f, glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 
-	
+	firstModel.changeColour(glm::vec3(guiLoader.colour.x, guiLoader.colour.y, guiLoader.colour.z));
+	firstModel.compileModel();
 
 	//ModelMatrix = guiLoader.getVRWindows()->at(1)->quad->ModelMatrix;
 	//ModelMatrix = glm::rotate(ModelMatrix, (float)glfwGetTime() * 0.0005f, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -258,8 +264,8 @@ void checkIntersections() {
 				if (intersectDetect) {
 					if (distance < 0.95f) {
 						int width, height;
-						width = 200;
-						height = 200;
+						width = 400;
+						height = 400;
 						glm::vec3 pt = rayStart + distance * rayDir;
 						pt = glm::vec3(glm::inverse(VRModelMatrix) * glm::vec4(pt, 1.0f));
 						float t = 200.0f;
@@ -495,6 +501,9 @@ int initModels() {
 	objLoader.loadOBJ("src/models/teapot.obj");
 	firstModel.loadModelFromObj(objLoader);
 	firstModel.compileModel();
+	ModelMatrix = glm::mat4(1.0f);
+	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(15, 0, -15));
+	firstModel.ModelMatrix = ModelMatrix;
 
 	proteinLoader.loadProtein("src/proteins/1ADG7046.pdb");
 	firstProtein.loadProteinFromProteinLoader(proteinLoader);
@@ -519,9 +528,13 @@ int initModels() {
 	vr_windows = guiLoader.getVRWindows();
 
 	ModelMatrix = glm::mat4(1.0f);
-	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0, 0, -5));
-	//guiLoader.getVRWindows()->at(0).quad->ModelMatrix = ModelMatrix;
+	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(5, 0, -5));
+
 	vr_windows->at(0)->quad->ModelMatrix = ModelMatrix;
+	ModelMatrix = glm::mat4(1.0f);
+	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0, 0, -3));
+	vr_windows->at(3)->quad->ModelMatrix = ModelMatrix;
+	vr_windows->at(3)->info = 4;
 	//ModelMatrix = glm::mat4(1.0f);
 	//ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-3, 0, -5));
 	////guiLoader.getVRWindows()->at(1).quad->ModelMatrix = ModelMatrix;

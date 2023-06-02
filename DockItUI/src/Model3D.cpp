@@ -49,8 +49,8 @@ int Model3D::createQuad(GLuint textureId, bool is3D) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	if (is3D) {
-		float quadWidth = textureWidth / 200.0f;
-		float quadHeight = textureHeight / 200.0f;
+		float quadWidth = textureWidth / 400.0f;
+		float quadHeight = textureHeight / 400.0f;
 
 		this->vertices.push_back(glm::vec3(-quadWidth, -quadHeight, 0.0f));
 		this->vertices.push_back(glm::vec3(-quadWidth, quadHeight, 0.0f));
@@ -144,6 +144,17 @@ int Model3D::loadModelFromObj(OBJLoader obj)
 	this->uvs_indices = obj.uvs_indices;
 	this->normals_indices = obj.normals_indices;
 
+	return 0;
+}
+
+int Model3D::changeColour(glm::vec3 colour) {
+
+	//change the colour of the model
+	this->colours.clear();
+	for (int i = 0; i < this->vertices.size(); i++) {
+		this->colours.push_back(colour);
+	}
+	this->render_type = COLOUR;
 	return 0;
 }
 

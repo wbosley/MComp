@@ -21,6 +21,7 @@ class GUILoader
 	public:
 		//ASW = Atom Selection Window
 		std::string ASW_atomName = "";
+		ImVec4 colour;
 		GUILoader();
 		~GUILoader();
 		int initGLFWGui(GLFWwindow* window);
@@ -39,9 +40,7 @@ class GUILoader
 		ImGuiContext* context_glfw;
 		std::vector<ImGui3D*> vr_windows;
 		float f = 0.0f;
-
-
-
+		
 	private:
 
 };

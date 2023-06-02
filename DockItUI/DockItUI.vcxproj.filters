@@ -205,5 +205,8 @@
     <None Include="x64\Debug\hellovr_bindings_vive_controller.json">
       <Filter>Resource Files\Controller Bindings</Filter>
     </None>
+    <None Include="x64\Debug\hellovr_bindings_vive_oculus.json">
+      <Filter>Resource Files\Controller Bindings</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -4,6 +4,7 @@
 GUILoader::GUILoader()
 {
 	IMGUI_CHECKVERSION();
+	colour = { 1.0f, 0.0f, 1.0f, 0.5f };
 }
 
 GUILoader::~GUILoader() {
@@ -21,7 +22,7 @@ int GUILoader::initGLFWGui(GLFWwindow* window) {
 }
 
 int GUILoader::initVRGui() {
-	int VR_WINDOW_COUNT = 3;
+	int VR_WINDOW_COUNT = 4;
 
 	for (int i = 0; i < VR_WINDOW_COUNT; i++) {
 		vr_windows.push_back(new ImGui3D(ImGui::CreateContext()));
@@ -153,11 +154,13 @@ void GUILoader::vrWindowInfo(int index) {
 
 	switch (index) {
 		case 0:{
+			
 			ImGui::Begin("DockIt VR Multi-Window", NULL, window_flags);
+			ImGui::SetWindowFontScale(2.5f);
 			ImGui::Text("This window can show\npreviews of the next\nwindow when hovering\nover buttons.");
+			
+			
 			if (ImGui::Button("Movement settings")) {
-				//multiWindow[0] = 2;
-				//multiWindow[1] = 0;
 				vr_windows.at(0)->info = 2;
 				vr_windows.at(2)->info = 0;
 			}
@@ -178,13 +181,15 @@ void GUILoader::vrWindowInfo(int index) {
 		}
 		case 1: {
 			ImGui::Begin("Interaction Window", NULL, window_flags);
-			ImGui::Text("This window will\nshow information about\nwhat you are\ncurrently selecting.");
+			ImGui::SetWindowFontScale(2.5f);
+			ImGui::Text("This window will show\ninformation about what\nyou are currently\nselecting.");
 			ImGui::Text(("Atom: " + ASW_atomName).c_str());
 			ImGui::End();
 			break;
 		}
 		case 2: {
-			ImGui::Begin("Protein Movement settings", NULL, window_flags);
+			ImGui::Begin("Movement settings", NULL, window_flags);
+			ImGui::SetWindowFontScale(2.5f);
 			ImGui::Text("Movement settings:\n");
 			if (ImGui::Button("Reverse Protein")) {
 				reverseProtein = !reverseProtein;
@@ -200,8 +205,18 @@ void GUILoader::vrWindowInfo(int index) {
 		case 3: {
 			ImGui::Begin("Protein Colour settings", NULL, window_flags);
 			ImGui::Text("Colour settings:\n");
-			float color;
-			ImGui::ColorPicker3("##picker", (float*)&color);
+			ImGui::ColorPicker4("ColourPicker", (float*)&colour);
+			if (ImGui::Button("Back")) {
+				vr_windows.at(0)->info = 0;
+				vr_windows.at(2)->info = 3;
+			}
+			ImGui::End();
+			break;
+		}
+		case 4: {
+			ImGui::Begin("Welcome to DockItUI!", NULL, window_flags);
+			ImGui::SetWindowFontScale(2.5f);
+			ImGui::Text("Welcome to the\nDockItUI interface\nprototyping testing\narea.");
 			ImGui::End();
 			break;
 		}

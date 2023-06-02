@@ -3,8 +3,8 @@
 
 ImGui3D::ImGui3D(ImGuiContext* context) {
 	this->context = context;
-	this->width = 200;
-	this->height = 200;
+	this->width = 400;
+	this->height = 400;
 	this->frameBuffer.createFrameBuffer(width, height);
 	this->quad = new Model3D();
 	this->quad->createQuad(this->frameBuffer.m_nRenderTextureId, true);
@@ -31,10 +31,11 @@ void ImGui3D::start() {
 	if (this->parent != nullptr) {
 		//std::cout << this->parent->quad->ModelMatrix[3][1] << std::endl;
 		if (this->parent->info == 0) {
-			this->quad->ModelMatrix = glm::translate(this->parent->quad->ModelMatrix, glm::vec3(2.3, 0, -2));
+			
+			this->quad->ModelMatrix = glm::rotate(glm::translate(this->parent->quad->ModelMatrix, glm::vec3(2.3, 0, -0.3)), 6.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 		}
 		else {
-			this->quad->ModelMatrix = glm::translate(this->parent->quad->ModelMatrix, glm::vec3(-2.3, 0, -2));
+			this->quad->ModelMatrix = glm::rotate(glm::translate(this->parent->quad->ModelMatrix, glm::vec3(-2.3, 0, -0.3)), (2.0f * 3.14159265f) - 6.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 		}
 		
 	}

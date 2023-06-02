@@ -187,6 +187,7 @@
     <None Include="x64\Debug\hellovr_actions.json" />
     <None Include="x64\Debug\hellovr_bindings_generic.json" />
     <None Include="x64\Debug\hellovr_bindings_vive_controller.json" />
+    <None Include="x64\Debug\hellovr_bindings_vive_oculus.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
