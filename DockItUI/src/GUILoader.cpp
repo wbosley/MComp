@@ -38,7 +38,7 @@ int GUILoader::initVRGui() {
 	//	ImGui3D vrWindow = ImGui3D(ImGui::CreateContext());
 
 	//	std::cout << "creation of vr window: " <<&vrWindow << std::endl;
-	//	
+	//
 	//	if (i == 2) {
 	//		vrWindow.makeChildOfWindow(&vr_windows.at(1));
 	//	}
@@ -74,7 +74,7 @@ void GUILoader::renderWindowGui() {
 	static bool no_background = false;
 	static bool no_bring_to_front = true;
 	static bool unsaved_document = false;
-	
+
 
 	ImGuiWindowFlags window_flags = 0;
 	if (no_titlebar)        window_flags |= ImGuiWindowFlags_NoTitleBar;
@@ -218,5 +218,3 @@ void GUILoader::vrWindowInfo(int index) {
 std::vector<ImGui3D*>* GUILoader::getVRWindows() {
 	return &vr_windows;
 }
-
-

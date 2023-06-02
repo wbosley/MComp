@@ -110,7 +110,7 @@ void renderAll(glm::mat4 ViewMatrix) {
 
 	//Render VR GUI
 	glUseProgram(quad3DShader.getShaderProgram());
-	guiLoader.renderVRGui(ViewMatrix);
+	guiLoader.renderVRGui(ViewMatrix);//create frames for, populate the frames, and render all of the gui windows
 
 	//Render Controller Axis
 	glUseProgram(vrShader.getShaderProgram());
