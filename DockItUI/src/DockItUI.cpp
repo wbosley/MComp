@@ -42,7 +42,9 @@ double lastY = screenHeight / 2.0f;
 bool firstMouse = true;
 float nearClip = 0.1f;
 float farClip = 30.0f;
+float proteinSpin = 0.0f;
 bool keys[1024];
+bool window_attached[2] = { false, false };
 GLuint renderWidth;
 GLuint renderHeight;
 glm::mat4 ProjectionMatrix;
@@ -132,11 +134,11 @@ void renderAll(glm::mat4 ViewMatrix) {
 
 void modelScene() {
 	ModelMatrix = glm::mat4(1.0f);
+	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-5, 0, -15));
+	ModelMatrix = glm::scale(ModelMatrix, glm::vec3(0.1f, 0.1f, 0.1f));
 	if (guiLoader.reverseProtein) {
-		firstProtein.protein.ModelMatrix = glm::rotate(firstProtein.protein.ModelMatrix, (float)glfwGetTime() * -0.0002f, glm::vec3(0.0f, 1.0f, 0.0f));
-	}
-	else {
-		firstProtein.protein.ModelMatrix = glm::rotate(firstProtein.protein.ModelMatrix, (float)glfwGetTime() * 0.0002f, glm::vec3(0.0f, 1.0f, 0.0f));
+		firstProtein.protein.ModelMatrix = glm::rotate(ModelMatrix, proteinSpin, glm::vec3(0.0f, 1.0f, 0.0f));
+		proteinSpin += 0.002f;
 	}
 
 	firstModel.changeColour(glm::vec3(guiLoader.colour.x, guiLoader.colour.y, guiLoader.colour.z));
@@ -160,6 +162,12 @@ void modelScene() {
 		controllerAxis[i].createLine(position, positionEnd);
 		controllerAxis[i].compileModel();
 	}
+
+	ModelMatrix = glm::mat4(1.0f);
+	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0, -0.6, -0.7));
+	ModelMatrix = glm::translate(ModelMatrix, -vrPosition);
+	ModelMatrix = glm::rotate(ModelMatrix, (float)((2*PI)-0.5), glm::vec3(1.0f, 0.0f, 0.0f));
+	vr_windows->at(4)->quad->ModelMatrix = ModelMatrix;
 }
 
 void checkIntersections() {
@@ -170,6 +178,9 @@ void checkIntersections() {
 			vr_windows->at(i)->setClicked(false);
 			//guiLoader.getVRWindows()->at(i).setBeingMoved(false, 0);
 			vr_windows->at(i)->setBeingMoved(false, 0);
+		}
+		for (int i = 0; i < 2; i++) {
+			window_attached[i] = false;
 		}
 	}
 
@@ -237,17 +248,21 @@ void checkIntersections() {
 		}
 	}
 
-	//check intersections for all vr windows
+	//check intersections for all vr 
+	bool detection = false;
 	for (int i = 0; i < 2; i++) {
 		if (!vrLoader.m_rHand[i].m_bShowController) {
 			continue;
 		}
+
 		for (int j = 0; j < vr_windows->size(); j++) {
-			if (vr_windows->at(j)->attached == true) {
+			if (vr_windows->at(j)->attached == true && vr_windows->at(j)->hand == i) {
 				glm::mat4 matrix = glm::mat4(1.0f);
 				matrix[3] = glm::vec4(0, -1.0f, -4.6f, 1);
-				std::cout << "moving window" << std::endl;
 				vr_windows->at(j)->quad->ModelMatrix = vrLoader.getControllerMatrix(VRLoader::EHand(i)) * matrix;
+				break;
+			}
+			if (window_attached[i] == true) {
 				continue;
 			}
 			std::vector<glm::vec3> windowVerts = *vr_windows->at(j)->quad->getVertices();
@@ -263,6 +278,8 @@ void checkIntersections() {
 				float distance;
 				bool intersectDetect = glm::intersectRayTriangle(rayStart, rayDir, p1, p2, p3, intersectPoint, distance);
 				if (intersectDetect) {
+					detection = true;
+					//std::cout << "intersect: " << i << std::endl;
 					if (distance < 0.95f) {
 						int width, height;
 						width = 400;
@@ -280,16 +297,24 @@ void checkIntersections() {
 								vr_windows->at(j)->setClicked(true);
 							}
 							else {
-								std::cout<< "window being moved" << std::endl;
 								vr_windows->at(j)->setBeingMoved(true, i);
+								window_attached[i] = true;
+
 							}
 						}
 						break;
 					}
 				}
-				vr_windows->at(j)->setMousePosition(ImVec2(-1, -1));
+				
 			}
 
+				
+			//vr_windows->at(j)->setMousePosition(ImVec2(-1, -1));
+		}
+	}
+	if (detection == false) {
+		for (int i = 0; i < vr_windows->size(); i++) {
+			vr_windows->at(i)->setMousePosition(ImVec2(-1, -1));
 		}
 	}
 }
@@ -536,6 +561,11 @@ int initModels() {
 	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0, 0, -3));
 	vr_windows->at(3)->quad->ModelMatrix = ModelMatrix;
 	vr_windows->at(3)->info = 4;
+
+	//ModelMatrix = glm::mat4(1.0f);
+	//ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-2, 0, -3));
+	//vr_windows->at(4)->quad->ModelMatrix = ModelMatrix;
+	vr_windows->at(4)->info = 5;
 	//ModelMatrix = glm::mat4(1.0f);
 	//ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-3, 0, -5));
 	////guiLoader.getVRWindows()->at(1).quad->ModelMatrix = ModelMatrix;

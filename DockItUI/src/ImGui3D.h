@@ -17,6 +17,7 @@ class ImGui3D
 		
 	public:
 		ImGui3D(ImGuiContext* context);
+		ImGui3D(ImGuiContext* context, int width, int height);
 		~ImGui3D();
 		void start();
 		void render(GLuint shader);

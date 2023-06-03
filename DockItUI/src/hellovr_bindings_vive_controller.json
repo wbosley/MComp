@@ -33,15 +33,6 @@
         },
         {
           "inputs": {
-            "position": {
-              "output": "/actions/demo/in/analoginput"
-            }
-          },
-          "mode": "trackpad",
-          "path": "/user/hand/right/input/trackpad"
-        },
-        {
-          "inputs": {
             "click": {
               "output": "/actions/demo/in/triggerhaptic"
             }
@@ -66,11 +57,20 @@
           },
           "mode": "button",
           "path": "/user/hand/left/input/grip"
+        },
+        {
+          "inputs": {
+            "position": {
+              "output": "/actions/demo/in/analoginput"
+            }
+          },
+          "mode": "trackpad",
+          "path": "/user/hand/left/input/trackpad"
         }
       ]
     }
   },
   "controller_type": "vive_controller",
-  "description": "Bindings for the DockItUI OpenVR demo for a generic controller",
+  "description": "Bindings for the DockItUI OpenVR demo for a generic controller smile",
   "name": "HelloVR bindings for Vive Controller"
 }

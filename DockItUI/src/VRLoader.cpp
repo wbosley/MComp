@@ -370,8 +370,18 @@ int VRLoader::initVR() {
 	//add the keybindings file to the end of the path.
 	std::string path4 = path3 + "/hellovr_actions.json";
 
-	error = vr::VRInput()->SetActionManifestPath(path4.c_str());
+	//error = vr::VRInput()->SetActionManifestPath(path4.c_str());
+	std::string solutionDir = std::getenv("SolutionDir");
+	
+	for (int i = 0; i < solutionDir.size(); ++i) {
+		if (solutionDir[i] == '\\') {
+			solutionDir[i] = '/';
+		}
+	}
+	solutionDir = solutionDir + "src/hellovr_actions.json";
+	std::cout << "solutionDir: " << solutionDir << std::endl;
 
+	error = vr::VRInput()->SetActionManifestPath(solutionDir.c_str());
 	//error = vr::VRInput()->SetActionManifestPath("C:/Users/Eleva/Documents/GitHub/MComp/DockItUI/src/hellovr_actions.json");
 	//error = vr::VRInput()->SetActionManifestPath("C:/Users/Will/Documents/GitHub/MComp/DockItUI/src/hellovr_actions.json");
 	//std::cout << "error: " << error << std::endl;
