@@ -1,13 +1,17 @@
 {
       "default_bindings": [
-         {
-            "controller_type" : "vive_controller",
-            "binding_url" : "hellovr_bindings_vive_controller.json"
-         },
-         {
-            "controller_type" : "generic",
-            "binding_url" : "hellovr_bindings_generic.json"
-         }
+        {
+          "controller_type": "vive_controller",
+          "binding_url": "hellovr_bindings_vive_controller.json"
+        },
+        {
+          "controller_type": "oculus_touch",
+          "binding_url": "hellovr_bindings_oculus_controller.json"
+        },
+        {
+          "controller_type" : "generic",
+          "binding_url" : "hellovr_bindings_generic.json"
+        }
       ], 
   "actions": [
     {

@@ -49,15 +49,26 @@ int Model3D::createQuad(GLuint textureId, bool is3D) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	if (is3D) {
-		float quadWidth = textureWidth / 400.0f;
-		float quadHeight = textureHeight / 400.0f;
+		if (textureWidth == 400) {
+			float quadWidth = textureWidth / 400.0f;
+			float quadHeight = textureHeight / 400.0f;
+			this->vertices.push_back(glm::vec3(-quadWidth, -quadHeight, 0.0f));
+			this->vertices.push_back(glm::vec3(-quadWidth, quadHeight, 0.0f));
+			this->vertices.push_back(glm::vec3(quadWidth, quadHeight, 0.0f));
+			this->vertices.push_back(glm::vec3(-quadWidth, -quadHeight, 0.0f));
+			this->vertices.push_back(glm::vec3(quadWidth, quadHeight, 0.0f));
+			this->vertices.push_back(glm::vec3(quadWidth, -quadHeight, 0.0f));
+		}
+		else {
+			this->vertices.push_back(glm::vec3(1.0f, 0.3f, 0.0f));
+			this->vertices.push_back(glm::vec3(1.0f, -0.3f, 0.0f));
+			this->vertices.push_back(glm::vec3(-1.0f, 0.3f, 0.0f));
+			this->vertices.push_back(glm::vec3(1.0f, -0.3f, 0.0f));
+			this->vertices.push_back(glm::vec3(-1.0f, 0.3f, 0.0f));
+			this->vertices.push_back(glm::vec3(-1.0f, -0.3f, 0.0f));
+		}
 
-		this->vertices.push_back(glm::vec3(-quadWidth, -quadHeight, 0.0f));
-		this->vertices.push_back(glm::vec3(-quadWidth, quadHeight, 0.0f));
-		this->vertices.push_back(glm::vec3(quadWidth, quadHeight, 0.0f));
-		this->vertices.push_back(glm::vec3(-quadWidth, -quadHeight, 0.0f));
-		this->vertices.push_back(glm::vec3(quadWidth, quadHeight, 0.0f));
-		this->vertices.push_back(glm::vec3(quadWidth, -quadHeight, 0.0f));
+
 	}
 	else {
 		this->vertices.push_back(glm::vec3(-1.0f, -1.0f, 0.0f));

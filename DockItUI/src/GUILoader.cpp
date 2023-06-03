@@ -22,11 +22,19 @@ int GUILoader::initGLFWGui(GLFWwindow* window) {
 }
 
 int GUILoader::initVRGui() {
-	int VR_WINDOW_COUNT = 4;
+	int VR_WINDOW_COUNT = 5;
 
 	for (int i = 0; i < VR_WINDOW_COUNT; i++) {
-		vr_windows.push_back(new ImGui3D(ImGui::CreateContext()));
-		vr_windows.at(i)->info = i;
+
+		if (i != 4) {
+			vr_windows.push_back(new ImGui3D(ImGui::CreateContext()));
+			vr_windows.at(i)->info = i;
+		}
+		else {
+			vr_windows.push_back(new ImGui3D(ImGui::CreateContext(), 400, 120));
+			vr_windows.at(i)->info = i;
+		}
+
 		if (i == 1) {
 			vr_windows.at(i)->showWindow = false;
 		}
@@ -124,7 +132,7 @@ void GUILoader::renderVRGui(glm::mat4 ViewMatrix) {
 
 void GUILoader::vrWindowInfo(int index) {
 	static bool p_open = true;
-	static bool no_titlebar = false;
+	bool no_titlebar = false;
 	static bool no_scrollbar = true;
 	static bool no_menu = true;
 	static bool no_move = true;
@@ -191,7 +199,7 @@ void GUILoader::vrWindowInfo(int index) {
 			ImGui::Begin("Movement settings", NULL, window_flags);
 			ImGui::SetWindowFontScale(2.5f);
 			ImGui::Text("Movement settings:\n");
-			if (ImGui::Button("Reverse Protein")) {
+			if (ImGui::Button("Spin protein")) {
 				reverseProtein = !reverseProtein;
 			}
 			ImGui::Text("\n\n");
@@ -217,6 +225,27 @@ void GUILoader::vrWindowInfo(int index) {
 			ImGui::Begin("Welcome to DockItUI!", NULL, window_flags);
 			ImGui::SetWindowFontScale(2.5f);
 			ImGui::Text("Welcome to the\nDockItUI interface\nprototyping testing\narea.");
+			ImGui::End();
+			break;
+		}
+		case 5: {
+			no_titlebar = true;
+			ImGuiWindowFlags window_flags2 = 0;
+			if (no_titlebar)        window_flags2 |= ImGuiWindowFlags_NoTitleBar;
+			if (no_scrollbar)       window_flags2 |= ImGuiWindowFlags_NoScrollbar;
+			if (!no_menu)           window_flags2 |= ImGuiWindowFlags_MenuBar;
+			if (no_move)            window_flags2 |= ImGuiWindowFlags_NoMove;
+			if (no_resize)          window_flags2 |= ImGuiWindowFlags_NoResize;
+			if (no_collapse)        window_flags2 |= ImGuiWindowFlags_NoCollapse;
+			if (no_nav)             window_flags2 |= ImGuiWindowFlags_NoNav;
+			if (no_background)      window_flags2 |= ImGuiWindowFlags_NoBackground;
+			if (no_bring_to_front)  window_flags2 |= ImGuiWindowFlags_NoBringToFrontOnFocus;
+			if (unsaved_document)   window_flags2|= ImGuiWindowFlags_UnsavedDocument;
+			if (no_close)           p_open = NULL;
+			ImGui::Begin("Taskbar information", NULL, window_flags2);
+			ImGui::Text("Max Atom Penetration: 0.00A    |   L: gmx_1GRU_GroES");
+			ImGui::Text("Cutoff: 8.00A");
+			ImGui::Text("R: gmx_1GRU_GroEL");
 			ImGui::End();
 			break;
 		}

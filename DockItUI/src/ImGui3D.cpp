@@ -5,7 +5,20 @@ ImGui3D::ImGui3D(ImGuiContext* context) {
 	this->context = context;
 	this->width = 400;
 	this->height = 400;
-	this->frameBuffer.createFrameBuffer(width, height);
+	this->frameBuffer.createFrameBuffer(this->width, this->height);
+	this->quad = new Model3D();
+	this->quad->createQuad(this->frameBuffer.m_nRenderTextureId, true);
+	this->quad->compileModel();
+	ImGui::SetCurrentContext(this->context);
+	ImGui::StyleColorsDark();
+	ImGui_ImplOpenGL3_Init("#version 460");
+	//std::cout << "ImGui3D created" << this << std::endl;
+}
+ImGui3D::ImGui3D(ImGuiContext* context, int width, int height) {
+	this->context = context;
+	this->width = width;
+	this->height = height;
+	this->frameBuffer.createFrameBuffer(this->width, this->height);
 	this->quad = new Model3D();
 	this->quad->createQuad(this->frameBuffer.m_nRenderTextureId, true);
 	this->quad->compileModel();
