@@ -4,9 +4,13 @@ Will and George create a VR interface using C++ and Valve's OpenVR.
 Instructions:
 1: Download the libraries folder here-> 
 https://ueanorwich-my.sharepoint.com/:u:/g/personal/chy19wnu_uea_ac_uk/Edb-AwKrUcJLoHlWsuRw_1UBorHrvX_hEjvVmcU4uigd6Q?e=hlHujt
+
 2: Extract the contents of the libraries folder to the libraries folder located in /DockItUI/libraries
+
 3: Open the solution file in the /DockItUI directory in Visual Studio called "DockItUI.sln".
+
 4: Make sure you are using Visual Studio Debug configuration.
+
 5: Run in Local Windows Debugger with a VR headset connected to your computer.
 
 COPYRIGHT:
