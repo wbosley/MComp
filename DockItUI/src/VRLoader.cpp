@@ -271,7 +271,7 @@ void VRLoader::handleInput() {
 	{
 		vr::InputPoseActionData_t poseData;
 
-		//we pass this the controllers pose data, and we get a filled pose data struct which holds info about the controller
+		//we pass this the controller's action pose, and we get a filled pose data struct which holds info about the controller
 		if (vr::VRInput()->GetPoseActionDataForNextFrame(m_rHand[eHand].m_actionPose, vr::TrackingUniverseStanding, &poseData, sizeof(poseData), vr::k_ulInvalidInputValueHandle) != vr::VRInputError_None
 			|| !poseData.bActive || !poseData.pose.bPoseIsValid)//if this pose data returns an error, or the controller isnt on, dont show the controller
 		{
@@ -279,7 +279,7 @@ void VRLoader::handleInput() {
 		}
 		else //If we have no errors:
 		{
-			//get the transform of the controller - where the controller is compared to the headset (we think)
+			//get the transform of the controller - where the controller is compared to the headset 
 			m_rHand[eHand].m_rmat4Pose = convertSteamVRMatrix(poseData.pose.mDeviceToAbsoluteTracking);
 
 

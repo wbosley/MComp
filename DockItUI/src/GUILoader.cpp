@@ -29,10 +29,13 @@ int GUILoader::initVRGui() {
 		if (i != 4) {
 			vr_windows.push_back(new ImGui3D(ImGui::CreateContext()));
 			vr_windows.at(i)->info = i;
+			//info is used to determine what the window should be populated with 
+			//in the VrWindowInfo function
 		}
 		else {
 			vr_windows.push_back(new ImGui3D(ImGui::CreateContext(), 400, 120));
 			vr_windows.at(i)->info = i;
+			//special cases handled here and below
 		}
 
 		if (i == 1) {

@@ -11,16 +11,18 @@ Protein3D::~Protein3D()
 }
 
 int Protein3D::loadProteinFromProteinLoader(ProteinLoader proteinLoader) {
-	atomNames = proteinLoader.atomNames;
+	atomNames = proteinLoader.atomNames;//populating the Protein3D's fields
 	atomCoordinates = proteinLoader.atomCoordinates;
 	atomColours = proteinLoader.atomColours;
 	atomRadius = proteinLoader.atomRadius;
-	constructSpheres();
+	constructSpheres();//make spheres representing each atom
 
 	return 0;
 }
 
 int Protein3D::constructSpheres() {
+	//for each aotm, make a sphere using its information, and then combine into
+	//one big Model3d. This is the protein.
 	for (int i = 0; i < atomNames.size(); i++) {
 		Sphere sphere;
 		sphere.setRadius(atomRadius[i] / 11.0f);
@@ -34,6 +36,7 @@ int Protein3D::constructSpheres() {
 }
 
 int Protein3D::compileModel() {
+	//compile the Model3D (named protein), and make the bounding box.
 	protein.compileModel();
 	std::vector<glm::vec3> verts = *protein.getVertices();
 	glm::vec3 min_point = verts[0];
