@@ -2,15 +2,19 @@
 
 
 ImGui3D::ImGui3D(ImGuiContext* context) {
+	//Create the ImGui3D object
 	this->context = context;
+	//Set the width and height of the window texture resolution
 	this->width = 400;
 	this->height = 400;
 	this->frameBuffer.createFrameBuffer(this->width, this->height);
+	//Create a quad to render the texture to
 	this->quad = new Model3D();
 	this->quad->createQuad(this->frameBuffer.m_nRenderTextureId, true);
 	this->quad->compileModel();
 	ImGui::SetCurrentContext(this->context);
 	ImGui::StyleColorsDark();
+	// Initialise the OpenGL3 implementation of ImGui
 	ImGui_ImplOpenGL3_Init("#version 460");
 	//std::cout << "ImGui3D created" << this << std::endl;
 }
@@ -31,6 +35,7 @@ ImGui3D::~ImGui3D() {
 }
 
 void ImGui3D::start() {
+	//This function is called for every window every frame and is used to set up the ImGui context
 	ImGui::SetCurrentContext(this->context);
 	ImGuiIO& io = ImGui::GetIO();
 	ImGui_ImplVR_NewFrame(this->width, this->height, this->mousePos);
@@ -55,6 +60,7 @@ void ImGui3D::start() {
 
 }
 void ImGui3D::render(GLuint shader) {
+	//This function is called for every window every frame and is used to render the ImGui context to the frame buffer.
 	GLint last_viewport[4]; glGetIntegerv(GL_VIEWPORT, last_viewport);
 	GLint last_framebuffer; glGetIntegerv(GL_FRAMEBUFFER_BINDING, &last_framebuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, this->frameBuffer.m_nRenderFramebufferId);
@@ -68,6 +74,7 @@ void ImGui3D::render(GLuint shader) {
 }
 
 void ImGui3D::setMousePosition(ImVec2 position) {
+	//Set the mouse position for the ImGui context
 	if (this->parent == nullptr) {	//this->mousePos = position;
 		ImGui::SetCurrentContext(this->context);
 		ImGuiIO& io = ImGui::GetIO();
@@ -76,6 +83,7 @@ void ImGui3D::setMousePosition(ImVec2 position) {
 }
 
 void ImGui3D::setClicked(bool clicked) {
+	//Set the mouse to be clicked for the ImGui context
 	if (this->parent == nullptr) {
 		ImGui::SetCurrentContext(this->context);
 		ImGuiIO& io = ImGui::GetIO();
@@ -84,6 +92,7 @@ void ImGui3D::setClicked(bool clicked) {
 }
 
 void ImGui3D::setBeingMoved(bool moved, int hand) {
+	//Set the window as currently being moved by the user
 	if (this->parent == nullptr) {
 		this->attached = moved;
 		this->hand = hand;
@@ -91,5 +100,6 @@ void ImGui3D::setBeingMoved(bool moved, int hand) {
 }
 
 void ImGui3D::makeChildOfWindow(ImGui3D* parent) {
+	//Make this window a child of another window
 	this->parent = parent;
 }

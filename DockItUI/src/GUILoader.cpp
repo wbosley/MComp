@@ -11,17 +11,20 @@ GUILoader::~GUILoader() {
 }
 
 int GUILoader::initGLFWGui(GLFWwindow* window) {
+	//Initialise the GLFW ImGUI context
 	this->window = window;
 	this->context_glfw = ImGui::CreateContext();
 	ImGui::SetCurrentContext(this->context_glfw);
 	io = &ImGui::GetIO();
 	ImGui::StyleColorsDark();
 	ImGui_ImplOpenGL3_Init("#version 460");
+	//Initialise the GLFW ImGUI implementation for OpenGL
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	return 0;
 }
 
 int GUILoader::initVRGui() {
+	//Create all our VR windows
 	int VR_WINDOW_COUNT = 5;
 
 	for (int i = 0; i < VR_WINDOW_COUNT; i++) {
@@ -45,17 +48,6 @@ int GUILoader::initVRGui() {
 			vr_windows.at(i)->makeChildOfWindow(vr_windows.at(0));
 		}
 	}
-
-	//for (int i = 0; i < VR_WINDOW_COUNT; i++) {
-	//	ImGui3D vrWindow = ImGui3D(ImGui::CreateContext());
-
-	//	std::cout << "creation of vr window: " <<&vrWindow << std::endl;
-	//
-	//	if (i == 2) {
-	//		vrWindow.makeChildOfWindow(&vr_windows.at(1));
-	//	}
-	//	vr_windows.push_back(vrWindow);
-	//}
 	return 0;
 }
 
@@ -71,8 +63,6 @@ void GUILoader::renderWindowGui() {
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
 	ImGui::SetNextWindowCollapsed(false);
 	ImGui::SetNextWindowSize(ImVec2(200, 200));
-	//ImGui::SetNextWindowSize(ImVec2(io->DisplaySize.x/4, io->DisplaySize.y/4));
-	//ImGui::SetNextWindowSizeConstraints(ImVec2(200, 200), ImVec2(300, 400));
 
 	static bool p_open = true;
 	static bool no_titlebar = false;
@@ -119,9 +109,11 @@ void GUILoader::renderWindowGui() {
 }
 
 void GUILoader::renderVRGui(glm::mat4 ViewMatrix) {
+	//Render the VR windows
 	GLuint shader;
 	glGetIntegerv(GL_CURRENT_PROGRAM, reinterpret_cast<GLint*>(&shader));
 	glUseProgram(shader);
+	//Loop through all the VR windows and render them
 	for (int i = 0; i < vr_windows.size(); i++) {
 		if (!vr_windows[i]->showWindow) {
 			continue;
@@ -134,6 +126,7 @@ void GUILoader::renderVRGui(glm::mat4 ViewMatrix) {
 }
 
 void GUILoader::vrWindowInfo(int index) {
+	//Function for populating the VR windows with widgets.
 	static bool p_open = true;
 	bool no_titlebar = false;
 	static bool no_scrollbar = true;

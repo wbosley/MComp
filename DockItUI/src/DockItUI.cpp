@@ -133,6 +133,7 @@ void renderAll(glm::mat4 ViewMatrix) {
 }
 
 void modelScene() {
+	//ModelMatrix for protein.
 	ModelMatrix = glm::mat4(1.0f);
 	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-5, 0, -15));
 	ModelMatrix = glm::scale(ModelMatrix, glm::vec3(0.1f, 0.1f, 0.1f));
@@ -141,14 +142,12 @@ void modelScene() {
 		proteinSpin += 0.002f;
 	}
 
+	//Change colour of teapot depending on user input.
 	firstModel.changeColour(glm::vec3(guiLoader.colour.x, guiLoader.colour.y, guiLoader.colour.z));
 	firstModel.compileModel();
 
-	//ModelMatrix = guiLoader.getVRWindows()->at(1)->quad->ModelMatrix;
-	//ModelMatrix = glm::rotate(ModelMatrix, (float)glfwGetTime() * 0.0005f, glm::vec3(0.0f, 1.0f, 0.0f));
-	////guiLoader.getVRWindows()->at(1).quad->ModelMatrix = ModelMatrix;
-	//vr_windows->at(1)->quad->ModelMatrix = ModelMatrix;
 
+	//Position the controller axis depending on the headset position.
 	glm::vec3 vrPosition = vrCamera.getPosition();
 	vrPosition = glm::vec3(vrPosition.x - vrLoader.analogInput[0] / 20.0f, 0, vrPosition.z + vrLoader.analogInput[1] / 20.0f);
 	vrCamera.setPosition(vrPosition);
@@ -163,6 +162,7 @@ void modelScene() {
 		controllerAxis[i].compileModel();
 	}
 
+	//Position the taskbar depending on the headset position.
 	ModelMatrix = glm::mat4(1.0f);
 	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0, -0.6, -0.7));
 	ModelMatrix = glm::translate(ModelMatrix, -vrPosition);
@@ -189,10 +189,11 @@ void checkIntersections() {
 		if (!vrLoader.m_rHand[i].m_bShowController) {
 			continue;
 		}
-
+		//If the controller's interact button is pressed
 		if (vrLoader.interactButton) {
 			std::vector<glm::vec3> proteinBoundingBox = firstProtein.boundBoxVerts;
 			glm::mat4 ProteinModelMatrix = firstProtein.protein.ModelMatrix;
+			//Check for intersection with each triangle in the bounding box
 			for (int j = 0; j < proteinBoundingBox.size(); j+=3) {
 				//p1, p2 and p3 are the three points representing the vertices of a triangle in the bounding box.
 				glm::vec3 p1 = glm::vec3(ProteinModelMatrix * glm::vec4(proteinBoundingBox.at(j), 1.0f));
@@ -208,6 +209,7 @@ void checkIntersections() {
 						std::vector<glm::vec3> proteinVerts = *firstProtein.protein.getVertices();
 						std::map<std::string, float> atomMap;
 						atomMap.clear();
+						//Check for intersection with each triangle in the protein
 						for (int j = 0; j < proteinVerts.size() - 3; j += 3) {
 							glm::vec3 p1 = glm::vec3(ProteinModelMatrix * glm::vec4(proteinVerts.at(j), 1.0f));
 							glm::vec3 p2 = glm::vec3(ProteinModelMatrix * glm::vec4(proteinVerts.at(j + 1), 1.0f));
@@ -219,6 +221,7 @@ void checkIntersections() {
 							float distance;
 							if (glm::intersectRayTriangle(rayStart, rayDir, p1, p2, p3, intersectPoint, distance)) {
 								if (distance < 0.95f) {
+									//Add all the atoms intersected with the ray to a map with the distance from the controller as the value
 									atomMap[firstProtein.getAtomName(j)] = distance;
 								}
 							}
@@ -232,6 +235,7 @@ void checkIntersections() {
 									min_atom = atom.first;
 								}
 							}
+							//Set the atom name to the closest atom
 							guiLoader.ASW_atomName = min_atom;
 							vr_windows->at(1)->quad->ModelMatrix = glm::rotate(glm::translate(glm::inverse(vrCamera.getMatrix()), glm::vec3(2.0f, 0.0f, -2.0f)), (float)((2 * PI) - 0.8), glm::vec3(0.0f, 1.0f, 0.0f));
 							vr_windows->at(1)->showWindow = true;
@@ -254,7 +258,7 @@ void checkIntersections() {
 		if (!vrLoader.m_rHand[i].m_bShowController) {
 			continue;
 		}
-
+		//If a window is attached to the controller dont process interactions.
 		for (int j = 0; j < vr_windows->size(); j++) {
 			if (vr_windows->at(j)->attached == true && vr_windows->at(j)->hand == i) {
 				glm::mat4 matrix = glm::mat4(1.0f);
@@ -267,6 +271,7 @@ void checkIntersections() {
 			}
 			std::vector<glm::vec3> windowVerts = *vr_windows->at(j)->quad->getVertices();
 			glm::mat4 VRModelMatrix = vr_windows->at(j)->quad->ModelMatrix;
+			//Check for intersection with each triangle in the window
 			for (int k = 0; k < windowVerts.size(); k += 3) {
 				glm::vec3 p1 = glm::vec3(VRModelMatrix * glm::vec4(windowVerts.at(k), 1.0f));
 				glm::vec3 p2 = glm::vec3(VRModelMatrix * glm::vec4(windowVerts.at(k + 1), 1.0f));
@@ -293,6 +298,7 @@ void checkIntersections() {
 						vr_windows->at(j)->setMousePosition(ImVec2(x, y));
 						//std::cout << "Mouse position: " << x << ", " << y << " ";
 						if (vrLoader.interactButton) {
+							//If the top of the window is clicked, attach the window to the controller, else, set the cursor position.
 							if (y > 20) {
 								vr_windows->at(j)->setClicked(true);
 							}
@@ -307,11 +313,9 @@ void checkIntersections() {
 				}
 				
 			}
-
-				
-			//vr_windows->at(j)->setMousePosition(ImVec2(-1, -1));
 		}
 	}
+	//If there was no detection of intersection, set the mouse position to -1, -1
 	if (detection == false) {
 		for (int i = 0; i < vr_windows->size(); i++) {
 			vr_windows->at(i)->setMousePosition(ImVec2(-1, -1));
@@ -386,6 +390,7 @@ void display() {
 }
 
 void handleMovement() {
+	//WASD movement
 
 	if (keys[GLFW_KEY_W]) {
 		camera.move(0.1f, FORWARD);
@@ -415,6 +420,7 @@ void reshape(GLFWwindow* window, int width, int height) {
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	//Key mapping for the keyboard.
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GL_TRUE);
 	if (action == GLFW_PRESS) {
@@ -426,7 +432,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 }
 
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
-
+	//Allow the user to rotate the camera with the mouse.
 	if (rightButtonPressed) {
 		if (firstMouse)
 		{
@@ -451,6 +457,7 @@ void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
 }
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+	//Allow the user to rotate the camera with the mouse.
 	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		rightButtonPressed = true;
@@ -461,6 +468,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	}
 }
 
+//Debug output OpenGL errors.
 void GLAPIENTRY
 messageCallback(GLenum source,
 	GLenum type,
@@ -524,6 +532,7 @@ int initModels() {
 // 
 // Returns: (In future) 1 or 0 depending on whether the program ran successfully or not. 
 //-----------------------------------------------------------------------------
+	//Initialise the teapot model.
 	objLoader.loadOBJ("src/models/teapot.obj");
 	firstModel.loadModelFromObj(objLoader);
 	firstModel.compileModel();
@@ -531,6 +540,7 @@ int initModels() {
 	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(15, 0, -15));
 	firstModel.ModelMatrix = ModelMatrix;
 
+	//Initialise the protein model.
 	proteinLoader.loadProtein("src/proteins/1ADG7046.pdb");
 	firstProtein.loadProteinFromProteinLoader(proteinLoader);
 	ModelMatrix = glm::mat4(1.0f);
@@ -539,9 +549,11 @@ int initModels() {
 	firstProtein.protein.ModelMatrix = ModelMatrix;
 	firstProtein.compileModel();
 
+	//Initialise the vr view quad.
 	vrViewQuad.createQuad(LeftEyeFrameBuffer.m_nRenderTextureId, false);
 	vrViewQuad.compileModel();
 
+	//Initialise the floor model.
 	floorModel.createQuadColour(glm::vec3(0.3,0.5,0.5));
 	floorModel.compileModel();
 	ModelMatrix = glm::mat4(1.0f);
@@ -551,6 +563,7 @@ int initModels() {
 
 	floorModel.ModelMatrix = ModelMatrix;
 
+	//Initialise the VR windows.
 	vr_windows = guiLoader.getVRWindows();
 
 	ModelMatrix = glm::mat4(1.0f);
@@ -561,21 +574,7 @@ int initModels() {
 	ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0, 0, -3));
 	vr_windows->at(3)->quad->ModelMatrix = ModelMatrix;
 	vr_windows->at(3)->info = 4;
-
-	//ModelMatrix = glm::mat4(1.0f);
-	//ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-2, 0, -3));
-	//vr_windows->at(4)->quad->ModelMatrix = ModelMatrix;
 	vr_windows->at(4)->info = 5;
-	//ModelMatrix = glm::mat4(1.0f);
-	//ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-3, 0, -5));
-	////guiLoader.getVRWindows()->at(1).quad->ModelMatrix = ModelMatrix;
-	//vr_windows->at(1)->quad->ModelMatrix = ModelMatrix;
-	//ModelMatrix = glm::mat4(1.0f);
-	//ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-3, 0, -5));
-	////guiLoader.getVRWindows()->at(2).quad->ModelMatrix = ModelMatrix;
-	//vr_windows->at(2)->quad->ModelMatrix = ModelMatrix;
-
-
 	return 0;
 }
 
