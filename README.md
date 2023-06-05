@@ -12,6 +12,9 @@ https://ueanorwich-my.sharepoint.com/:u:/g/personal/chy19wnu_uea_ac_uk/Edb-AwKrU
 
 4: Make sure you are using Visual Studio Debug configuration.
 
+5: Open up the project settings: Project->DockItUi Properties->Configuration Properties->Debugging->Environment.
+Add the following line: "SolutionDir=$(SolutionDir)".
+
 5: Run in Local Windows Debugger with a VR headset connected to your computer.
 
 COPYRIGHT:
